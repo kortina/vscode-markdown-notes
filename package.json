@@ -1,0 +1,44 @@
+{
+  "name": "vscode-markdown-notes",
+  "displayName": "VS Code Markdown Notes",
+  "description": "______________ ________________",
+  "version": "0.0.1",
+  "publisher": "kortina",
+  "repository": {
+    "url": "https://github.com/kortina/vscode-markdown-notes.git",
+    "type": "git"
+  },
+  "engines": {
+    "vscode": "^1.41.1"
+  },
+  "keywords": [
+    "markdown",
+    "notebook",
+    "notes",
+    "notetaking",
+    "wiki links"
+  ],
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "markdown-notes",
+        "aliases": [],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "markdown-notes",
+        "scopeName": "text.markdown.notes",
+        "path": "./syntaxes/notes.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ]
+      }
+    ]
+  },
+  "icon": "icon.png"
+}
