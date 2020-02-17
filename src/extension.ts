@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { basename, dirname, normalize, relative } from 'path';
+import { basename, dirname, join, normalize, relative } from 'path';
 import {
   CompletionItemProvider,
   TextDocument,
@@ -15,6 +15,7 @@ import {
   DocumentSymbol,
 } from 'vscode';
 
+// TODO: create option for relative files or uniquefilenameperworkspace
 class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
   public async provideCompletionItems(
     document: TextDocument,
@@ -50,9 +51,40 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
   }
 }
 
+// TODO: read this!
+// https://stackoverflow.com/questions/54285472/vscode-how-to-automatically-jump-to-proper-definition
+class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
+  provideDefinition(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.Definition> {
+    console.log('provideDefinition');
+
+    const markdownFileRegex = /[\w\-\_\/\\]+\.(md|markdown)/i;
+    const range = document.getWordRangeAtPosition(position, markdownFileRegex);
+    const selectedWord = document.getText(range);
+    console.log('selectedWord', selectedWord);
+
+    // TODO: find the file named selected-word.md
+    const workspace = vscode.workspace.getWorkspaceFolder(document.uri);
+    const root = workspace ? workspace.uri : document.uri;
+    const f = root.with({
+      path: join(root.path, 'test.md'),
+    });
+    const p = new vscode.Position(0, 0);
+    const l = new vscode.Location(f, p);
+    return [l];
+  }
+}
+
 export function activate(context: vscode.ExtensionContext) {
   console.log('vscode-markdown-notes.activate');
-  const c = new MarkdownFileCompletionItemProvider();
   const md = { scheme: 'file', language: 'markdown' };
-  context.subscriptions.push(vscode.languages.registerCompletionItemProvider(md, c));
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())
+  );
+  context.subscriptions.push(
+    vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
+  );
 }
