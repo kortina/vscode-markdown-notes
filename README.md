@@ -6,6 +6,7 @@
 - only complete in double bracket context
 - better support for ignore patterns
 - support filename without extension / assume `.md`?
+- List All References support?
 
 ### dev
 
@@ -18,7 +19,7 @@ Run `npm install` first.
 
 ## Known Issues
 
-...
+- `ctrl+o` vscode vim jumplist does not work after a goto definition: https://github.com/VSCodeVim/Vim/issues/3277
 
 ## Development and Release
 
