@@ -13,9 +13,27 @@ import {
   CompletionItemKind,
   TextEdit,
   DocumentSymbol,
+  Uri,
 } from 'vscode';
 
-// TODO: create option for relative files or uniquefilenameperworkspace
+function uniqueFilenamesConfiguration(): boolean {
+  let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+  let convention = cfg.get('workspaceFilenameConvention');
+  console.log('convention', convention);
+  return convention == 'uniqueFilenames';
+}
+
+function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
+  if (uniqueFilenamesConfiguration()) {
+    return basename(uri.path);
+  } else {
+    let toPath = uri.path;
+    let fromDir = dirname(fromDocument.uri.path.toString());
+    let rel = normalize(relative(fromDir, toPath));
+    return rel;
+  }
+}
+
 class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
   public async provideCompletionItems(
     document: TextDocument,
@@ -24,29 +42,18 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     context: CompletionContext
   ) {
     console.log('provideCompletionItems');
-    // const c = new vscode.CompletionItem('Hello World!');
-    // let currentRange = new Range(position.translate(-1, -1), position.translate(0, 1));
-    // capture current line, starting at character zero, going to the 300th character past the current position
+    // capture current line, starting at character zero, going to the 300th character past the current position. TODO: use -1 for end of line instead
     let line = new Range(new Position(position.line, 0), position.translate(0, 300));
     let t = document.getText(line);
     console.log('line:', t);
     let files = (await workspace.findFiles('**/*')).filter(
       f => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
     );
-    // let paths = files.map(f => workspace.asRelativePath(f.path, false));
     let items = files.map(f => {
-      let toPath = f.path;
-      // let toDir = dirname(f.path);
-      // const fileName = basename(absoluteFilePath);
-      let fromDir = dirname(document.uri.path.toString());
-      let rel = normalize(relative(fromDir, toPath));
       let kind = CompletionItemKind.File;
-      let label = rel;
+      let label = filenameForConvention(f, document);
       return new CompletionItem(label, kind);
     });
-    // let workspacePath = (vscode.workspace.workspaceFolders || [])[0];
-    // console.log('position', position);
-    // console.log('context', context);
     return items;
   }
 }
@@ -61,7 +68,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
   ): vscode.ProviderResult<vscode.Definition> {
     console.log('provideDefinition');
 
-    const markdownFileRegex = /[\w\-\_\/\\]+\.(md|markdown)/i;
+    const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
     const range = document.getWordRangeAtPosition(position, markdownFileRegex);
     const selectedWord = document.getText(range);
     console.log('selectedWord', selectedWord);

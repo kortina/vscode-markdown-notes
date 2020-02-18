@@ -38,7 +38,21 @@
           "text.html.markdown"
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Run in Terminal Configuration",
+      "properties": {
+        "vscodeMarkdownNotes.workspaceFilenameConvention": {
+          "type": "enum",
+          "enum": [
+            "uniqueFilenames",
+            "relativePaths"
+          ],
+          "default": "uniqueFilenames",
+          "description": "By default, expect `uniqueFilenames` for every `.md` file in workspace and treat `file.md` as link to file in any subdirectory. If you expect collisions in filenames for notes (eg, `note1/note.md` `note2/note.md`) use `relativePaths` to render links between files."
+        }
+      }
+    }
   },
   "icon": "icon.png",
   "activationEvents": [
