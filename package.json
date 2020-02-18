@@ -1,7 +1,7 @@
 {
   "name": "vscode-markdown-notes",
   "displayName": "VS Code Markdown Notes",
-  "description": "______________ ________________",
+  "description": "Support [[double bracket]] wiki links (like Bear, Roam, etc) with keyboard navigation and Peek Definition previews of linked notes.",
   "version": "0.0.1",
   "publisher": "kortina",
   "repository": {
@@ -54,12 +54,14 @@
       }
     }
   },
-  "icon": "icon.png",
+  "icon": "images/vscode-markdown-notes.png",
   "activationEvents": [
     "*"
   ],
   "main": "./out/extension.js",
   "scripts": {
+    "vpackage": "./node_modules/.bin/vsce package",
+    "vpublish": "./node_modules/.bin/vsce publish",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "lint": "tslint -p ./",
