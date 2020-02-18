@@ -1,5 +1,12 @@
 # VS Code Markdown Notes
 
+### TODO:
+
+- update README
+- only complete in double bracket context
+- better support for ignore patterns
+- support filename without extension / assume `.md`?
+
 ### dev
 
 Run `npm install` first.
