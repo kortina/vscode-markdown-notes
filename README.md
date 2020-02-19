@@ -12,28 +12,26 @@ A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https
 
 VS Code Markdown notes provides syntax highlighting, auto-complete, Go to Definition (`editor.action.revealDefinition`), and Peek Definition (`editor.action.peekDefinition`) support for wiki-links to notes in a workspace.
 
+... TODO - screenshots ...
 
+By default, the extension assumes each markdown file in a workspace has a unique name, so that `note.md` will resolve to the file with this name, regardless of whether or not this file exists in any subdirectory path. This tends to be a bit cleaner, but if you want support for multiple files with the same name, in `settings.json` set `"vscodeMarkdownNotes.workspaceFilenameConvention": "relativePaths"`, and you'll get completions like `note1/note.md` and `../note2/note.md`.
 
-### dev
+## dev
 
 Run `npm install` first.
 
-### Helpful Links
-
-- completion: https://github.com/microsoft/vscode-extension-samples/blob/master/completions-sample/src/extension.ts
-- syntax: https://flight-manual.atom.io/hacking-atom/sections/creating-a-legacy-textmate-grammar/
-
-## Known Issues
+### Known Issues
 
 - The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
 
-## TODO:
+### TODO
 
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
 - Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
+- Should we support links to headings? eg, `file.md#heading-text`?
 - Add syntax highlighting and search for `#tags`. See [also](https://stackoverflow.com/questions/60293955/is-cmdshiftf-in-vscode-supposed-to-respect-the-editor-wordseparators-setting)
 
-## Development and Release
+### Development and Release
 
 To create a new release,
 
@@ -55,3 +53,8 @@ To install the `vsix` locally:
 2. Open `More Action` menu (ellipsis on the top) and click `Install from VSIX…`
 3. Locate VSIX file and select.
 4. Reload VSCode.
+
+### Helpful Links
+
+- completion: https://github.com/microsoft/vscode-extension-samples/blob/master/completions-sample/src/extension.ts
+- syntax: https://flight-manual.atom.io/hacking-atom/sections/creating-a-legacy-textmate-grammar/
