@@ -1,5 +1,19 @@
 # VS Code Markdown Notes
 
+Enable [[wiki-links]] for fast-navigation between notes.
+
+There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
+
+This extension provides a number of the best features invented by these other great apps.
+
+### `[[wiki-links]]`
+
+A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https://bear.app/) is the ability to quickly reference other notes using "Cross-Note Links" in the `[[wiki-link]]` style.
+
+VS Code Markdown notes provides syntax highlighting, auto-complete, Go to Definition (`editor.action.revealDefinition`), and Peek Definition (`editor.action.peekDefinition`) support for wiki-links to notes in a workspace.
+
+
+
 ### dev
 
 Run `npm install` first.
@@ -11,7 +25,7 @@ Run `npm install` first.
 
 ## Known Issues
 
-- `ctrl+o` vscode vim jumplist does not work after a goto definition: https://github.com/VSCodeVim/Vim/issues/3277
+- The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
 
 ## TODO:
 
