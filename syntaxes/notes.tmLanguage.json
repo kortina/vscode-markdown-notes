@@ -19,8 +19,16 @@
       }
     },
     {
-      "match": "\\bkortina\\b",
-      "name": "text.markdown.notes.kortina"
+      "match": "(\\#)([\\w\\-\\_]+)",
+      "name": "text.markdown.notes.tag",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.tag"
+        },
+        "2": {
+          "name": "support.function.text.markdown.notes.tag.title"
+        }
+      }
     }
   ],
   "scopeName": "text.markdown.notes"
