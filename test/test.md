@@ -1,8 +1,10 @@
-# Test
+# test
 
-[[test]]
-[[test-file.md]]
-[[../src/extension.ts]]
-[[./sub/sub.md]]
+- [[test]] - no extension
+- [[test.md]] - extension, exists
+- [[test-file.md]] - extension, does not exist
+- [[../src/extension.ts]] - not a markdown extension
+- [[./sub/sub.md]] - relative path, exists
+- [[sub.md]] - exists in sub directory
 
-kortina
+#tag

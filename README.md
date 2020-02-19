@@ -1,13 +1,5 @@
 # VS Code Markdown Notes
 
-### TODO:
-
-- update README
-- only complete in double bracket context
-- better support for ignore patterns
-- support filename without extension / assume `.md`?
-- List All References support?
-
 ### dev
 
 Run `npm install` first.
@@ -21,11 +13,18 @@ Run `npm install` first.
 
 - `ctrl+o` vscode vim jumplist does not work after a goto definition: https://github.com/VSCodeVim/Vim/issues/3277
 
+## TODO:
+
+- Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
+- Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
+- Add syntax highlighting and search for `#tags`. See [also](https://stackoverflow.com/questions/60293955/is-cmdshiftf-in-vscode-supposed-to-respect-the-editor-wordseparators-setting)
+
 ## Development and Release
 
 To create a new release,
 
 ```sh
+npm install
 # bump version number in package.json
 npm run vpackage # package the release, creates ,vsix
 npm run vpublish # publish to store, see https://code.visualstudio.com/api/working-with-extensions/publishing-extension

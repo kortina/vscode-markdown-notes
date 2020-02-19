@@ -20,7 +20,6 @@ import {
 function uniqueFilenamesConfiguration(): boolean {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
   let convention = cfg.get('workspaceFilenameConvention');
-  console.log('convention', convention);
   return convention == 'uniqueFilenames';
 }
 
@@ -35,6 +34,58 @@ function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
   }
 }
 
+enum ContextWordType {
+  Null, // 0
+  WikiLink, // 1
+  Tag, // 2
+}
+
+interface ContextWord {
+  type: ContextWordType;
+  word: string;
+  hasExtension: boolean | null;
+}
+
+const NULL_CONTEXT_WORD = { type: ContextWordType.Null, word: '', hasExtension: null };
+
+function getContextWord(document: TextDocument, position: Position): ContextWord {
+  let contextWord: string;
+  let regex: RegExp;
+  let range: vscode.Range | undefined;
+
+  // #tag regexp
+  regex = /\#[\w\-\_]+/i;
+  range = document.getWordRangeAtPosition(position, regex);
+  if (range) {
+    contextWord = document.getText(range);
+    if (contextWord) {
+      return {
+        type: ContextWordType.Tag,
+        word: contextWord.replace(/^\#+/, ''),
+        hasExtension: null,
+      };
+    }
+  }
+
+  // [[wiki-link-regex
+  // regex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
+  regex = /\[\[[\w\.\-\_\/\\]+/i;
+  range = document.getWordRangeAtPosition(position, regex);
+  if (range) {
+    contextWord = document.getText(range);
+    if (contextWord) {
+      return {
+        type: ContextWordType.WikiLink,
+        word: contextWord.replace(/^\[+/, ''),
+        // TODO: paramaterize extensions. Add $ to end?
+        hasExtension: !!contextWord.match(/\.(md|markdwon)/i),
+      };
+    }
+  }
+
+  return NULL_CONTEXT_WORD;
+}
+
 class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
   public async provideCompletionItems(
     document: TextDocument,
@@ -42,13 +93,15 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     _token: CancellationToken,
     context: CompletionContext
   ) {
-    console.log('provideCompletionItems');
-    // capture current line, starting at character zero, going to the 300th character past the current position. TODO: use -1 for end of line instead
-    let line = new Range(new Position(position.line, 0), position.translate(0, 300));
-    let t = document.getText(line);
-    console.log('line:', t);
+    // console.debug('provideCompletionItems');
+    const contextWord = getContextWord(document, position);
+    if (contextWord.type != ContextWordType.WikiLink) {
+      // console.debug('getContextWord was not WikiLink');
+      return [];
+    }
+
     let files = (await workspace.findFiles('**/*')).filter(
-      // TODO: paramaterize extensions
+      // TODO: paramaterize extensions. Add $ to end?
       f => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
     );
     let items = files.map(f => {
@@ -68,15 +121,22 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ) {
-    console.log('provideDefinition');
+    // console.debug('provideDefinition');
 
-    const p = new vscode.Position(0, 0);
+    const contextWord = getContextWord(document, position);
+    if (contextWord.type != ContextWordType.WikiLink) {
+      // console.debug('getContextWord was not WikiLink');
+      return [];
+    }
+    if (!contextWord.hasExtension) {
+      // console.debug('getContextWord does not have file extension');
+      return [];
+    }
 
-    // TODO: paramaterize extensions
-    const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
-    const range = document.getWordRangeAtPosition(position, markdownFileRegex);
-    const selectedWord = document.getText(range);
-    console.log('selectedWord', selectedWord);
+    // TODO: parameterize extensions. return if we don't have a filename and we require extensions
+    // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
+    const selectedWord = contextWord.word;
+    // console.debug('selectedWord', selectedWord);
     let files: Array<Uri> = [];
     // selectedWord might be either:
     // a basename for a unique file in the workspace
@@ -104,12 +164,13 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       }
     }
 
+    const p = new vscode.Position(0, 0);
     return files.map(f => new vscode.Location(f, p));
   }
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('vscode-markdown-notes.activate');
+  console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())

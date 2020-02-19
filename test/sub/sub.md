@@ -1,7 +1,3 @@
-ste
-
-mid
-
-last
+# sub
 
 [[sub2.md]]
