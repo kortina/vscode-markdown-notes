@@ -6,6 +6,8 @@ There are many great note-taking applications ([Notational Velocity](http://nota
 
 This extension provides a number of the best features invented by these other great apps.
 
+You can [install it from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes).
+
 ### `[[wiki-links]]`
 
 A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https://bear.app/) is the ability to quickly reference other notes using "Cross-Note Links" in the `[[wiki-link]]` style.
