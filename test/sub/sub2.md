@@ -1,3 +1,3 @@
 # sub2
 
-[[sub.md]]
+[[demo.md]]

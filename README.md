@@ -12,9 +12,29 @@ A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https
 
 VS Code Markdown notes provides syntax highlighting, auto-complete, Go to Definition (`editor.action.revealDefinition`), and Peek Definition (`editor.action.peekDefinition`) support for wiki-links to notes in a workspace.
 
-... TODO - screenshots ...
-
 By default, the extension assumes each markdown file in a workspace has a unique name, so that `note.md` will resolve to the file with this name, regardless of whether or not this file exists in any subdirectory path. This tends to be a bit cleaner, but if you want support for multiple files with the same name, in `settings.json` set `"vscodeMarkdownNotes.workspaceFilenameConvention": "relativePaths"`, and you'll get completions like `note1/note.md` and `../note2/note.md`.
+
+### Screenshots
+
+#### Intellisense Completion for Wiki Links, `uniqueFilenames`
+
+![completion-unique-filenames](demo/completion-unique-filenames.gif)
+
+#### Intellisense Completion for Wiki Links, `relativePaths`
+
+![completion-relative-paths](demo/completion-unique-relative-paths.gif)
+
+#### Syntax Highlighting for Tags and Wiki Links
+
+![syntax-highlighting](demo/syntax-highlighting.png)
+
+#### Peek and Go to Definition for Wiki Links
+
+![peek-and-to-to-definition](demo/peek-and-go-to-definition.gif)
+
+#### `cmd+shift+f` to Search Workspace for Notes with #tag
+
+![tag-search](demo/tag-search.gif)
 
 ## dev
 
@@ -23,6 +43,8 @@ Run `npm install` first.
 ### Known Issues
 
 - The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
+- This extension sets the `wordPattern` for 'markdown' in order to (1) enable proper completion of relative paths and (2) make it such that if you `cmd+shift+f` on a `#tag` the search will prefill with "#tag" and not just "tag":
+  <br />`vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });`
 
 ### TODO
 
@@ -30,6 +52,7 @@ Run `npm install` first.
 - Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
 - Should we support links to headings? eg, `file.md#heading-text`?
 - Add syntax highlighting and search for `#tags`. See [also](https://stackoverflow.com/questions/60293955/is-cmdshiftf-in-vscode-supposed-to-respect-the-editor-wordseparators-setting)
+- command to create file based on name in the wiki-link under the cursor
 
 ### Development and Release
 

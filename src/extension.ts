@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { basename, dirname, join, normalize, relative, resolve } from 'path';
+import { basename, dirname, normalize, relative, resolve } from 'path';
 import { existsSync } from 'fs';
 import {
   CompletionItemProvider,
@@ -8,23 +8,25 @@ import {
   CancellationToken,
   CompletionContext,
   workspace,
-  Range,
   CompletionItem,
-  commands,
   CompletionItemKind,
-  TextEdit,
-  DocumentSymbol,
   Uri,
 } from 'vscode';
 
-function uniqueFilenamesConfiguration(): boolean {
+function workspaceFilenameConvention(): string | undefined {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-  let convention = cfg.get('workspaceFilenameConvention');
-  return convention == 'uniqueFilenames';
+  return cfg.get('workspaceFilenameConvention');
+}
+function useUniqueFilenames(): boolean {
+  return workspaceFilenameConvention() == 'uniqueFilenames';
+}
+
+function useRelativePaths(): boolean {
+  return workspaceFilenameConvention() == 'relativePaths';
 }
 
 function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
-  if (uniqueFilenamesConfiguration()) {
+  if (useUniqueFilenames()) {
     return basename(uri.path);
   } else {
     let toPath = uri.path;
@@ -93,10 +95,10 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     _token: CancellationToken,
     context: CompletionContext
   ) {
-    // console.debug('provideCompletionItems');
+    console.debug('provideCompletionItems');
     const contextWord = getContextWord(document, position);
     if (contextWord.type != ContextWordType.WikiLink) {
-      // console.debug('getContextWord was not WikiLink');
+      console.debug('getContextWord was not WikiLink');
       return [];
     }
 
@@ -121,31 +123,31 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ) {
-    // console.debug('provideDefinition');
+    console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
     if (contextWord.type != ContextWordType.WikiLink) {
-      // console.debug('getContextWord was not WikiLink');
+      console.debug('getContextWord was not WikiLink');
       return [];
     }
     if (!contextWord.hasExtension) {
-      // console.debug('getContextWord does not have file extension');
+      console.debug('getContextWord does not have file extension');
       return [];
     }
 
     // TODO: parameterize extensions. return if we don't have a filename and we require extensions
     // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
     const selectedWord = contextWord.word;
-    // console.debug('selectedWord', selectedWord);
+    console.debug('selectedWord', selectedWord);
     let files: Array<Uri> = [];
     // selectedWord might be either:
     // a basename for a unique file in the workspace
     // or, a relative path to a file
     // Since, selectedWord is just a string of text from a document,
-    // there is no guarantee uniqueFilenamesConfiguration will tell us
+    // there is no guarantee useUniqueFilenames will tell us
     // it is not a relative path.
     // However, only check for basenames in the entire project if:
-    if (uniqueFilenamesConfiguration()) {
+    if (useUniqueFilenames()) {
       const filename = selectedWord;
       // there should be exactly 1 file with name = selecteWord
       files = (await workspace.findFiles('**/*')).filter(f => {
@@ -172,6 +174,10 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
 export function activate(context: vscode.ExtensionContext) {
   console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
+  vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });
+
+  // const triggerCharacters = ['.', '#'];
+  // const triggerCharacters = [];
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())
   );

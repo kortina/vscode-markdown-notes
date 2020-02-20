@@ -1,4 +1,4 @@
-# test #tag
+# test
 
 - [[test]] - no extension
 - [[test.md]] - extension, exists
@@ -7,4 +7,4 @@
 - [[./sub/sub.md]] - relative path, exists
 - [[sub.md]] - exists in sub directory
 
-#tag #tag2
+#tag #another_tag
