@@ -1,6 +1,6 @@
 # VS Code Markdown Notes
 
-Enable [[wiki-links]] for fast-navigation between notes.
+Enable `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace.
 
 There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
 
@@ -22,7 +22,7 @@ By default, the extension assumes each markdown file in a workspace has a unique
 
 #### Intellisense Completion for Wiki Links, `relativePaths`
 
-![completion-relative-paths](demo/completion-unique-relative-paths.gif)
+![completion-relative-paths](demo/completion-relative-paths.gif)
 
 #### Syntax Highlighting for Tags and Wiki Links
 
@@ -77,7 +77,7 @@ To install the `vsix` locally:
 3. Locate VSIX file and select.
 4. Reload VSCode.
 
-### Helpful Links
+###### Helpful Links
 
 - completion: https://github.com/microsoft/vscode-extension-samples/blob/master/completions-sample/src/extension.ts
 - syntax: https://flight-manual.atom.io/hacking-atom/sections/creating-a-legacy-textmate-grammar/
