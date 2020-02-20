@@ -1,7 +1,7 @@
 {
   "name": "vscode-markdown-notes",
   "displayName": "VS Code Markdown Notes",
-  "description": "Support [[double bracket]] wiki links (like Bear, Roam, etc) with keyboard navigation and Peek Definition previews of linked notes.",
+  "description": "Navigate notes with #tags and [[double-bracket-wiki-links]] (like Bear, Roam, etc). Use Peek Definition to preview of linked notes.",
   "version": "0.0.1",
   "publisher": "kortina",
   "repository": {
@@ -16,6 +16,7 @@
     "notebook",
     "notes",
     "notetaking",
+    "tagging",
     "wiki links"
   ],
   "categories": [
