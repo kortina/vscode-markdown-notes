@@ -83,3 +83,4 @@ To install the `vsix` locally:
 
 - completion: https://github.com/microsoft/vscode-extension-samples/blob/master/completions-sample/src/extension.ts
 - syntax: https://flight-manual.atom.io/hacking-atom/sections/creating-a-legacy-textmate-grammar/
+- vscode syntax: https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide
