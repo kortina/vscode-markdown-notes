@@ -6,7 +6,7 @@ There are many great note-taking applications ([Notational Velocity](http://nota
 
 This extension provides a number of the best features invented by these other great apps.
 
-You can [install it from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes).
+You can [install it from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes). See also my other customizations for note-taking in this blog post: [Suping Up VS Code as a Markdown Notebook](https://kortina.nyc/essays/suping-up-vs-code-as-a-markdown-notebook/).
 
 ### `[[wiki-links]]`
 
