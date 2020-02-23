@@ -1,8 +1,8 @@
 {
   "name": "vscode-markdown-notes",
   "displayName": "VS Code Markdown Notes",
-  "description": "Navigate notes with #tags and [[double-bracket-wiki-links]] (like Bear, Roam, etc). Use Peek Definition to preview linked notes.",
-  "version": "0.0.1",
+  "description": "Navigate notes with [[wiki-links]] and #tags (like Bear, Roam, etc). Use Peek Definition to preview linked notes. Quickly creatre new notes with a command.",
+  "version": "0.0.2",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -38,6 +38,12 @@
         "injectTo": [
           "text.html.markdown"
         ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "vscodeMarkdownNotes.newNote",
+        "title": "VS Code Markdown Notes: New Note"
       }
     ],
     "configuration": {

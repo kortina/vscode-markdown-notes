@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { basename, dirname, normalize, relative, resolve } from 'path';
-import { existsSync } from 'fs';
+import { basename, dirname, join, normalize, relative, resolve } from 'path';
+import { existsSync, writeFileSync } from 'fs';
 import {
   CompletionItemProvider,
   TextDocument,
@@ -95,10 +95,10 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     _token: CancellationToken,
     context: CompletionContext
   ) {
-    console.debug('provideCompletionItems');
+    // console.debug('provideCompletionItems');
     const contextWord = getContextWord(document, position);
     if (contextWord.type != ContextWordType.WikiLink) {
-      console.debug('getContextWord was not WikiLink');
+      // console.debug('getContextWord was not WikiLink');
       return [];
     }
 
@@ -123,22 +123,22 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ) {
-    console.debug('provideDefinition');
+    // console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
     if (contextWord.type != ContextWordType.WikiLink) {
-      console.debug('getContextWord was not WikiLink');
+      // console.debug('getContextWord was not WikiLink');
       return [];
     }
     if (!contextWord.hasExtension) {
-      console.debug('getContextWord does not have file extension');
+      // console.debug('getContextWord does not have file extension');
       return [];
     }
 
     // TODO: parameterize extensions. return if we don't have a filename and we require extensions
     // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
     const selectedWord = contextWord.word;
-    console.debug('selectedWord', selectedWord);
+    // console.debug('selectedWord', selectedWord);
     let files: Array<Uri> = [];
     // selectedWord might be either:
     // a basename for a unique file in the workspace
@@ -171,8 +171,68 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
   }
 }
 
+function newNote(context: vscode.ExtensionContext) {
+  // console.debug('newNote');
+  const inputBoxPromise = vscode.window.showInputBox({
+    prompt:
+      "Enter a 'Title Case Name' to create `title-case-name.md` with '# Title Case Name' at the top.",
+    value: '',
+  });
+
+  let workspaceUri = '';
+  if (vscode.workspace.workspaceFolders) {
+    workspaceUri = vscode.workspace.workspaceFolders[0].uri.path.toString();
+  }
+
+  inputBoxPromise.then(
+    noteName => {
+      if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
+        // console.debug('Abort: noteName was empty.');
+        return false;
+      }
+
+      const filename =
+        noteName
+          .replace(/\W+/gi, '-') // non-words to hyphens
+          .toLowerCase() // lower
+          .replace(/-*$/, '') + '.md'; // removing trailing '-' chars, add extension
+      const filepath = join(workspaceUri, filename);
+
+      const fileAlreadyExists = existsSync(filepath);
+      // create the file if it does not exists
+      if (!fileAlreadyExists) {
+        const contents = `# ${noteName}\n\n`;
+        writeFileSync(filepath, contents);
+      }
+
+      // open the file:
+      vscode.window
+        .showTextDocument(vscode.Uri.file(filepath), {
+          preserveFocus: false,
+          preview: false,
+        })
+        .then(() => {
+          // if we created a new file, hop to line #3
+          if (!fileAlreadyExists) {
+            let editor = vscode.window.activeTextEditor;
+            if (editor) {
+              const lineNumber = 3;
+              let range = editor.document.lineAt(lineNumber - 1).range;
+              editor.selection = new vscode.Selection(range.start, range.end);
+              editor.revealRange(range);
+            }
+          }
+        });
+    },
+    err => {
+      vscode.window.showErrorMessage('Error creating new note.');
+      // console.error(err);
+    }
+  );
+}
+
 export function activate(context: vscode.ExtensionContext) {
-  console.debug('vscode-markdown-notes.activate');
+  // console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
   vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });
 
@@ -184,4 +244,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
   );
+
+  let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
+  context.subscriptions.push(newNoteDisposable);
 }

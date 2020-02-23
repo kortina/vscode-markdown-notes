@@ -1,6 +1,6 @@
 # VS Code Markdown Notes
 
-Enable `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace.
+Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Tilte Case Note Name.
 
 There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
 
@@ -15,6 +15,23 @@ A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https
 VS Code Markdown notes provides syntax highlighting, auto-complete, Go to Definition (`editor.action.revealDefinition`), and Peek Definition (`editor.action.peekDefinition`) support for wiki-links to notes in a workspace.
 
 By default, the extension assumes each markdown file in a workspace has a unique name, so that `note.md` will resolve to the file with this name, regardless of whether or not this file exists in any subdirectory path. This tends to be a bit cleaner, but if you want support for multiple files with the same name, in `settings.json` set `"vscodeMarkdownNotes.workspaceFilenameConvention": "relativePaths"`, and you'll get completions like `note1/note.md` and `../note2/note.md`.
+
+### #tags
+
+Syntax highlighting for `#tags`.
+
+### New Note command
+
+Provides a command for quickly creating a new note.
+
+You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
+
+```json
+    {
+        "key": "alt+n",
+        "command": "vscodeMarkdownNotes.newNote",
+    },
+```
 
 ### Screenshots
 
@@ -37,6 +54,10 @@ By default, the extension assumes each markdown file in a workspace has a unique
 #### `cmd+shift+f` to Search Workspace for Notes with #tag
 
 ![tag-search](demo/tag-search.gif)
+
+#### New Note Command
+
+![new-note-command](demo/new-note-command.gif)
 
 ## dev
 
