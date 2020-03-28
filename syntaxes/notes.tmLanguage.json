@@ -29,6 +29,33 @@
           "name": "support.function.text.markdown.notes.tag.title"
         }
       }
+    },
+    {
+      "match": "(?:\\s|^)([\\w\\-\\_]+)(:)([\\w\\-\\_]+)",
+      "name": "text.markdown.notes.key-value",
+      "captures": {
+        "1": {
+          "name": "support.type.property-name.text.markdown.notes.key-value.key"
+        },
+        "2": {
+          "name": "punctuation.separator.key-value.markdown"
+        },
+        "3": {
+          "name": "string.other.text.markdown.notes.key-value.value"
+        }
+      }
+    },
+    {
+      "match": "(?:\\s|^)(@)([\\w\\-\\_]+)",
+      "name": "text.markdown.notes.person",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.tag"
+        },
+        "2": {
+          "name": "string.other.text.markdown.notes.person.name"
+        }
+      }
     }
   ],
   "scopeName": "text.markdown.notes"

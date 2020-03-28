@@ -8,3 +8,8 @@
 - [[sub.md]] - exists in sub directory
 
 #tag #another_tag
+
+key:value another:key_value
+
+@one_person @anotherPerson
+NotAPerson@example.com
