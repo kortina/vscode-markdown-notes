@@ -80,7 +80,7 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
         type: ContextWordType.WikiLink,
         word: contextWord.replace(/^\[+/, ''),
         // TODO: paramaterize extensions. Add $ to end?
-        hasExtension: !!contextWord.match(/\.(md|markdwon)/i),
+        hasExtension: !!contextWord.match(/\.(md|markdown)/i),
       };
     }
   }
@@ -104,9 +104,9 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
 
     let files = (await workspace.findFiles('**/*')).filter(
       // TODO: paramaterize extensions. Add $ to end?
-      f => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
     );
-    let items = files.map(f => {
+    let items = files.map((f) => {
       let kind = CompletionItemKind.File;
       let label = filenameForConvention(f, document);
       return new CompletionItem(label, kind);
@@ -150,7 +150,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     if (useUniqueFilenames()) {
       const filename = selectedWord;
       // there should be exactly 1 file with name = selecteWord
-      files = (await workspace.findFiles('**/*')).filter(f => {
+      files = (await workspace.findFiles('**/*')).filter((f) => {
         return basename(f.path) == filename;
       });
     }
@@ -167,7 +167,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     const p = new vscode.Position(0, 0);
-    return files.map(f => new vscode.Location(f, p));
+    return files.map((f) => new vscode.Location(f, p));
   }
 }
 
@@ -185,7 +185,7 @@ function newNote(context: vscode.ExtensionContext) {
   }
 
   inputBoxPromise.then(
-    noteName => {
+    (noteName) => {
       if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
         // console.debug('Abort: noteName was empty.');
         return false;
@@ -224,7 +224,7 @@ function newNote(context: vscode.ExtensionContext) {
           }
         });
     },
-    err => {
+    (err) => {
       vscode.window.showErrorMessage('Error creating new note.');
       // console.error(err);
     }
