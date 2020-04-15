@@ -63,6 +63,17 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 Run `npm install` first.
 
+### FAQ
+
+- "Autocomplete / Intellisense is not working - why?"
+    - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
+    
+    ```
+    "[markdown]": {
+       "editor.quickSuggestions": true
+    } 
+    ```
+
 ### Known Issues
 
 - Filename completion seems to be triggering when not in the `[[` context.
