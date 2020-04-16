@@ -73,6 +73,8 @@ Run `npm install` first.
        "editor.quickSuggestions": true
     } 
     ```
+- "New note is not working - why?"
+    - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
 
 ### Known Issues
 
