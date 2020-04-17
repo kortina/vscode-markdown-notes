@@ -47,7 +47,7 @@
       }
     ],
     "configuration": {
-      "title": "Run in Terminal Configuration",
+      "title": "VS Code Markdown Notes Configuration",
       "properties": {
         "vscodeMarkdownNotes.workspaceFilenameConvention": {
           "type": "string",
