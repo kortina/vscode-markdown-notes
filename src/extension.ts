@@ -41,7 +41,7 @@ class WorkspaceTagList {
   static STARTED_INIT = false;
   static COMPLETED_INIT = false;
 
-  static async initializeTagWordSet() {
+  static async initSet() {
     if (this.STARTED_INIT) {
       return;
     }
@@ -55,7 +55,7 @@ class WorkspaceTagList {
         // read file, get all words beginning with #, add to Set
         readFile(f.path, (err, data) => {
           let allWords = (data || '').toString().split(/\s/);
-          let tags = allWords.filter((w) => w.match(TAG_REGEX));
+          let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
           tags.map((t) => this.TAG_WORD_SET.add(t));
         });
       });
@@ -76,7 +76,8 @@ interface ContextWord {
 }
 
 const NULL_CONTEXT_WORD = { type: ContextWordType.Null, word: '', hasExtension: null };
-const TAG_REGEX = /\#[\w\-\_]+/i;
+const TAG_REGEX___NO_ANCHORS = /\#[\w\-\_]+/i; // used to match tags that appear within lines
+const TAG_REGEX_WITH_ANCHORS = /^\#[\w\-\_]+$/i; // used to match entire words
 
 function getContextWord(document: TextDocument, position: Position): ContextWord {
   let contextWord: string;
@@ -84,7 +85,7 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
   let range: vscode.Range | undefined;
 
   // #tag regexp
-  regex = TAG_REGEX;
+  regex = TAG_REGEX___NO_ANCHORS;
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
     contextWord = document.getText(range);
@@ -124,7 +125,7 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     context: CompletionContext
   ) {
     const contextWord = getContextWord(document, position);
-    // console.debug(`provideCompletionItems ${contextWord}`);
+    // console.debug(`provideCompletionItems ${ContextWordType[contextWord.type]}`);
     ///////////////////////////
     // TODO: add handling for ContextWorkType.Tag
     ///////////////////////////
@@ -135,6 +136,7 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
         break;
       case ContextWordType.Tag:
         // console.debug(`ContextWordType.Tag`);
+        // console.debug(`TAG_WORD_SET: ${Array.from(WorkspaceTagList.TAG_WORD_SET)}`);
         items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
           let kind = CompletionItemKind.File;
           let label = `${t}`; // cast to a string
@@ -278,7 +280,7 @@ function newNote(context: vscode.ExtensionContext) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  // console.debug('vscode-markdown-notes.activate');
+  console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
   vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });
 
@@ -296,6 +298,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   // parse the tags from every file in the workspace
   // console.log(`WorkspaceTagList.STARTED_INIT.1: ${WorkspaceTagList.STARTED_INIT}`);
-  WorkspaceTagList.initializeTagWordSet();
+  WorkspaceTagList.initSet();
   // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
 }
