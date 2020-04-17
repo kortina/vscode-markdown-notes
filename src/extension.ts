@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync, readFile, writeFileSync } from 'fs';
 import {
   CompletionItemProvider,
   TextDocument,
@@ -36,6 +36,33 @@ function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
   }
 }
 
+class WorkspaceTagList {
+  static TAG_WORD_SET = new Set();
+  static STARTED_INIT = false;
+  static COMPLETED_INIT = false;
+
+  static async initializeTagWordSet() {
+    if (this.STARTED_INIT) {
+      return;
+    }
+    this.STARTED_INIT = true;
+    let files = (await workspace.findFiles('**/*'))
+      .filter(
+        // TODO: paramaterize extensions. Add $ to end?
+        (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+      )
+      .map((f) => {
+        // read file, get all words beginning with #, add to Set
+        readFile(f.path, (err, data) => {
+          let allWords = (data || '').toString().split(/\s/);
+          let tags = allWords.filter((w) => w.match(TAG_REGEX));
+          tags.map((t) => this.TAG_WORD_SET.add(t));
+        });
+      });
+    this.COMPLETED_INIT = true;
+  }
+}
+
 enum ContextWordType {
   Null, // 0
   WikiLink, // 1
@@ -49,6 +76,7 @@ interface ContextWord {
 }
 
 const NULL_CONTEXT_WORD = { type: ContextWordType.Null, word: '', hasExtension: null };
+const TAG_REGEX = /\#[\w\-\_]+/i;
 
 function getContextWord(document: TextDocument, position: Position): ContextWord {
   let contextWord: string;
@@ -56,7 +84,7 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
   let range: vscode.Range | undefined;
 
   // #tag regexp
-  regex = /\#[\w\-\_]+/i;
+  regex = TAG_REGEX;
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
     contextWord = document.getText(range);
@@ -95,23 +123,41 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     _token: CancellationToken,
     context: CompletionContext
   ) {
-    // console.debug('provideCompletionItems');
     const contextWord = getContextWord(document, position);
-    if (contextWord.type != ContextWordType.WikiLink) {
-      // console.debug('getContextWord was not WikiLink');
-      return [];
+    // console.debug(`provideCompletionItems ${contextWord}`);
+    ///////////////////////////
+    // TODO: add handling for ContextWorkType.Tag
+    ///////////////////////////
+    let items = [];
+    switch (contextWord.type) {
+      case ContextWordType.Null:
+        return [];
+        break;
+      case ContextWordType.Tag:
+        // console.debug(`ContextWordType.Tag`);
+        items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
+          let kind = CompletionItemKind.File;
+          let label = `${t}`; // cast to a string
+          return new CompletionItem(label, kind);
+        });
+        return items;
+        break;
+      case ContextWordType.WikiLink:
+        let files = (await workspace.findFiles('**/*')).filter(
+          // TODO: paramaterize extensions. Add $ to end?
+          (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+        );
+        items = files.map((f) => {
+          let kind = CompletionItemKind.File;
+          let label = filenameForConvention(f, document);
+          return new CompletionItem(label, kind);
+        });
+        return items;
+        break;
+      default:
+        return [];
+        break;
     }
-
-    let files = (await workspace.findFiles('**/*')).filter(
-      // TODO: paramaterize extensions. Add $ to end?
-      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-    );
-    let items = files.map((f) => {
-      let kind = CompletionItemKind.File;
-      let label = filenameForConvention(f, document);
-      return new CompletionItem(label, kind);
-    });
-    return items;
   }
 }
 
@@ -247,4 +293,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
   context.subscriptions.push(newNoteDisposable);
+
+  // parse the tags from every file in the workspace
+  // console.log(`WorkspaceTagList.STARTED_INIT.1: ${WorkspaceTagList.STARTED_INIT}`);
+  WorkspaceTagList.initializeTagWordSet();
+  // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
 }
