@@ -280,7 +280,7 @@ function newNote(context: vscode.ExtensionContext) {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  console.debug('vscode-markdown-notes.activate');
+  // console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
   vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });
 
