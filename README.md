@@ -28,7 +28,7 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ```json
     {
-        "key": "alt+n",
+        "key": "al+shiftt+n",
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```
