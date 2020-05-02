@@ -214,6 +214,16 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       }
     }
 
+    // Else, create the file
+    if (files.length == 0) {
+      const filename = vscode.window.activeTextEditor?.document.fileName
+      if (filename !== undefined) {
+        const path = `${dirname(filename)}/${contextWord.word}`
+        writeFileSync(path, `# ${basename(path).split('.')[0]}`);
+        files.push(vscode.Uri.parse(`file://${path}`));
+      }
+    }
+
     const p = new vscode.Position(0, 0);
     return files.map((f) => new vscode.Location(f, p));
   }
