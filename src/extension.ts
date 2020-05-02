@@ -293,6 +293,13 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
   );
 
+  let findBacklinksDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.findBacklinks', () => {
+    const filename = vscode.window.activeTextEditor?.document.fileName
+    if (filename !== undefined)
+      vscode.commands.executeCommand("workbench.action.findInFiles", { query: `[[${basename(filename)}]]`, triggerSearch: true, filesToInclude: '*.md, *.markdown' })
+  });
+  context.subscriptions.push(findBacklinksDisposable);
+
   let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
   context.subscriptions.push(newNoteDisposable);
 

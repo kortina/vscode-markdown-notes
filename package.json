@@ -42,6 +42,10 @@
     ],
     "commands": [
       {
+        "command": "vscodeMarkdownNotes.findBacklinks",
+        "title": "VS Code Markdown Notes: Find Backlinks"
+      },
+      {
         "command": "vscodeMarkdownNotes.newNote",
         "title": "VS Code Markdown Notes: New Note"
       }
