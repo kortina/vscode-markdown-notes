@@ -133,11 +133,11 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
         break;
       case ContextWordType.Tag:
         // console.debug(`ContextWordType.Tag`);
-        // console.debug(
-        //   `contextWord.word: ${contextWord.word} TAG_WORD_SET: ${Array.from(
-        //     WorkspaceTagList.TAG_WORD_SET
-        //   )}`
-        // );
+        console.debug(
+          `contextWord.word: ${contextWord.word} TAG_WORD_SET: ${Array.from(
+            WorkspaceTagList.TAG_WORD_SET
+          )}`
+        );
         items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
           let kind = CompletionItemKind.File;
           let label = `${t}`; // cast to a string
