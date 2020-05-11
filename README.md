@@ -1,6 +1,6 @@
 # VS Code Markdown Notes
 
-Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Tilte Case Note Name.
+Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Title Case Note Name.
 
 There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
 
@@ -28,7 +28,7 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ```json
     {
-        "key": "al+shiftt+n",
+        "key": "al+shift+n",
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```
@@ -66,15 +66,14 @@ Run `npm install` first.
 ### FAQ
 
 - "Autocomplete / Intellisense is not working - why?"
-    - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
-    
-    ```
-    "[markdown]": {
-       "editor.quickSuggestions": true
-    } 
-    ```
+  - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
+  ```
+  "[markdown]": {
+     "editor.quickSuggestions": true
+  }
+  ```
 - "New note is not working - why?"
-    - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
+  - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
 
 ### Known Issues
 
@@ -99,7 +98,7 @@ To create a new release,
 ```sh
 npm install
 # bump version number in package.json
-npm run vpackage # package the release, creates ,vsix
+npm run vpackage # package the release, creates vsix
 npm run vpublish # publish to store, see https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 # Will prompt for Azure Devops Personal Access Token, get fresh one at:
 # https://dev.azure.com/andrewkortina/
