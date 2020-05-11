@@ -63,6 +63,19 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 Run `npm install` first.
 
+### FAQ
+
+- "Autocomplete / Intellisense is not working - why?"
+    - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
+    
+    ```
+    "[markdown]": {
+       "editor.quickSuggestions": true
+    } 
+    ```
+- "New note is not working - why?"
+    - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
+
 ### Known Issues
 
 - Filename completion seems to be triggering when not in the `[[` context.
