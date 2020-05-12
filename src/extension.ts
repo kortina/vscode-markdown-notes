@@ -12,6 +12,7 @@ import {
   CompletionItemKind,
   Uri,
 } from 'vscode';
+import { NoteRefsTreeDataProvider } from './treeViewReferences';
 
 function workspaceFilenameConvention(): string | undefined {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -334,4 +335,8 @@ export function activate(context: vscode.ExtensionContext) {
   // console.log(`WorkspaceTagList.STARTED_INIT.1: ${WorkspaceTagList.STARTED_INIT}`);
   WorkspaceTagList.initSet();
   // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
+
+  const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
+    treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
+  });
 }

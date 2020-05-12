@@ -59,6 +59,14 @@
           "description": "By default, expect 'uniqueFilenames' for every `.md` file in workspace and treat `file.md` as link to file in any subdirectory. If you expect collisions in filenames for notes (eg, `note1/note.md` `note2/note.md`) use 'relativePaths' to render links between files."
         }
       }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "vscodeMarkdownNotesReferences",
+          "name": "Note References"
+        }
+      ]
     }
   },
   "icon": "images/vscode-markdown-notes.png",
