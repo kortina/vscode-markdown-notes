@@ -318,7 +318,7 @@ const overrideMarkdownWordPattern = () => {
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
-  overrideMarkdownWordPattern();
+  overrideMarkdownWordPattern(); // still nec to get ../ to trigger suggestions in `relativePaths` mode
 
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())

@@ -66,7 +66,7 @@ Run `npm install` first.
 ### FAQ
 
 - "Autocomplete / Intellisense is not working - why?"
-  - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
+  - Quick suggestions are not enabled by default in Markdown, so you have to manually  `triggerSuggest` OR put this in settings.json:
   ```
   "[markdown]": {
      "editor.quickSuggestions": true
@@ -77,7 +77,6 @@ Run `npm install` first.
 
 ### Known Issues
 
-- Filename completion seems to be triggering when not in the `[[` context.
 - The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
 - This extension sets the `wordPattern` for 'markdown' in order to (1) enable proper completion of relative paths and (2) make it such that if you `cmd+shift+f` on a `#tag` the search will prefill with "#tag" and not just "tag":
   <br />`vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });`
@@ -89,7 +88,6 @@ Run `npm install` first.
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
 - Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
 - Should we support links to headings? eg, `file.md#heading-text`?
-- Add syntax highlighting and search for `#tags`. See [also](https://stackoverflow.com/questions/60293955/is-cmdshiftf-in-vscode-supposed-to-respect-the-editor-wordseparators-setting)
 
 ### Development and Release
 
