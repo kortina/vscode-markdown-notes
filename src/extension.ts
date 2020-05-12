@@ -48,7 +48,7 @@ class WorkspaceTagList {
     this.STARTED_INIT = true;
     let files = (await workspace.findFiles('**/*'))
       .filter(
-        // TODO: paramaterize extensions. Add $ to end?
+        // TODO: parameterize extensions. Add $ to end?
         (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
       )
       .map((f) => {
@@ -73,11 +73,19 @@ interface ContextWord {
   type: ContextWordType;
   word: string;
   hasExtension: boolean | null;
+  range: vscode.Range | undefined;
 }
 
-const NULL_CONTEXT_WORD = { type: ContextWordType.Null, word: '', hasExtension: null };
+const NULL_CONTEXT_WORD = {
+  type: ContextWordType.Null,
+  word: '',
+  hasExtension: null,
+  range: undefined,
+};
 const TAG_REGEX___NO_ANCHORS = /\#[\w\-\_]+/i; // used to match tags that appear within lines
 const TAG_REGEX_WITH_ANCHORS = /^\#[\w\-\_]+$/i; // used to match entire words
+const WIKI_LINK_REGEX = /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
+const MARKDOWN_WORD_PATTERN_OVERRIDE = /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
 
 function getContextWord(document: TextDocument, position: Position): ContextWord {
   let contextWord: string;
@@ -88,28 +96,35 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
   regex = TAG_REGEX___NO_ANCHORS;
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
+    // here we do nothing to modify the range because the replacements
+    // will include the # character, so we want to keep the leading #
     contextWord = document.getText(range);
     if (contextWord) {
       return {
         type: ContextWordType.Tag,
         word: contextWord.replace(/^\#+/, ''),
         hasExtension: null,
+        range: range,
       };
     }
   }
 
-  // [[wiki-link-regex
-  // regex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
-  regex = /\[\[[\w\.\-\_\/\\]+/i;
+  regex = WIKI_LINK_REGEX;
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
-    contextWord = document.getText(range);
+    // account for the (exactly) 2 [[  chars at beginning of the match
+    // since our replacement words do not contain [[ chars
+    let s = new vscode.Position(range.start.line, range.start.character + 2);
+    // keep the end
+    let r = new vscode.Range(s, range.end);
+    contextWord = document.getText(r);
     if (contextWord) {
       return {
         type: ContextWordType.WikiLink,
-        word: contextWord.replace(/^\[+/, ''),
-        // TODO: paramaterize extensions. Add $ to end?
+        word: contextWord, // .replace(/^\[+/, ''),
+        // TODO: parameterize extensions. Add $ to end?
         hasExtension: !!contextWord.match(/\.(md|markdown)/i),
+        range: r, // range,
       };
     }
   }
@@ -117,6 +132,8 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
   return NULL_CONTEXT_WORD;
 }
 
+// perhaps there is a race condition in the setting of markdown wordPattern?
+// ???????????????????????????????????? 🧐
 class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
   public async provideCompletionItems(
     document: TextDocument,
@@ -125,10 +142,10 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
     context: CompletionContext
   ) {
     const contextWord = getContextWord(document, position);
+    // console.debug(
+    //   `contextWord: '${contextWord.word}' start: (${contextWord.range?.start.line}, ${contextWord.range?.start.character}) end: (${contextWord.range?.end.line}, ${contextWord.range?.end.character})  context: (${position.line}, ${position.character})`
+    // );
     // console.debug(`provideCompletionItems ${ContextWordType[contextWord.type]}`);
-    ///////////////////////////
-    // TODO: add handling for ContextWorkType.Tag
-    ///////////////////////////
     let items = [];
     switch (contextWord.type) {
       case ContextWordType.Null:
@@ -136,23 +153,35 @@ class MarkdownFileCompletionItemProvider implements CompletionItemProvider {
         break;
       case ContextWordType.Tag:
         // console.debug(`ContextWordType.Tag`);
-        // console.debug(`TAG_WORD_SET: ${Array.from(WorkspaceTagList.TAG_WORD_SET)}`);
+        // console.debug(
+        //   `contextWord.word: ${contextWord.word} TAG_WORD_SET: ${Array.from(
+        //     WorkspaceTagList.TAG_WORD_SET
+        //   )}`
+        // );
         items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
           let kind = CompletionItemKind.File;
           let label = `${t}`; // cast to a string
-          return new CompletionItem(label, kind);
+          let item = new CompletionItem(label, kind);
+          if (contextWord && contextWord.range) {
+            item.range = contextWord.range;
+          }
+          return item;
         });
         return items;
         break;
       case ContextWordType.WikiLink:
         let files = (await workspace.findFiles('**/*')).filter(
-          // TODO: paramaterize extensions. Add $ to end?
+          // TODO: parameterize extensions. Add $ to end?
           (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
         );
         items = files.map((f) => {
           let kind = CompletionItemKind.File;
           let label = filenameForConvention(f, document);
-          return new CompletionItem(label, kind);
+          let item = new CompletionItem(label, kind);
+          if (contextWord && contextWord.range) {
+            item.range = contextWord.range;
+          }
+          return item;
         });
         return items;
         break;
@@ -197,7 +226,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // However, only check for basenames in the entire project if:
     if (useUniqueFilenames()) {
       const filename = selectedWord;
-      // there should be exactly 1 file with name = selecteWord
+      // there should be exactly 1 file with name = selectedWord
       files = (await workspace.findFiles('**/*')).filter((f) => {
         return basename(f.path) == filename;
       });
@@ -279,13 +308,18 @@ function newNote(context: vscode.ExtensionContext) {
   );
 }
 
+const overrideMarkdownWordPattern = () => {
+  // console.debug('overrideMarkdownWordPattern');
+  vscode.languages.setLanguageConfiguration('markdown', {
+    wordPattern: MARKDOWN_WORD_PATTERN_OVERRIDE,
+  });
+};
+
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
-  vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });
+  overrideMarkdownWordPattern(); // still nec to get ../ to trigger suggestions in `relativePaths` mode
 
-  // const triggerCharacters = ['.', '#'];
-  // const triggerCharacters = [];
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())
   );

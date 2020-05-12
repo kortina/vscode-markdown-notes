@@ -1,6 +1,6 @@
 # VS Code Markdown Notes
 
-Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Tilte Case Note Name.
+Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Title Case Note Name.
 
 There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
 
@@ -28,7 +28,7 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ```json
     {
-        "key": "al+shiftt+n",
+        "key": "al+shift+n",
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```
@@ -66,19 +66,17 @@ Run `npm install` first.
 ### FAQ
 
 - "Autocomplete / Intellisense is not working - why?"
-    - Make sure that quick suggestions are enabled in Markdown. Put this in settings.json:
-    
-    ```
-    "[markdown]": {
-       "editor.quickSuggestions": true
-    } 
-    ```
+  - Quick suggestions are not enabled by default in Markdown, so you have to manually  `triggerSuggest` OR put this in settings.json:
+  ```
+  "[markdown]": {
+     "editor.quickSuggestions": true
+  }
+  ```
 - "New note is not working - why?"
-    - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
+  - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
 
 ### Known Issues
 
-- Filename completion seems to be triggering when not in the `[[` context.
 - The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
 - This extension sets the `wordPattern` for 'markdown' in order to (1) enable proper completion of relative paths and (2) make it such that if you `cmd+shift+f` on a `#tag` the search will prefill with "#tag" and not just "tag":
   <br />`vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });`
@@ -90,7 +88,6 @@ Run `npm install` first.
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
 - Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
 - Should we support links to headings? eg, `file.md#heading-text`?
-- Add syntax highlighting and search for `#tags`. See [also](https://stackoverflow.com/questions/60293955/is-cmdshiftf-in-vscode-supposed-to-respect-the-editor-wordseparators-setting)
 
 ### Development and Release
 
@@ -99,7 +96,7 @@ To create a new release,
 ```sh
 npm install
 # bump version number in package.json
-npm run vpackage # package the release, creates ,vsix
+npm run vpackage # package the release, creates vsix
 npm run vpublish # publish to store, see https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 # Will prompt for Azure Devops Personal Access Token, get fresh one at:
 # https://dev.azure.com/andrewkortina/
