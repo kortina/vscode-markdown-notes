@@ -71,6 +71,7 @@ export class ReferenceSearch {
   // and then just look in the index for the locations.
   // In that case, we would need to implement some sort of change watcher,
   // to know if our index needs to be updated.
+  // This is pretty brute force as it is.
   //
   // static TAG_WORD_SET = new Set();
   // static STARTED_INIT = false;
@@ -90,12 +91,14 @@ export class ReferenceSearch {
       // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
       let words = line.split(/(\S+\s+)/);
       words.map((word) => {
+        console.log(`word: ${word} charNum: ${charNum}`);
         let spacesBefore = word.length - word.trimLeft().length;
         let trimmed = word.trim();
         if (trimmed == queryWord) {
           let r = new vscode.Range(
             new vscode.Position(lineNum, charNum + spacesBefore),
-            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length)
+            // I think we need to sub 1 to get the zero-based index of the last char of this word:
+            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length - 1)
           );
           ranges.push(r);
         }
@@ -306,6 +309,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
+    debugContextWord(contextWord);
     if (contextWord.type != ContextWordType.WikiLink) {
       // console.debug('getContextWord was not WikiLink');
       return [];
