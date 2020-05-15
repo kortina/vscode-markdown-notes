@@ -119,7 +119,7 @@ export class ReferenceSearch {
     } else {
       return [];
     }
-    console.log(`query: ${query}`);
+    // console.log(`query: ${query}`);
     let files = (await workspace.findFiles('**/*')).filter(
       // TODO: parameterize extensions. Add $ to end?
       (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
@@ -127,10 +127,10 @@ export class ReferenceSearch {
     let paths = files.map((f) => f.path);
     let fileBuffers = await Promise.all(paths.map((p) => fsp.readFile(p)));
     fileBuffers.map((data, i) => {
-      //     console.debug('--------------------');
       let path = files[i].path;
-      console.log(path);
-      console.log(`${data}`.split(/\n/)[0]);
+      // console.debug('--------------------');
+      // console.log(path);
+      // console.log(`${data}`.split(/\n/)[0]);
       let ranges = this.rangesForWordInDocumentData(query, `${data}`);
       ranges.map((r) => {
         let loc = new vscode.Location(Uri.file(path), r);
@@ -138,45 +138,9 @@ export class ReferenceSearch {
       });
     });
 
-    // this kind of works but our func does wait for the readFile calls to return
-    // .map((f) => {
-    //   // read file, get all words beginning with #, add to Set
-    //   readFile(f.path, (err, data) => {
-    //     console.debug('--------------------');
-    //     console.debug(f.path);
-    //     let ranges = this.rangesForWordInDocumentData(query, (data || '').toString());
-    //     ranges.map((r) => {
-    //       let loc = new vscode.Location(Uri.file(f.path), r);
-    //     });
-    //     // let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
-    //     // tags.map((t) => this.TAG_WORD_SET.add(t));
-    //   });
-    // });
-    console.log(`end:search`);
-    console.log(locations);
+    // console.log(locations);
     return locations;
   }
-
-  // static async initSet() {
-  //   if (this.STARTED_INIT) {
-  //     return;
-  //   }
-  //   this.STARTED_INIT = true;
-  //   let files = (await workspace.findFiles('**/*'))
-  //     .filter(
-  //       // TODO: parameterize extensions. Add $ to end?
-  //       (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-  //     )
-  //     .map((f) => {
-  //       // read file, get all words beginning with #, add to Set
-  //       readFile(f.path, (err, data) => {
-  //         let allWords = (data || '').toString().split(/\s/);
-  //         let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
-  //         tags.map((t) => this.TAG_WORD_SET.add(t));
-  //       });
-  //     });
-  //   this.COMPLETED_INIT = true;
-  // }
 }
 
 enum ContextWordType {
@@ -329,7 +293,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
-    debugContextWord(contextWord);
+    // debugContextWord(contextWord);
     if (contextWord.type != ContextWordType.WikiLink) {
       // console.debug('getContextWord was not WikiLink');
       return [];
@@ -382,9 +346,9 @@ class MarkdownReferenceProvider implements vscode.ReferenceProvider {
     context: vscode.ReferenceContext,
     token: CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
-    console.debug('MarkdownReferenceProvider.provideReferences');
+    // console.debug('MarkdownReferenceProvider.provideReferences');
     const contextWord = getContextWord(document, position);
-    debugContextWord(contextWord);
+    // debugContextWord(contextWord);
     return ReferenceSearch.search(contextWord);
   }
 }
