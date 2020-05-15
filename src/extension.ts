@@ -13,6 +13,7 @@ import {
   Uri,
 } from 'vscode';
 import { NoteRefsTreeDataProvider } from './treeViewReferences';
+import { debug } from 'util';
 
 function workspaceFilenameConvention(): string | undefined {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -64,6 +65,97 @@ class WorkspaceTagList {
   }
 }
 
+export class ReferenceSearch {
+  // TODO/ FIXME: I wonder if instead of this just-in-time search through all the files,
+  // we should instead build the search index for all Tags and WikiLinks once on-boot
+  // and then just look in the index for the locations.
+  // In that case, we would need to implement some sort of change watcher,
+  // to know if our index needs to be updated.
+  //
+  // static TAG_WORD_SET = new Set();
+  // static STARTED_INIT = false;
+  // static COMPLETED_INIT = false;
+
+  static rangesForWordInDocumentData = (
+    queryWord: string | null,
+    data: string
+  ): Array<vscode.Range> => {
+    let ranges: Array<vscode.Range> = [];
+    if (!queryWord) {
+      return [];
+    }
+    let lines = data.split(/[\r\n]/);
+    lines.map((line, lineNum) => {
+      let charNum = 0;
+      // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
+      let words = line.split(/(\S+\s+)/);
+      words.map((word) => {
+        let spacesBefore = word.length - word.trimLeft().length;
+        let trimmed = word.trim();
+        if (trimmed == queryWord) {
+          let r = new vscode.Range(
+            new vscode.Position(lineNum, charNum + spacesBefore),
+            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length)
+          );
+          ranges.push(r);
+        }
+        charNum += word.length;
+      });
+    });
+    return ranges;
+  };
+
+  static async search(contextWord: ContextWord) {
+    let locations = [];
+    let query: string;
+    if (contextWord.type == ContextWordType.Tag) {
+      query = `#${contextWord.word}`;
+    } else if ((contextWord.type = ContextWordType.WikiLink)) {
+      query = `[[${basename(contextWord.word)}]]`;
+    } else {
+      return [];
+    }
+    console.log(`query: ${query}`);
+    let files = (await workspace.findFiles('**/*'))
+      .filter(
+        // TODO: parameterize extensions. Add $ to end?
+        (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+      )
+      .map((f) => {
+        // read file, get all words beginning with #, add to Set
+        readFile(f.path, (err, data) => {
+          console.debug('--------------------');
+          console.debug(f.path);
+          let ranges = this.rangesForWordInDocumentData(query, (data || '').toString());
+          // let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
+          // tags.map((t) => this.TAG_WORD_SET.add(t));
+        });
+      });
+    console.log(`end:search`);
+  }
+
+  // static async initSet() {
+  //   if (this.STARTED_INIT) {
+  //     return;
+  //   }
+  //   this.STARTED_INIT = true;
+  //   let files = (await workspace.findFiles('**/*'))
+  //     .filter(
+  //       // TODO: parameterize extensions. Add $ to end?
+  //       (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+  //     )
+  //     .map((f) => {
+  //       // read file, get all words beginning with #, add to Set
+  //       readFile(f.path, (err, data) => {
+  //         let allWords = (data || '').toString().split(/\s/);
+  //         let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
+  //         tags.map((t) => this.TAG_WORD_SET.add(t));
+  //       });
+  //     });
+  //   this.COMPLETED_INIT = true;
+  // }
+}
+
 enum ContextWordType {
   Null, // 0
   WikiLink, // 1
@@ -76,6 +168,16 @@ interface ContextWord {
   hasExtension: boolean | null;
   range: vscode.Range | undefined;
 }
+
+const debugContextWord = (contextWord: ContextWord) => {
+  const { type, word, hasExtension, range } = contextWord;
+  console.debug({
+    type: ContextWordType[contextWord.type],
+    word: contextWord.word,
+    hasExtension: contextWord.hasExtension,
+    range: contextWord.range,
+  });
+};
 
 const NULL_CONTEXT_WORD = {
   type: ContextWordType.Null,
@@ -249,6 +351,21 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
   }
 }
 
+class MarkdownReferenceProvider implements vscode.ReferenceProvider {
+  public provideReferences(
+    document: TextDocument,
+    position: Position,
+    context: vscode.ReferenceContext,
+    token: CancellationToken
+  ): vscode.ProviderResult<vscode.Location[]> {
+    console.debug('MarkdownReferenceProvider.provideReferences');
+    const contextWord = getContextWord(document, position);
+    debugContextWord(contextWord);
+    ReferenceSearch.search(contextWord);
+    return [];
+  }
+}
+
 function newNote(context: vscode.ExtensionContext) {
   // console.debug('newNote');
   const inputBoxPromise = vscode.window.showInputBox({
@@ -326,6 +443,10 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
+  );
+
+  context.subscriptions.push(
+    vscode.languages.registerReferenceProvider(md, new MarkdownReferenceProvider())
   );
 
   let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
