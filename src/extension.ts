@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
 import { existsSync, readFile, writeFileSync } from 'fs';
+const fsp = require('fs').promises;
 import {
   CompletionItemProvider,
   TextDocument,
@@ -91,7 +92,7 @@ export class ReferenceSearch {
       // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
       let words = line.split(/(\S+\s+)/);
       words.map((word) => {
-        console.log(`word: ${word} charNum: ${charNum}`);
+        // console.log(`word: ${word} charNum: ${charNum}`);
         let spacesBefore = word.length - word.trimLeft().length;
         let trimmed = word.trim();
         if (trimmed == queryWord) {
@@ -108,8 +109,8 @@ export class ReferenceSearch {
     return ranges;
   };
 
-  static async search(contextWord: ContextWord) {
-    let locations = [];
+  static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
+    let locations: vscode.Location[] = [];
     let query: string;
     if (contextWord.type == ContextWordType.Tag) {
       query = `#${contextWord.word}`;
@@ -119,22 +120,41 @@ export class ReferenceSearch {
       return [];
     }
     console.log(`query: ${query}`);
-    let files = (await workspace.findFiles('**/*'))
-      .filter(
-        // TODO: parameterize extensions. Add $ to end?
-        (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-      )
-      .map((f) => {
-        // read file, get all words beginning with #, add to Set
-        readFile(f.path, (err, data) => {
-          console.debug('--------------------');
-          console.debug(f.path);
-          let ranges = this.rangesForWordInDocumentData(query, (data || '').toString());
-          // let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
-          // tags.map((t) => this.TAG_WORD_SET.add(t));
-        });
+    let files = (await workspace.findFiles('**/*')).filter(
+      // TODO: parameterize extensions. Add $ to end?
+      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+    );
+    let paths = files.map((f) => f.path);
+    let fileBuffers = await Promise.all(paths.map((p) => fsp.readFile(p)));
+    fileBuffers.map((data, i) => {
+      //     console.debug('--------------------');
+      let path = files[i].path;
+      console.log(path);
+      console.log(`${data}`.split(/\n/)[0]);
+      let ranges = this.rangesForWordInDocumentData(query, `${data}`);
+      ranges.map((r) => {
+        let loc = new vscode.Location(Uri.file(path), r);
+        locations.push(loc);
       });
+    });
+
+    // this kind of works but our func does wait for the readFile calls to return
+    // .map((f) => {
+    //   // read file, get all words beginning with #, add to Set
+    //   readFile(f.path, (err, data) => {
+    //     console.debug('--------------------');
+    //     console.debug(f.path);
+    //     let ranges = this.rangesForWordInDocumentData(query, (data || '').toString());
+    //     ranges.map((r) => {
+    //       let loc = new vscode.Location(Uri.file(f.path), r);
+    //     });
+    //     // let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
+    //     // tags.map((t) => this.TAG_WORD_SET.add(t));
+    //   });
+    // });
     console.log(`end:search`);
+    console.log(locations);
+    return locations;
   }
 
   // static async initSet() {
@@ -365,8 +385,7 @@ class MarkdownReferenceProvider implements vscode.ReferenceProvider {
     console.debug('MarkdownReferenceProvider.provideReferences');
     const contextWord = getContextWord(document, position);
     debugContextWord(contextWord);
-    ReferenceSearch.search(contextWord);
-    return [];
+    return ReferenceSearch.search(contextWord);
   }
 }
 
