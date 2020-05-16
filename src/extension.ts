@@ -15,18 +15,25 @@ import {
 } from 'vscode';
 import { NoteRefsTreeDataProvider } from './treeViewReferences';
 import { debug } from 'util';
+import { create } from 'domain';
 
-function workspaceFilenameConvention(): string | undefined {
+const workspaceFilenameConvention = (): string | undefined => {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
   return cfg.get('workspaceFilenameConvention');
-}
-function useUniqueFilenames(): boolean {
-  return workspaceFilenameConvention() == 'uniqueFilenames';
-}
+};
 
-function useRelativePaths(): boolean {
+const useUniqueFilenames = (): boolean => {
+  return workspaceFilenameConvention() == 'uniqueFilenames';
+};
+
+const useRelativePaths = (): boolean => {
   return workspaceFilenameConvention() == 'relativePaths';
-}
+};
+
+const createNoteOnGoToDefinitionWhenMissing = (): boolean => {
+  let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+  return !!cfg.get('createNoteOnGoToDefinitionWhenMissing');
+};
 
 function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
   if (useUniqueFilenames()) {
@@ -336,10 +343,92 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       }
     }
 
+    // else, create the file
+    if (files.length == 0) {
+      const path = MarkdownDefinitionProvider.createMissingNote(contextWord);
+      if (path !== undefined) {
+        files.push(vscode.Uri.parse(`file://${path}`));
+      }
+    }
+
     const p = new vscode.Position(0, 0);
     return files.map((f) => new vscode.Location(f, p));
   }
+
+  static createMissingNote = (contextWord: ContextWord): string | undefined => {
+    // don't create new files if contextWord is a Tag
+    if (contextWord.type != ContextWordType.WikiLink) {
+      return;
+    }
+    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+    if (!createNoteOnGoToDefinitionWhenMissing()) {
+      return;
+    }
+    const filename = vscode.window.activeTextEditor?.document.fileName;
+    if (filename !== undefined) {
+      if (!useUniqueFilenames()) {
+        vscode.window.showWarningMessage(
+          `createNoteOnGoToDefinitionWhenMissing only works when vscodeMarkdownNotes.workspaceFilenameConvention = 'uniqueFilenames'`
+        );
+        return;
+      }
+      // add an extension if one does not exist
+      let mdFilename = contextWord.word.match(/\.(md|markdown)$/i)
+        ? contextWord.word
+        : `${contextWord.word}.md`;
+      // by default, create new note in same dir as the current document
+      // TODO: could convert this to an option (to, eg, create in workspace root)
+      const path = `${dirname(filename)}/${mdFilename}`;
+      const title = titleCaseFilename(contextWord.word);
+      writeFileSync(path, `# ${title}\n\n`);
+      return path;
+    }
+  };
 }
+
+const capitalize = (word: string): string => {
+  if (!word) {
+    return word;
+  }
+  return `${word[0].toUpperCase()}${word.slice(1)}`;
+};
+
+export const titleCase = (sentence: string): string => {
+  if (!sentence) {
+    return sentence;
+  }
+  const chicagoStyleNoCap = `
+a aboard about above across after against along amid among an and anti around as at before behind
+below beneath beside besides between beyond but by concerning considering despite down during except
+excepting excluding following for from in inside into like minus near of off on onto opposite or
+outside over past per plus regarding round save since so than the through to toward towards under
+underneath unlike until up upon versus via with within without yet
+  `.split(/\s/);
+  let words = sentence.split(/\s/);
+  return words
+    .map((word, i) => {
+      if (i == 0 || i == words.length - 1) {
+        return capitalize(word);
+      } else if (chicagoStyleNoCap.includes(word.toLocaleLowerCase())) {
+        return word;
+      } else {
+        return capitalize(word);
+      }
+    })
+    .join(' ');
+};
+
+export const titleCaseFilename = (filename: string): string => {
+  if (!filename) {
+    return filename;
+  }
+  return titleCase(
+    filename
+      .replace(/\.(md|markdown)$/, '')
+      .replace(/[-_]/gi, ' ')
+      .replace(/\s+/, ' ')
+  );
+};
 
 class MarkdownReferenceProvider implements vscode.ReferenceProvider {
   public provideReferences(

@@ -6,14 +6,12 @@ var expect = chai.expect; // Using Expect style
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
-import { ReferenceSearch } from '../../extension';
+import { ReferenceSearch, titleCaseFilename } from '../../extension';
 
-suite('Extension Test Suite', () => {
-  // vscode.window.showInformationMessage('Start all tests.');
-
-  test('Sample test', () => {
-    assert.equal([1, 2, 3].indexOf(5), -1);
-    assert.equal([1, 2, 3].indexOf(0), -1);
+suite('titleCase', () => {
+  test('titleCaseFilename', () => {
+    expect(titleCaseFilename('the-heat-is-on.md')).to.equal('The Heat Is On');
+    expect(titleCaseFilename('in-the-heat-of-the-night.md')).to.equal('In the Heat of the Night');
   });
 });
 
