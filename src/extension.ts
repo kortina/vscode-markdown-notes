@@ -439,7 +439,7 @@ class MarkdownReferenceProvider implements vscode.ReferenceProvider {
   ): vscode.ProviderResult<vscode.Location[]> {
     // console.debug('MarkdownReferenceProvider.provideReferences');
     const contextWord = getContextWord(document, position);
-    debugContextWord(contextWord);
+    // debugContextWord(contextWord);
     return ReferenceSearch.search(contextWord);
   }
 }

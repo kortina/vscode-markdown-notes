@@ -49,15 +49,36 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 #### Peek and Go to Definition for Wiki Links
 
-![peek-and-to-to-definition](demo/peek-and-go-to-definition.gif)
+![peek-and-go-to-definition](demo/peek-and-go-to-definition.gif)
 
-#### `cmd+shift+f` to Search Workspace for Notes with #tag
+#### Create New Note On Missing Go To Definition
 
-![tag-search](demo/tag-search.gif)
+![create-note-on-missing-go-to-definition](demo/create-note-on-missing-go-to-definition.gif)
 
 #### New Note Command
 
 ![new-note-command](demo/new-note-command.gif)
+
+#### Peek References to Wiki Links
+
+![peek-references-wiki-link](demo/peek-references-wiki-link.png)
+
+#### Peek References to Tag
+
+![peek-references-tag](demo/peek-references-tag.png)
+
+#### Find All References to Wiki Links
+
+![find-all-references-wiki-link](demo/find-all-references-wiki-link.png)
+
+#### Find All References to Tag
+
+![find-all-references-tag](demo/find-all-references-tag.png)
+
+#### `cmd+shift+f` to Search Workspace for Notes with Tag
+
+![tag-search](demo/tag-search.gif)
+
 
 ## dev
 
@@ -83,8 +104,6 @@ Run `npm install` first.
 
 ### TODO
 
-- Add command to create file based on name in the wiki-link under the cursor
-- Add command to create new note with name + heading
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
 - Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
 - Should we support links to headings? eg, `file.md#heading-text`?
