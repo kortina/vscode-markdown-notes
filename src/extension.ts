@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
 import { existsSync, readFile, writeFileSync } from 'fs';
+const fsp = require('fs').promises;
 import {
   CompletionItemProvider,
   TextDocument,
@@ -12,18 +13,27 @@ import {
   CompletionItemKind,
   Uri,
 } from 'vscode';
+import { NoteRefsTreeDataProvider } from './treeViewReferences';
+import { debug } from 'util';
+import { create } from 'domain';
 
-function workspaceFilenameConvention(): string | undefined {
+const workspaceFilenameConvention = (): string | undefined => {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
   return cfg.get('workspaceFilenameConvention');
-}
-function useUniqueFilenames(): boolean {
-  return workspaceFilenameConvention() == 'uniqueFilenames';
-}
+};
 
-function useRelativePaths(): boolean {
+const useUniqueFilenames = (): boolean => {
+  return workspaceFilenameConvention() == 'uniqueFilenames';
+};
+
+const useRelativePaths = (): boolean => {
   return workspaceFilenameConvention() == 'relativePaths';
-}
+};
+
+const createNoteOnGoToDefinitionWhenMissing = (): boolean => {
+  let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+  return !!cfg.get('createNoteOnGoToDefinitionWhenMissing');
+};
 
 function filenameForConvention(uri: Uri, fromDocument: TextDocument): string {
   if (useUniqueFilenames()) {
@@ -63,6 +73,85 @@ class WorkspaceTagList {
   }
 }
 
+export class ReferenceSearch {
+  // TODO/ FIXME: I wonder if instead of this just-in-time search through all the files,
+  // we should instead build the search index for all Tags and WikiLinks once on-boot
+  // and then just look in the index for the locations.
+  // In that case, we would need to implement some sort of change watcher,
+  // to know if our index needs to be updated.
+  // This is pretty brute force as it is.
+  //
+  // static TAG_WORD_SET = new Set();
+  // static STARTED_INIT = false;
+  // static COMPLETED_INIT = false;
+
+  static rangesForWordInDocumentData = (
+    queryWord: string | null,
+    data: string
+  ): Array<vscode.Range> => {
+    let ranges: Array<vscode.Range> = [];
+    if (!queryWord) {
+      return [];
+    }
+    let lines = data.split(/[\r\n]/);
+    lines.map((line, lineNum) => {
+      let charNum = 0;
+      // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
+      let words = line.split(/(\S+\s+)/);
+      words.map((word) => {
+        // console.log(`word: ${word} charNum: ${charNum}`);
+        let spacesBefore = word.length - word.trimLeft().length;
+        let trimmed = word.trim();
+        if (trimmed == queryWord) {
+          let r = new vscode.Range(
+            new vscode.Position(lineNum, charNum + spacesBefore),
+            // I thought we had to sub 1 to get the zero-based index of the last char of this word:
+            // new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length - 1)
+            // but the highlighting is off if we do that ¯\_(ツ)_/¯
+            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length)
+          );
+          ranges.push(r);
+        }
+        charNum += word.length;
+      });
+    });
+    return ranges;
+  };
+
+  static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
+    let locations: vscode.Location[] = [];
+    let query: string;
+    if (contextWord.type == ContextWordType.Tag) {
+      query = `#${contextWord.word}`;
+    } else if ((contextWord.type = ContextWordType.WikiLink)) {
+      query = `[[${basename(contextWord.word)}]]`;
+    } else {
+      return [];
+    }
+    // console.log(`query: ${query}`);
+    let files = (await workspace.findFiles('**/*')).filter(
+      // TODO: parameterize extensions. Add $ to end?
+      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+    );
+    let paths = files.map((f) => f.path);
+    let fileBuffers = await Promise.all(paths.map((p) => fsp.readFile(p)));
+    fileBuffers.map((data, i) => {
+      let path = files[i].path;
+      // console.debug('--------------------');
+      // console.log(path);
+      // console.log(`${data}`.split(/\n/)[0]);
+      let ranges = this.rangesForWordInDocumentData(query, `${data}`);
+      ranges.map((r) => {
+        let loc = new vscode.Location(Uri.file(path), r);
+        locations.push(loc);
+      });
+    });
+
+    // console.log(locations);
+    return locations;
+  }
+}
+
 enum ContextWordType {
   Null, // 0
   WikiLink, // 1
@@ -75,6 +164,16 @@ interface ContextWord {
   hasExtension: boolean | null;
   range: vscode.Range | undefined;
 }
+
+const debugContextWord = (contextWord: ContextWord) => {
+  const { type, word, hasExtension, range } = contextWord;
+  console.debug({
+    type: ContextWordType[contextWord.type],
+    word: contextWord.word,
+    hasExtension: contextWord.hasExtension,
+    range: contextWord.range,
+  });
+};
 
 const NULL_CONTEXT_WORD = {
   type: ContextWordType.Null,
@@ -203,6 +302,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
+    // debugContextWord(contextWord);
     if (contextWord.type != ContextWordType.WikiLink) {
       // console.debug('getContextWord was not WikiLink');
       return [];
@@ -243,8 +343,104 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       }
     }
 
+    // else, create the file
+    if (files.length == 0) {
+      const path = MarkdownDefinitionProvider.createMissingNote(contextWord);
+      if (path !== undefined) {
+        files.push(vscode.Uri.parse(`file://${path}`));
+      }
+    }
+
     const p = new vscode.Position(0, 0);
     return files.map((f) => new vscode.Location(f, p));
+  }
+
+  static createMissingNote = (contextWord: ContextWord): string | undefined => {
+    // don't create new files if contextWord is a Tag
+    if (contextWord.type != ContextWordType.WikiLink) {
+      return;
+    }
+    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+    if (!createNoteOnGoToDefinitionWhenMissing()) {
+      return;
+    }
+    const filename = vscode.window.activeTextEditor?.document.fileName;
+    if (filename !== undefined) {
+      if (!useUniqueFilenames()) {
+        vscode.window.showWarningMessage(
+          `createNoteOnGoToDefinitionWhenMissing only works when vscodeMarkdownNotes.workspaceFilenameConvention = 'uniqueFilenames'`
+        );
+        return;
+      }
+      // add an extension if one does not exist
+      let mdFilename = contextWord.word.match(/\.(md|markdown)$/i)
+        ? contextWord.word
+        : `${contextWord.word}.md`;
+      // by default, create new note in same dir as the current document
+      // TODO: could convert this to an option (to, eg, create in workspace root)
+      const path = `${dirname(filename)}/${mdFilename}`;
+      const title = titleCaseFilename(contextWord.word);
+      writeFileSync(path, `# ${title}\n\n`);
+      return path;
+    }
+  };
+}
+
+const capitalize = (word: string): string => {
+  if (!word) {
+    return word;
+  }
+  return `${word[0].toUpperCase()}${word.slice(1)}`;
+};
+
+export const titleCase = (sentence: string): string => {
+  if (!sentence) {
+    return sentence;
+  }
+  const chicagoStyleNoCap = `
+a aboard about above across after against along amid among an and anti around as at before behind
+below beneath beside besides between beyond but by concerning considering despite down during except
+excepting excluding following for from in inside into like minus near of off on onto opposite or
+outside over past per plus regarding round save since so than the through to toward towards under
+underneath unlike until up upon versus via with within without yet
+  `.split(/\s/);
+  let words = sentence.split(/\s/);
+  return words
+    .map((word, i) => {
+      if (i == 0 || i == words.length - 1) {
+        return capitalize(word);
+      } else if (chicagoStyleNoCap.includes(word.toLocaleLowerCase())) {
+        return word;
+      } else {
+        return capitalize(word);
+      }
+    })
+    .join(' ');
+};
+
+export const titleCaseFilename = (filename: string): string => {
+  if (!filename) {
+    return filename;
+  }
+  return titleCase(
+    filename
+      .replace(/\.(md|markdown)$/, '')
+      .replace(/[-_]/gi, ' ')
+      .replace(/\s+/, ' ')
+  );
+};
+
+class MarkdownReferenceProvider implements vscode.ReferenceProvider {
+  public provideReferences(
+    document: TextDocument,
+    position: Position,
+    context: vscode.ReferenceContext,
+    token: CancellationToken
+  ): vscode.ProviderResult<vscode.Location[]> {
+    // console.debug('MarkdownReferenceProvider.provideReferences');
+    const contextWord = getContextWord(document, position);
+    // debugContextWord(contextWord);
+    return ReferenceSearch.search(contextWord);
   }
 }
 
@@ -327,6 +523,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
   );
 
+  context.subscriptions.push(
+    vscode.languages.registerReferenceProvider(md, new MarkdownReferenceProvider())
+  );
+
   let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
   context.subscriptions.push(newNoteDisposable);
 
@@ -334,4 +534,8 @@ export function activate(context: vscode.ExtensionContext) {
   // console.log(`WorkspaceTagList.STARTED_INIT.1: ${WorkspaceTagList.STARTED_INIT}`);
   WorkspaceTagList.initSet();
   // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
+
+  // const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
+  //   treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
+  // });
 }
