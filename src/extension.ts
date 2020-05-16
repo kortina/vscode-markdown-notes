@@ -98,8 +98,10 @@ export class ReferenceSearch {
         if (trimmed == queryWord) {
           let r = new vscode.Range(
             new vscode.Position(lineNum, charNum + spacesBefore),
-            // I think we need to sub 1 to get the zero-based index of the last char of this word:
-            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length - 1)
+            // I thought we had to sub 1 to get the zero-based index of the last char of this word:
+            // new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length - 1)
+            // but the highlighting is off if we do that ¯\_(ツ)_/¯
+            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length)
           );
           ranges.push(r);
         }
@@ -348,7 +350,7 @@ class MarkdownReferenceProvider implements vscode.ReferenceProvider {
   ): vscode.ProviderResult<vscode.Location[]> {
     // console.debug('MarkdownReferenceProvider.provideReferences');
     const contextWord = getContextWord(document, position);
-    // debugContextWord(contextWord);
+    debugContextWord(contextWord);
     return ReferenceSearch.search(contextWord);
   }
 }

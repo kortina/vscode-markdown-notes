@@ -29,12 +29,12 @@ suite('ReferenceSearch', () => {
 
   test('rangesForWordInDocumentData', () => {
     expect(ReferenceSearch.rangesForWordInDocumentData('[[test.md]]', document)).to.eql([
-      new vscode.Range(new vscode.Position(2, 2), new vscode.Position(2, 12)),
-      new vscode.Range(new vscode.Position(4, 0), new vscode.Position(4, 10)),
+      new vscode.Range(2, 2, 2, 13),
+      new vscode.Range(4, 0, 4, 11),
     ]);
     expect(ReferenceSearch.rangesForWordInDocumentData('#tag', document)).to.eql([
-      new vscode.Range(new vscode.Position(2, 15), new vscode.Position(2, 18)),
-      new vscode.Range(new vscode.Position(6, 0), new vscode.Position(6, 3)),
+      new vscode.Range(2, 15, 2, 19),
+      new vscode.Range(6, 0, 6, 4),
     ]);
   });
 });
