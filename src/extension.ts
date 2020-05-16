@@ -535,7 +535,7 @@ export function activate(context: vscode.ExtensionContext) {
   WorkspaceTagList.initSet();
   // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
 
-  // const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
-  //   treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
-  // });
+  const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
+    treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
+  });
 }
