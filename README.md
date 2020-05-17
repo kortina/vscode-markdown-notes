@@ -79,7 +79,6 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ![tag-search](demo/tag-search.gif)
 
-
 ## dev
 
 Run `npm install` first.
@@ -87,10 +86,14 @@ Run `npm install` first.
 ### FAQ
 
 - "Autocomplete / Intellisense is not working - why?"
-  - Quick suggestions are not enabled by default in Markdown, so you have to manually  `triggerSuggest` OR put this in settings.json:
+  - Quick suggestions are not enabled by default in Markdown, so you have to manually `triggerSuggest` OR put this in settings.json:
   ```
   "[markdown]": {
      "editor.quickSuggestions": true
+     // If you turn this on and DO NOT want suggestions
+     // for non-wiki-link, non-tag words,
+     // You may also want to add this setting:
+     // "editor.wordBasedSuggestions": false,
   }
   ```
 - "New note is not working - why?"
