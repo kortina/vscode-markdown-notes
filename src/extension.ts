@@ -93,7 +93,7 @@ export class ReferenceSearch {
     if (!queryWord) {
       return [];
     }
-    let lines = data.split(/[\r\n]/);
+    let lines = data.split(/\r?\n/);
     lines.map((line, lineNum) => {
       let charNum = 0;
       // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
