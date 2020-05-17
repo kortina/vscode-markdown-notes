@@ -23,7 +23,7 @@
 - for Wiki Link [[sub.md]]
 - for Tag #tag
 
-`⇧⌥F12` / Find All References / `references-view.find`
+`⇧⌥F12` (`ctr+⌥+r`) / Find All References / `references-view.find`
 
 - for Wiki Link [[sub.md]]
 - for Tag #tag
