@@ -16,6 +16,10 @@ import {
 import { NoteRefsTreeDataProvider } from './treeViewReferences';
 import { debug } from 'util';
 import { create } from 'domain';
+const unified = require('unified');
+const markdown = require('remark-parse');
+const wikiLinkPlugin = require('remark-wiki-link');
+const processor = unified().use(markdown, { gfm: true }).use(wikiLinkPlugin);
 
 const workspaceFilenameConvention = (): string | undefined => {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
