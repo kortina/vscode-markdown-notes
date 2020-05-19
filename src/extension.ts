@@ -17,9 +17,13 @@ import { NoteRefsTreeDataProvider } from './treeViewReferences';
 import { debug } from 'util';
 import { create } from 'domain';
 const unified = require('unified');
+import { Node } from 'unist';
 const markdown = require('remark-parse');
 const wikiLinkPlugin = require('remark-wiki-link');
-const processor = unified().use(markdown, { gfm: true }).use(wikiLinkPlugin);
+const tagTokenizer = require('./tagTokenizer');
+const processor = unified().use(markdown, { gfm: true }).use(wikiLinkPlugin).use(tagTokenizer);
+const find = require('unist-util-find');
+const visit = require('unist-util-visit');
 
 const workspaceFilenameConvention = (): string | undefined => {
   let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -190,10 +194,47 @@ const TAG_REGEX_WITH_ANCHORS = /^\#[\w\-\_]+$/i; // used to match entire words
 const WIKI_LINK_REGEX = /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
 const MARKDOWN_WORD_PATTERN_OVERRIDE = /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
 
+// Given a document and position, parse and return the node at that position
+const getNodeAtPosition = (document: TextDocument, position: Position): Node | undefined => {
+  // pass tree as arg instead?
+  var tree = processor.parse(document.getText());
+  let nodes = find(tree, (node: any) => {
+    // https://github.com/syntax-tree/unist#position
+    // The start field of Position represents the place of the first character of the parsed source region.
+    // The end field of Position represents the place of the first character after the parsed source region, whether it exists or not.
+    // The line field (1-indexed integer) represents a line in a source file.
+    // The column field (1-indexed integer) represents a column in a source
+    // file.
+    let s = node.position.start;
+    let e = node.position.end;
+    // convert needle to 1 based instead of 0 based, to match unified node position syntax
+    let needle = { line: position.line + 1, column: position.character + 1 };
+    return s.line == needle.line && s.column <= needle.column && e.column >= needle.column;
+  });
+  if (nodes) {
+    return nodes.first();
+  }
+};
+
 function getContextWord(document: TextDocument, position: Position): ContextWord {
   let contextWord: string;
   let regex: RegExp;
   let range: vscode.Range | undefined;
+
+  // TODO: https://unifiedjs.com/explore/package/remark-parse/
+  // tokenize @mention VERY similar to tokenizeTag
+
+  // console.log(`needle`, position);
+  var tree = processor.parse(document.getText());
+  console.log('parsed');
+  // let currentNode = getNodeAtPosition(document, position);
+  // console.log(`currentNode`, currentNode);
+  // TODO: better type this:
+  visit(tree, ['wikiLink', 'text', 'noteTag'], (node: any) => {
+    console.log(`---- ${node.type} ----`);
+    console.log(node.value);
+    // console.log(node.position);
+  });
 
   // #tag regexp
   regex = TAG_REGEX___NO_ANCHORS;
