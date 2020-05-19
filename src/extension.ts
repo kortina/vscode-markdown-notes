@@ -67,7 +67,7 @@ class WorkspaceTagList {
       )
       .map((f) => {
         // read file, get all words beginning with #, add to Set
-        readFile(f.path, (err, data) => {
+        readFile(f.fsPath, (err, data) => {
           let allWords = (data || '').toString().split(/\s/);
           let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
           tags.map((t) => this.TAG_WORD_SET.add(t));
@@ -97,7 +97,7 @@ export class ReferenceSearch {
     if (!queryWord) {
       return [];
     }
-    let lines = data.split(/[\r\n]/);
+    let lines = data.split(/\r?\n/);
     lines.map((line, lineNum) => {
       let charNum = 0;
       // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
@@ -137,7 +137,7 @@ export class ReferenceSearch {
       // TODO: parameterize extensions. Add $ to end?
       (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
     );
-    let paths = files.map((f) => f.path);
+    let paths = files.map((f) => f.fsPath);
     let fileBuffers = await Promise.all(paths.map((p) => fsp.readFile(p)));
     fileBuffers.map((data, i) => {
       let path = files[i].path;
@@ -332,7 +332,7 @@ class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       const filename = selectedWord;
       // there should be exactly 1 file with name = selectedWord
       files = (await workspace.findFiles('**/*')).filter((f) => {
-        return basename(f.path) == filename;
+        return basename(f.fsPath) == filename;
       });
     }
     // If we did not find any files in the workspace,
