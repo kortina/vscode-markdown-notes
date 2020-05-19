@@ -20,8 +20,13 @@ const unified = require('unified');
 import { Node } from 'unist';
 const markdown = require('remark-parse');
 const wikiLinkPlugin = require('remark-wiki-link');
-const tagTokenizer = require('./tagTokenizer');
-const processor = unified().use(markdown, { gfm: true }).use(wikiLinkPlugin).use(tagTokenizer);
+const tags = require('./tags');
+const mentions = require('./mentions');
+const processor = unified()
+  .use(markdown, { gfm: true })
+  .use(wikiLinkPlugin)
+  .use(mentions)
+  .use(tags);
 const find = require('unist-util-find');
 const visit = require('unist-util-visit');
 
@@ -230,7 +235,7 @@ function getContextWord(document: TextDocument, position: Position): ContextWord
   // let currentNode = getNodeAtPosition(document, position);
   // console.log(`currentNode`, currentNode);
   // TODO: better type this:
-  visit(tree, ['wikiLink', 'text', 'noteTag'], (node: any) => {
+  visit(tree, ['wikiLink', 'text', 'noteTag', 'link'], (node: any) => {
     console.log(`---- ${node.type} ----`);
     console.log(node.value);
     // console.log(node.position);
