@@ -28,9 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(newNoteDisposable);
 
   // parse the tags from every file in the workspace
-  // console.log(`WorkspaceTagList.STARTED_INIT.1: ${WorkspaceTagList.STARTED_INIT}`);
   WorkspaceTagList.initSet();
-  // console.log(`WorkspaceTagList.STARTED_INIT.2: ${WorkspaceTagList.STARTED_INIT}`);
 
   // const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
   //   treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
