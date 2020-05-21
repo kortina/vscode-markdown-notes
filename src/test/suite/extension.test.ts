@@ -6,7 +6,8 @@ var expect = chai.expect; // Using Expect style
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
-import { ReferenceSearch, titleCaseFilename } from '../../extension';
+import { titleCaseFilename } from '../../utils';
+import { ReferenceSearch } from '../../ReferenceSearch';
 
 suite('titleCase', () => {
   test('titleCaseFilename', () => {

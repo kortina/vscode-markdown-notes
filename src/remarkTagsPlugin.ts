@@ -3,9 +3,9 @@ import { Eat } from 'remark-parse';
 // See: https://github.com/remarkjs/remark/issues/387
 // FIXME: this does not seem to be working correctly...
 
-module.exports = tags;
+module.exports = remarkTagsPlugin;
 
-function tags() {
+function remarkTagsPlugin() {
   // @ts-ignore
   var Parser = this.Parser;
   var tokenizers = Parser.prototype.inlineTokenizers;
@@ -30,7 +30,8 @@ function tokenizeTag(eat: any, value: any, silent?: any) {
 
     return eat(match[0])({
       type: 'noteTag',
-      noteMatch: match[0],
+      value: match[0],
+      valueNoHash: match[1],
       url: 'https://social-network/' + match[1],
       children: [{ type: 'text', value: match[0] }],
     });
