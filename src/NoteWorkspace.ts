@@ -7,6 +7,8 @@ import { existsSync, readFile, writeFileSync } from 'fs';
 // 2. command for creating a New Note
 // 3. some other bootstrapping
 export class NoteWorkspace {
+  // Defining these as strings now, and then compiling them with accessor methods.
+  // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[\\w\\.\\-\\_\\/\\\\]+'; // [[wiki-link-regex
