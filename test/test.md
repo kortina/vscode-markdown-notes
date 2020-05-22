@@ -8,5 +8,3 @@
 - [[sub.md]] - exists in sub directory
 
 #tag #another_tag
-
-@mentionname
