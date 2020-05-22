@@ -6,7 +6,6 @@ import { WorkspaceTagList } from './WorkspaceTagList';
 import { newNote, overrideMarkdownWordPattern } from './MarkdownNotebook';
 // import { debug } from 'util';
 // import { create } from 'domain';
-// import { RemarkParser } from './RemarkParser';
 
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');

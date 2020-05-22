@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RemarkParser } from './RemarkParser';
+// import { RemarkParser } from './RemarkParser';
 import { TAG_REGEX___NO_ANCHORS, WIKI_LINK_REGEX } from './MarkdownNotebook';
 
 export enum ContextWordType {
@@ -40,8 +40,8 @@ export function getContextWord(
   let regex: RegExp;
   let range: vscode.Range | undefined;
 
-  let rp = new RemarkParser(document.getText());
-  rp.walkWikiLinksAndTags();
+  // let rp = new RemarkParser(document.getText());
+  // rp.walkWikiLinksAndTags();
   // let currentNode = rp.getNodeAtPosition(position);
 
   // #tag regexp

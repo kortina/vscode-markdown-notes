@@ -60,4 +60,15 @@ export class RemarkParser {
       // console.log(node.position);
     });
   }
+
+  tags(): Node[] {
+    let tags: Node[] = [];
+    visit(this.tree(), ['noteTag'], (node: Node) => {
+      // console.log(`---- ${node.type} ----`);
+      // console.log(`value: ${node.value}`);
+      tags.push(node);
+      // console.log(node.position);
+    });
+    return tags;
+  }
 }
