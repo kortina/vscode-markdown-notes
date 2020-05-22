@@ -7,26 +7,30 @@ import { existsSync, readFile, writeFileSync } from 'fs';
 // 2. command for creating a New Note
 // 3. some other bootstrapping
 export class NoteWorkspace {
-  static _rxTagNoAnchors = '\\#[\\w-_]+'; // used to match tags that appear within lines
-  static _rxTagWithAnchors = '^\\#[\\w-_]+$'; // used to match entire words
-  static _rxWikiLink = '\\[\\[[\\w\\.-_\\/\\\\]+'; // [[wiki-link-regex
-  static _rxMarkdownWordPattern = '([_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
+  static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
+  static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
+  static _rxWikiLink = '\\[\\[[\\w\\.\\-\\_\\/\\\\]+'; // [[wiki-link-regex
+  static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
 
   static rxTagNoAnchors(): RegExp {
+    // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
     return new RegExp(this._rxTagNoAnchors, 'i');
   }
   static rxTagWithAnchors(): RegExp {
+    // return /^\#[\w\-\_]+$/i; // used to match entire words
     return new RegExp(this._rxTagWithAnchors, 'i');
   }
   static rxWikiLink(): RegExp {
+    // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
     return new RegExp(this._rxWikiLink, 'i');
   }
   static rxMarkdownWordPattern(): RegExp {
+    // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
     return new RegExp(this._rxMarkdownWordPattern);
   }
 
   static useUniqueFilenames(): boolean {
-    return false;
+    // return false;
     let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
     return cfg.get('workspaceFilenameConvention') == 'uniqueFilenames';
   }
