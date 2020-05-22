@@ -1,8 +1,16 @@
 import { readFile } from 'fs';
-import { TAG_REGEX_WITH_ANCHORS } from './MarkdownNotebook';
+import { NoteWorkspace } from './NoteWorkspace';
 import { workspace } from 'vscode';
 // import { RemarkParser } from './RemarkParser';
 
+// This class walks through all the files in the current workspace
+// and adds every #tag it finds to a new Set() of #tags
+// to be used by the MarkdownCompletionProvider for #tags
+//
+// In the future, I think this can be combined with ReferenceSearch.
+// But I think this class might be *slightly* more faster
+// since it does not do any of the work to track the Position (line, column)
+// of each tag in the document
 export class WorkspaceTagList {
   static TAG_WORD_SET = new Set();
   static STARTED_INIT = false;
@@ -30,7 +38,7 @@ export class WorkspaceTagList {
           let doc = (data || '').toString();
           // this.parseDoc(f.fsPath, doc);
           let allWords = doc.split(/\s/);
-          let tags = allWords.filter((w) => w.match(TAG_REGEX_WITH_ANCHORS));
+          let tags = allWords.filter((w) => w.match(NoteWorkspace.rxTagWithAnchors()));
           tags.map((t) => this.TAG_WORD_SET.add(t));
         });
       });

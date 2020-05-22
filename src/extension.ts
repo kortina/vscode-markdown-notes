@@ -3,14 +3,14 @@ import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
 import { WorkspaceTagList } from './WorkspaceTagList';
-import { newNote, overrideMarkdownWordPattern } from './MarkdownNotebook';
+import { NoteWorkspace } from './NoteWorkspace';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
   const md = { scheme: 'file', language: 'markdown' };
-  overrideMarkdownWordPattern(); // still nec to get ../ to trigger suggestions in `relativePaths` mode
+  NoteWorkspace.overrideMarkdownWordPattern(); // still nec to get ../ to trigger suggestions in `relativePaths` mode
 
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())
@@ -23,7 +23,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerReferenceProvider(md, new MarkdownReferenceProvider())
   );
 
-  let newNoteDisposable = vscode.commands.registerCommand('vscodeMarkdownNotes.newNote', newNote);
+  let newNoteDisposable = vscode.commands.registerCommand(
+    'vscodeMarkdownNotes.newNote',
+    NoteWorkspace.newNote
+  );
   context.subscriptions.push(newNoteDisposable);
 
   // parse the tags from every file in the workspace

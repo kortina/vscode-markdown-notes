@@ -1,12 +1,21 @@
 import * as vscode from 'vscode';
 import { ContextWord, ContextWordType, getContextWord } from './ContextWord';
-import { createNoteOnGoToDefinitionWhenMissing, useUniqueFilenames } from './MarkdownNotebook';
+import { NoteWorkspace } from './NoteWorkspace';
 import { basename, dirname, resolve } from 'path';
 import { existsSync, writeFileSync } from 'fs';
 import { titleCaseFilename } from './utils';
 
-// TODO: read this!
-// https://stackoverflow.com/questions/54285472/vscode-how-to-automatically-jump-to-proper-definition
+// Given a document and position, check whether the current word matches one of
+// this context: [[wiki-link]]
+//
+// If so, we look for a file in the current workspace named by the wiki link
+// If the file `wiki-link.md` exists, return the first line of that file as the
+// Definition for the word.
+//
+// Optionally, when no existing note is found for the wiki-link
+// vscodeMarkdownNotes.createNoteOnGoToDefinitionWhenMissing = true
+// AND vscodeMarkdownNotes.workspaceFilenameConvention = 'uniqueFilenames'
+// THEN create the missing file at the workspace root.
 export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
   public async provideDefinition(
     document: vscode.TextDocument,
@@ -38,7 +47,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // there is no guarantee useUniqueFilenames will tell us
     // it is not a relative path.
     // However, only check for basenames in the entire project if:
-    if (useUniqueFilenames()) {
+    if (NoteWorkspace.useUniqueFilenames()) {
       const filename = selectedWord;
       // there should be exactly 1 file with name = selectedWord
       files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
@@ -75,12 +84,12 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       return;
     }
     let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    if (!createNoteOnGoToDefinitionWhenMissing()) {
+    if (!NoteWorkspace.createNoteOnGoToDefinitionWhenMissing()) {
       return;
     }
     const filename = vscode.window.activeTextEditor?.document.fileName;
     if (filename !== undefined) {
-      if (!useUniqueFilenames()) {
+      if (!NoteWorkspace.useUniqueFilenames()) {
         vscode.window.showWarningMessage(
           `createNoteOnGoToDefinitionWhenMissing only works when vscodeMarkdownNotes.workspaceFilenameConvention = 'uniqueFilenames'`
         );

@@ -1,8 +1,14 @@
 import * as vscode from 'vscode';
 import { ContextWordType, getContextWord } from './ContextWord';
 import { WorkspaceTagList } from './WorkspaceTagList';
-import { filenameForConvention } from './MarkdownNotebook';
+import { NoteWorkspace } from './NoteWorkspace';
 
+// Given a document and position, check whether the current word matches one of
+// these 2 contexts:
+// 1. [[wiki-links]]
+// 2. #tags
+//
+// If so, provide appropriate completion items from the current workspace
 export class MarkdownFileCompletionItemProvider implements vscode.CompletionItemProvider {
   public async provideCompletionItems(
     document: vscode.TextDocument,
@@ -45,7 +51,7 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         );
         items = files.map((f) => {
           let kind = vscode.CompletionItemKind.File;
-          let label = filenameForConvention(f, document);
+          let label = NoteWorkspace.filenameForConvention(f, document);
           let item = new vscode.CompletionItem(label, kind);
           if (contextWord && contextWord.range) {
             item.range = contextWord.range;

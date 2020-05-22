@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 // import { RemarkParser } from './RemarkParser';
-import { TAG_REGEX___NO_ANCHORS, WIKI_LINK_REGEX } from './MarkdownNotebook';
+import { NoteWorkspace } from './NoteWorkspace';
 
 export enum ContextWordType {
   Null, // 0
@@ -45,7 +45,7 @@ export function getContextWord(
   // let currentNode = rp.getNodeAtPosition(position);
 
   // #tag regexp
-  regex = TAG_REGEX___NO_ANCHORS;
+  regex = NoteWorkspace.rxTagNoAnchors();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
     // here we do nothing to modify the range because the replacements
@@ -61,7 +61,7 @@ export function getContextWord(
     }
   }
 
-  regex = WIKI_LINK_REGEX;
+  regex = NoteWorkspace.rxWikiLink();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
     // account for the (exactly) 2 [[  chars at beginning of the match
