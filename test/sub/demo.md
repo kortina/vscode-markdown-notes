@@ -1,6 +1,13 @@
 # Demo
 
-`⌥F12` (`cmd+k cmd+k`) / Peek Definition / editor.action.peekDefinition
+`⌃Space` (`ctrl+p`) / Trigger Suggest / `editor.action.triggerSuggest`
+
+- for Wiki Link [[test.md]]
+- for Tag #tag
+
+---
+
+`⌥F12` (`cmd+k cmd+k`) / Peek Definition / `editor.action.peekDefinition`
 
 - to preview Wiki Link inline [[sub.md]] [[test.md]]
 
