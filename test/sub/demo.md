@@ -25,15 +25,23 @@
 - for Wiki Link [[test.md]]
 - for Tag #tag
 
+---
+
 `⇧F12` / Go To References / `editor.action.referenceSearch.trigger`
 
 - for Wiki Link [[sub.md]]
 - for Tag #tag
 
+---
+
 `⇧⌥F12` (`ctr+⌥+r`) / Find All References / `references-view.find`
 
 - for Wiki Link [[sub.md]]
 - for Tag #tag
+
+---
+
+`⇧⌘P`: "New Note" (`⇧⌥N`) / New Note Command / `vscodeMarkdownNotes.newNote`
 
 ---
 

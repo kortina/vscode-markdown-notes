@@ -91,7 +91,8 @@ export class NoteWorkspace {
 
     let workspaceUri = '';
     if (vscode.workspace.workspaceFolders) {
-      workspaceUri = vscode.workspace.workspaceFolders[0].uri.path.toString();
+      workspaceUri = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
+      // workspaceUri = vscode.workspace.workspaceFolders[0].uri.path.toString();
     }
 
     inputBoxPromise.then(
