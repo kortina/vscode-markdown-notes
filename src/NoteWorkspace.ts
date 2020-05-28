@@ -13,6 +13,8 @@ export class NoteWorkspace {
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[\\w\\.\\-\\_\\/\\\\]+'; // [[wiki-link-regex
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
+  static _defaultExtension = 'md';
+  static _slugifyChar = '-';
 
   static rxTagNoAnchors(): RegExp {
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
@@ -51,6 +53,30 @@ export class NoteWorkspace {
       let rel = normalize(relative(fromDir, toPath));
       return rel;
     }
+  }
+
+  // should this take contextWord: ContextWord as arg? that would lead to a cirular dep
+  // should it take a uri or filepath
+  static uriMatchesNoteName(uri: vscode.Uri, noteName: string) {
+    return basename(uri.fsPath) == noteName;
+    // let bn = basename(filepath);
+
+    throw 'NOT IMPLEMENTED';
+    // see:
+    // https://github.com/b3u/vscode-markdown-notes/blob/966219f2dcd6761b293e5bdb85069ad238b1e494/src/extension.ts#L212-L214
+    // and:
+    // https://github.com/kortina/vscode-markdown-notes/issues/4#issuecomment-629829808
+  }
+
+  static slugifyTitle(title: string): string {
+    return title
+      .replace(/\W+/gi, this._slugifyChar) // non-words to hyphens (or underscores)
+      .toLowerCase() // lower
+      .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
+  }
+
+  static noteFileNameFromTitle(title: string): string {
+    return this.slugifyTitle(title) + `.${this._defaultExtension}`; // add extension
   }
 
   static newNote(context: vscode.ExtensionContext) {

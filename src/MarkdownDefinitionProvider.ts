@@ -22,6 +22,9 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ) {
+    // FIXME: this whole function really needs to be cleaned up
+    // It's just kind of gross calling methods from all over the place
+    //
     // console.debug('provideDefinition');
 
     const contextWord = getContextWord(document, position);
@@ -48,10 +51,9 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // it is not a relative path.
     // However, only check for basenames in the entire project if:
     if (NoteWorkspace.useUniqueFilenames()) {
-      const filename = selectedWord;
       // there should be exactly 1 file with name = selectedWord
       files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
-        return basename(f.fsPath) == filename;
+        return NoteWorkspace.uriMatchesNoteName(f, contextWord.word);
       });
     }
     // If we did not find any files in the workspace,
