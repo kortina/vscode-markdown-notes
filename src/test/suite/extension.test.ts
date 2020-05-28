@@ -8,6 +8,7 @@ import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
 import { titleCaseFilename } from '../../utils';
 import { ReferenceSearch } from '../../ReferenceSearch';
+import { ContextWordType } from '../../ContextWord';
 
 suite('titleCase', () => {
   test('titleCaseFilename', () => {
@@ -27,11 +28,23 @@ suite('ReferenceSearch', () => {
   // vscode.window.showInformationMessage('Start ReferenceSearch.');
 
   test('rangesForWordInDocumentData', () => {
-    expect(ReferenceSearch.rangesForWordInDocumentData('[[test.md]]', document)).to.eql([
+    let w = {
+      word: 'test.md',
+      hasExtension: true,
+      type: ContextWordType.WikiLink,
+      range: undefined,
+    };
+    expect(ReferenceSearch.rangesForWordInDocumentData(w, document)).to.eql([
       new vscode.Range(2, 2, 2, 13),
       new vscode.Range(4, 0, 4, 11),
     ]);
-    expect(ReferenceSearch.rangesForWordInDocumentData('#tag', document)).to.eql([
+    w = {
+      word: 'tag',
+      hasExtension: true,
+      type: ContextWordType.Tag,
+      range: undefined,
+    };
+    expect(ReferenceSearch.rangesForWordInDocumentData(w, document)).to.eql([
       new vscode.Range(2, 15, 2, 19),
       new vscode.Range(6, 0, 6, 4),
     ]);

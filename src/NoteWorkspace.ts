@@ -57,11 +57,13 @@ export class NoteWorkspace {
 
   // should this take contextWord: ContextWord as arg? that would lead to a cirular dep
   // should it take a uri or filepath
-  static uriMatchesNoteName(uri: vscode.Uri, noteName: string) {
-    return basename(uri.fsPath) == noteName;
-    // let bn = basename(filepath);
-
-    throw 'NOT IMPLEMENTED';
+  static filePathMatchesNoteName(filepath: string, noteName: string) {
+    let bn = basename(filepath);
+    return [
+      noteName, // has extension already
+      `${noteName}.md`, // add ext
+      `${noteName}.markdown`, // add ext
+    ].includes(bn);
     // see:
     // https://github.com/b3u/vscode-markdown-notes/blob/966219f2dcd6761b293e5bdb85069ad238b1e494/src/extension.ts#L212-L214
     // and:

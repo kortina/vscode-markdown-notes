@@ -33,10 +33,6 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       // console.debug('getContextWord was not WikiLink');
       return [];
     }
-    if (!contextWord.hasExtension) {
-      // console.debug('getContextWord does not have file extension');
-      return [];
-    }
 
     // TODO: parameterize extensions. return if we don't have a filename and we require extensions
     // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
@@ -53,7 +49,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     if (NoteWorkspace.useUniqueFilenames()) {
       // there should be exactly 1 file with name = selectedWord
       files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
-        return NoteWorkspace.uriMatchesNoteName(f, contextWord.word);
+        return NoteWorkspace.filePathMatchesNoteName(f.fsPath, contextWord.word);
       });
     }
     // If we did not find any files in the workspace,
@@ -80,6 +76,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     return files.map((f) => new vscode.Location(f, p));
   }
 
+  // FIXME: move all of the stuff that deals with create the filename to NoteWorkspace
   static createMissingNote = (contextWord: ContextWord): string | undefined => {
     // don't create new files if contextWord is a Tag
     if (contextWord.type != ContextWordType.WikiLink) {

@@ -9,13 +9,13 @@ import * as vscode from 'vscode';
 import { NoteWorkspace } from '../../NoteWorkspace';
 
 suite('uriMaatchesNoteName', () => {
-  test('uriMatchesNoteName', () => {
-    expect(
-      NoteWorkspace.uriMatchesNoteName(
-        vscode.Uri.parse('dir/sub/the-heat-is-on.md'),
-        'the-heat-is-on.md'
-        // 'The Heat Is On'
-      )
-    ).to.equal(true);
+  test('filePathMatchesNoteName', () => {
+    // TODO: match 'The Heat Is On'
+    let filepath = 'dir/sub/the-heat-is-on.md';
+    let uri = vscode.Uri.parse(filepath);
+    expect(NoteWorkspace.filePathMatchesNoteName(filepath, 'the-heat-is-on.md')).to.equal(true);
+    expect(NoteWorkspace.filePathMatchesNoteName(filepath, 'the-heat-is-on')).to.equal(true);
+    filepath = 'dir/sub/the-heat-is-on.markdown';
+    expect(NoteWorkspace.filePathMatchesNoteName(filepath, 'the-heat-is-on')).to.equal(true);
   });
 });
