@@ -108,7 +108,7 @@ Run `npm install` first.
 ### TODO
 
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
-- Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
+- Add option to complete files without extension, to `[[file]]` vs `file.md`
 - Should we support links to headings? eg, `file.md#heading-text`?
 
 ### Development and Release
