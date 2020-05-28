@@ -46,10 +46,10 @@ export class NoteWorkspace {
 
   static filenameForConvention(uri: vscode.Uri, fromDocument: vscode.TextDocument): string {
     if (this.useUniqueFilenames()) {
-      return basename(uri.path);
+      return basename(uri.fsPath);
     } else {
-      let toPath = uri.path;
-      let fromDir = dirname(fromDocument.uri.path.toString());
+      let toPath = uri.fsPath;
+      let fromDir = dirname(fromDocument.uri.fsPath.toString());
       let rel = normalize(relative(fromDir, toPath));
       return rel;
     }
@@ -92,7 +92,6 @@ export class NoteWorkspace {
     let workspaceUri = '';
     if (vscode.workspace.workspaceFolders) {
       workspaceUri = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
-      // workspaceUri = vscode.workspace.workspaceFolders[0].uri.path.toString();
     }
 
     inputBoxPromise.then(
