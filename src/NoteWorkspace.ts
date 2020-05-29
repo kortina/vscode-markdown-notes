@@ -15,7 +15,7 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
-  static _rxWikiLink = '\\[\\[[\\w\\.\\-\\_\\/\\\\]+'; // [[wiki-link-regex
+  static _rxWikiLink = '\\[\\[[^\\]]+\\]\\]'; // [[wiki-link-regex]]
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _defaultExtension = 'md';
   static _slugifyChar = '-';
@@ -59,7 +59,7 @@ export class NoteWorkspace {
     }
   }
 
-  // should this take contextWord: ContextWord as arg? that would lead to a cirular dep
+  // should this take contextWord: ContextWord as arg? that would lead to a circular dep
   // should it take a uri or filepath
   static filePathMatchesNoteName(filepath: string, noteName: string) {
     let bn = basename(filepath);
