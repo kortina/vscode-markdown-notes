@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
 import { existsSync, readFile, writeFileSync } from 'fs';
 
+export const foo = () => {
+  return 1;
+};
+
 // This class contains:
 // 1. an interface to some of the basic user configurable settings or this extension
 // 2. command for creating a New Note
