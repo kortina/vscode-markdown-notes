@@ -59,19 +59,23 @@ export class NoteWorkspace {
     }
   }
 
-  // should this take contextWord: ContextWord as arg? that would lead to a circular dep
-  // should it take a uri or filepath
-  static filePathMatchesNoteName(filepath: string, noteName: string) {
-    let bn = basename(filepath);
-    return [
-      noteName, // has extension already
-      `${noteName}.md`, // add ext
-      `${noteName}.markdown`, // add ext
-    ].includes(bn);
-    // see:
-    // https://github.com/b3u/vscode-markdown-notes/blob/966219f2dcd6761b293e5bdb85069ad238b1e494/src/extension.ts#L212-L214
-    // and:
-    // https://github.com/kortina/vscode-markdown-notes/issues/4#issuecomment-629829808
+  static normalizeNoteNameForFuzzyMatch(noteName: string): string {
+    // remove the brackets:
+    let n = noteName.replace(/[\[\]]/g, '');
+    // remove the filepath:
+    // NB: this may not work with relative paths?
+    n = basename(n);
+    // remove the extension:
+    n = n.replace(/\.(md|markdown)$/i, '');
+    // slugify (to normalize spaces)
+    n = this.slugifyTitle(n);
+    return n;
+  }
+
+  // Compare 2 wiki-links for a fuzzy match.
+  // All of the following will return true
+  static noteNamesFuzzyMatch(left: string, right: string): boolean {
+    return this.normalizeNoteNameForFuzzyMatch(left) == this.normalizeNoteNameForFuzzyMatch(right);
   }
 
   static slugifyTitle(title: string): string {
