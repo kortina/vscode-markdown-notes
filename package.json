@@ -49,6 +49,16 @@
     "configuration": {
       "title": "VS Code Markdown Notes Configuration",
       "properties": {
+        "vscodeMarkdownNotes.noteCompletionConvention": {
+          "type": "string",
+          "enum": [
+            "rawFilename",
+            "noExtension",
+            "toSpaces"
+          ],
+          "default": "rawFilenamenoExtension",
+          "description": "When offering completion options for `wiki-note.md`, get `rawFilename` OR `noExtension` (`wiki-link`) or `toSpaces` (`wiki link`). Default is rawFilenamenoExtension. NB: when using workspaceFilenameConvention, only rawFilename is returned."
+        },
         "vscodeMarkdownNotes.workspaceFilenameConvention": {
           "type": "string",
           "enum": [

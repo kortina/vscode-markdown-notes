@@ -37,6 +37,33 @@ export class NoteWorkspace {
     return new RegExp(this._rxMarkdownWordPattern);
   }
 
+  static wikiLinkCompletionForConvention(
+    uri: vscode.Uri,
+    fromDocument: vscode.TextDocument
+  ): string {
+    if (this.useUniqueFilenames()) {
+      let filename = basename(uri.fsPath);
+      let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+      let c: string = cfg.get('noteCompletionConvention') || '';
+      return this._wikiLinkCompletionForConvention(c, filename);
+    } else {
+      let toPath = uri.fsPath;
+      let fromDir = dirname(fromDocument.uri.fsPath.toString());
+      let rel = normalize(relative(fromDir, toPath));
+      return rel;
+    }
+  }
+
+  static _wikiLinkCompletionForConvention(convention: string, filename: string): string {
+    if (convention == 'toSpaces') {
+      return this.stripExtension(filename).replace(/[-_]+/g, ' ');
+    } else if (convention == 'noExtension') {
+      return this.stripExtension(filename);
+    } else {
+      return filename;
+    }
+  }
+
   static useUniqueFilenames(): boolean {
     // return false;
     let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -48,17 +75,9 @@ export class NoteWorkspace {
     return !!cfg.get('createNoteOnGoToDefinitionWhenMissing');
   }
 
-  static filenameForConvention(uri: vscode.Uri, fromDocument: vscode.TextDocument): string {
-    if (this.useUniqueFilenames()) {
-      return basename(uri.fsPath);
-    } else {
-      let toPath = uri.fsPath;
-      let fromDir = dirname(fromDocument.uri.fsPath.toString());
-      let rel = normalize(relative(fromDir, toPath));
-      return rel;
-    }
+  static stripExtension(noteName: string): string {
+    return noteName.replace(/\.(md|markdown)$/i, '');
   }
-
   static normalizeNoteNameForFuzzyMatch(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
@@ -66,7 +85,7 @@ export class NoteWorkspace {
     // NB: this may not work with relative paths?
     n = basename(n);
     // remove the extension:
-    n = n.replace(/\.(md|markdown)$/i, '');
+    n = this.stripExtension(n);
     // slugify (to normalize spaces)
     n = this.slugifyTitle(n);
     return n;
