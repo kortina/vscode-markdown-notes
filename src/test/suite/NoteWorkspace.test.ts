@@ -1,3 +1,4 @@
+/*
 import * as assert from 'assert';
 var chai = require('chai');
 var expect = chai.expect; // Using Expect style
@@ -19,3 +20,4 @@ suite('uriMaatchesNoteName', () => {
     expect(NoteWorkspace.filePathMatchesNoteName(filepath, 'the-heat-is-on')).to.equal(true);
   });
 });
+*/
