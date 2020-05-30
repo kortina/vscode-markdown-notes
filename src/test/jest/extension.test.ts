@@ -56,26 +56,28 @@ line1 word1 word2
 [[demo.md]] <- link at line5, chars 0-11
 #tag word`; // line 5, chars 0-3
 
-// FIXME: convert this to an output that does not really on vscode.Range
-// test('ReferenceSearch.rangesForWordInDocumentData', () => {
-//   let w = {
-//     word: 'test.md',
-//     hasExtension: true,
-//     type: ContextWordType.WikiLink,
-//     range: undefined,
-//   };
-//   expect(ReferenceSearch.rangesForWordInDocumentData(w, document)).toMatchObject([
-//     new vscode.Range(2, 2, 2, 13),
-//     new vscode.Range(4, 0, 4, 11),
-//   ]);
-//   w = {
-//     word: 'tag',
-//     hasExtension: true,
-//     type: ContextWordType.Tag,
-//     range: undefined,
-//   };
-//   expect(ReferenceSearch.rangesForWordInDocumentData(w, document)).toMatchObject([
-//     new vscode.Range(2, 15, 2, 19),
-//     new vscode.Range(6, 0, 6, 4),
-//   ]);
-// });
+test('ReferenceSearch._rawRangesForWordInDocumentData', () => {
+  let w = {
+    word: 'test.md',
+    hasExtension: true,
+    type: ContextWordType.WikiLink,
+    range: undefined,
+  };
+  let ranges;
+  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
+  expect(ranges).toMatchObject([
+    { start: { line: 2, character: 2 }, end: { line: 2, character: 13 } },
+    { start: { line: 4, character: 0 }, end: { line: 4, character: 11 } },
+  ]);
+  w = {
+    word: 'tag',
+    hasExtension: true,
+    type: ContextWordType.Tag,
+    range: undefined,
+  };
+  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
+  expect(ranges).toMatchObject([
+    { start: { line: 2, character: 15 }, end: { line: 2, character: 19 } },
+    { start: { line: 6, character: 0 }, end: { line: 6, character: 4 } },
+  ]);
+});

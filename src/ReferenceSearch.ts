@@ -4,6 +4,16 @@ const fsp = require('fs').promises;
 import { ContextWord, ContextWordType } from './ContextWord';
 import { NoteWorkspace } from './NoteWorkspace';
 
+const RETURN_TYPE_VSCODE = 'vscode';
+type RawPosition = {
+  line: number;
+  character: number;
+};
+type RawRange = {
+  start: RawPosition;
+  end: RawPosition;
+};
+
 export class ReferenceSearch {
   // TODO/ FIXME: I wonder if instead of this just-in-time search through all the files,
   // we should instead build the search index for all Tags and WikiLinks once on-boot
@@ -16,7 +26,19 @@ export class ReferenceSearch {
     contextWord: ContextWord | null,
     data: string
   ): Array<vscode.Range> => {
-    let ranges: Array<vscode.Range> = [];
+    return ReferenceSearch._rawRangesForWordInDocumentData(contextWord, data).map((r) => {
+      return new vscode.Range(
+        new vscode.Position(r.start.line, r.start.character),
+        new vscode.Position(r.end.line, r.end.character)
+      );
+    });
+  };
+
+  static _rawRangesForWordInDocumentData = (
+    contextWord: ContextWord | null,
+    data: string
+  ): Array<RawRange> => {
+    let ranges: Array<RawRange> = [];
     if (!contextWord) {
       return [];
     }
@@ -48,10 +70,10 @@ export class ReferenceSearch {
           );
           let s = match.index || 0;
           let e = s + match[0].length;
-          let r = new vscode.Range(
-            new vscode.Position(lineNum, s),
-            new vscode.Position(lineNum, e)
-          );
+          let r: RawRange = {
+            start: { line: lineNum, character: s },
+            end: { line: lineNum, character: e },
+          };
           ranges.push(r);
         }
       });
