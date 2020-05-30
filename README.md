@@ -113,6 +113,31 @@ Run `npm install` first.
 
 ### Development and Release
 
+#### Test
+
+For focused jest tests,
+
+- install: https://marketplace.visualstudio.com/items?itemName=kortina.run-in-terminal
+- and https://marketplace.visualstudio.com/items?itemName=vscodevim.vim
+
+Run a focused test with `,rl` on a line in a test file, eg line 8, which will make a call to:
+
+```sh
+./jest-focused.sh ./src/test/jest/extension.test.ts:8
+```
+
+to run only the test at that line. NB, you will also need [these bindings](https://github.com/kortina/dotfiles/blob/e03cea00427ebd3f306ae6a113658934037f7262/vscode/settings.json#L170) for `,rl`
+
+To run all tests,
+
+```sh
+npx jest
+```
+
+All tests are headless.
+
+#### Release
+
 To create a new release,
 
 ```sh
