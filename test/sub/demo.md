@@ -7,9 +7,9 @@
 
 ---
 
-`⌥F12` (`cmd+k cmd+k`) / Peek Definition / `editor.action.peekDefinition`
+**Backlinks Panel**
 
-- to preview Wiki Link inline [[sub.md]] [[test]]
+View and navigate backlinks with an Explorer Panel.
 
 ---
 
@@ -17,6 +17,12 @@
 
 - to open Wiki Link [[sub.md]] [[test]]
 - to createNoteOnGoToDefinitionWhenMissing [[in-the-heat-of-the-night.md]]
+
+---
+
+`⌥F12` (`cmd+k cmd+k`) / Peek Definition / `editor.action.peekDefinition`
+
+- to preview Wiki Link inline [[sub.md]] [[test]]
 
 ---
 
