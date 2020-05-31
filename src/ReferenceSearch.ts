@@ -81,6 +81,16 @@ export class ReferenceSearch {
     return ranges;
   };
 
+  static async searchBacklinksFor(fileBasename: string): Promise<vscode.Location[]> {
+    let cw: ContextWord = {
+      type: ContextWordType.WikiLink,
+      hasExtension: true,
+      word: fileBasename,
+      range: undefined,
+    };
+    return this.search(cw);
+  }
+
   static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
     let locations: vscode.Location[] = [];
     let query: string;

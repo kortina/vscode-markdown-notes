@@ -84,6 +84,14 @@
           "description": "By default, when invoking `editor.action.revealDefinition` on `[[note.md]]` if `note.md` does not exist in workspace, create it. NB: Works only when `vscodeMarkdownNotes.workspaceFilenameConvention` = 'uniqueFilenames'."
         }
       }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "vscodeMarkdownNotesBacklinks",
+          "name": "Backlinks"
+        }
+      ]
     }
   },
   "icon": "images/vscode-markdown-notes.png",

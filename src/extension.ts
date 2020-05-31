@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { BacklinksTreeDataProvider } from './BacklinksTreeDataProvider';
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
@@ -32,7 +33,11 @@ export function activate(context: vscode.ExtensionContext) {
   // parse the tags from every file in the workspace
   WorkspaceTagList.initSet();
 
-  // const treeView = vscode.window.createTreeView('vscodeMarkdownNotesReferences', {
-  //   treeDataProvider: new NoteRefsTreeDataProvider(vscode.workspace.rootPath || null),
-  // });
+  const backlinksTreeDataProvider = new BacklinksTreeDataProvider(
+    vscode.workspace.rootPath || null
+  );
+  vscode.window.onDidChangeActiveTextEditor(() => backlinksTreeDataProvider.reload());
+  const treeView = vscode.window.createTreeView('vscodeMarkdownNotesBacklinks', {
+    treeDataProvider: backlinksTreeDataProvider,
+  });
 }
