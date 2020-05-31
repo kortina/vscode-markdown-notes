@@ -63,11 +63,11 @@ export class ReferenceSearch {
       }
       Array.from(candidates || []).map((match) => {
         if (matchesQuery(match, contextWord)) {
-          console.log(
-            `${lineNum} Regex Range: (${match.index}, ${(match.index || 0) + match[0].length}) ${
-              match[0]
-            } `
-          );
+          // console.log(
+          //   `${lineNum} Regex Range: (${match.index}, ${(match.index || 0) + match[0].length}) ${
+          //     match[0]
+          //   } `
+          // );
           let s = match.index || 0;
           let e = s + match[0].length;
           let r: RawRange = {
