@@ -6,6 +6,28 @@ export const foo = () => {
   return 1;
 };
 
+enum NoteCompletionConvention {
+  rawFilename = 'rawFilename',
+  noExtension = 'noExtension',
+  toSpaces = 'toSpaces',
+}
+enum WorkspaceFilenameConvention {
+  uniqueFilenames = 'uniqueFilenames',
+  relativePaths = 'relativePaths',
+}
+enum SlugifyCharacter {
+  dash = '-',
+  underscore = '_',
+  none = 'NONE',
+}
+
+type Config = {
+  noteCompletionConvention: NoteCompletionConvention;
+  workspaceFilenameConvention: WorkspaceFilenameConvention;
+  slugifyCharacter: SlugifyCharacter;
+  createNoteOnGoToDefinitionWhenMissing: boolean;
+};
+
 // This class contains:
 // 1. an interface to some of the basic user configurable settings or this extension
 // 2. command for creating a New Note
@@ -21,10 +43,29 @@ export class NoteWorkspace {
   static SLUGIFY_NONE = 'NONE';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
+  static DEFAULT_CONFIG = {
+    noteCompletionConvention: NoteCompletionConvention.rawFilename,
+    workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
+    slugifyCharacter: SlugifyCharacter.dash,
+    createNoteOnGoToDefinitionWhenMissing: true,
+  };
+
+  static cfg(): Config {
+    let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+    return {
+      noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
+      workspaceFilenameConvention: c.get(
+        'workspaceFilenameConvention'
+      ) as WorkspaceFilenameConvention,
+      slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
+      createNoteOnGoToDefinitionWhenMissing: c.get(
+        'createNoteOnGoToDefinitionWhenMissing'
+      ) as boolean,
+    };
+  }
 
   static slugifyChar(): string {
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    return cfg.get('slugifyCharacter') || this._slugifyChar;
+    return this.cfg().slugifyCharacter;
   }
 
   static rxTagNoAnchors(): RegExp {
@@ -50,8 +91,7 @@ export class NoteWorkspace {
   ): string {
     if (this.useUniqueFilenames()) {
       let filename = basename(uri.fsPath);
-      let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-      let c: string = cfg.get('noteCompletionConvention') || '';
+      let c = this.cfg().noteCompletionConvention;
       return this._wikiLinkCompletionForConvention(c, filename);
     } else {
       let toPath = uri.fsPath;
@@ -73,13 +113,11 @@ export class NoteWorkspace {
 
   static useUniqueFilenames(): boolean {
     // return false;
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    return cfg.get('workspaceFilenameConvention') == 'uniqueFilenames';
+    return this.cfg().workspaceFilenameConvention == 'uniqueFilenames';
   }
 
   static createNoteOnGoToDefinitionWhenMissing(): boolean {
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    return !!cfg.get('createNoteOnGoToDefinitionWhenMissing');
+    return !!this.cfg().createNoteOnGoToDefinitionWhenMissing;
   }
 
   static stripExtension(noteName: string): string {

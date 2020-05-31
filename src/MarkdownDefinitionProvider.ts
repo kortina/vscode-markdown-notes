@@ -82,7 +82,6 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     if (contextWord.type != ContextWordType.WikiLink) {
       return;
     }
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
     if (!NoteWorkspace.createNoteOnGoToDefinitionWhenMissing()) {
       return;
     }

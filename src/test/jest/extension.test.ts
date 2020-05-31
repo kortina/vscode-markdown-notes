@@ -6,6 +6,12 @@ import { ContextWordType } from '../../ContextWord';
 
 jest.mock('../../NoteWorkspace');
 
+beforeEach(() => {
+  NoteWorkspace.cfg = () => {
+    return NoteWorkspace.DEFAULT_CONFIG;
+  };
+});
+
 test('foo', () => {
   expect(foo()).toBe(1);
 });
@@ -37,7 +43,7 @@ test('rxWikiLink', () => {
   expect(('Some [[wiki link]].'.match(rx) || [])[0]).toEqual('[[wiki link]]');
   expect(('Some [[wiki-link.md]].'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
   // Should the following work? It does....
-  expect(('Some[[wiki-link.md]]nospace.'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
+  expect(('Some[[wiki-link.md]]no-space.'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
   expect('Some [[wiki-link.md].').not.toMatch(rx);
 });
 
