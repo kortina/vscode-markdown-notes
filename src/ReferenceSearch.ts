@@ -4,6 +4,16 @@ const fsp = require('fs').promises;
 import { ContextWord, ContextWordType } from './ContextWord';
 import { NoteWorkspace } from './NoteWorkspace';
 
+const RETURN_TYPE_VSCODE = 'vscode';
+type RawPosition = {
+  line: number;
+  character: number;
+};
+type RawRange = {
+  start: RawPosition;
+  end: RawPosition;
+};
+
 export class ReferenceSearch {
   // TODO/ FIXME: I wonder if instead of this just-in-time search through all the files,
   // we should instead build the search index for all Tags and WikiLinks once on-boot
@@ -11,16 +21,24 @@ export class ReferenceSearch {
   // In that case, we would need to implement some sort of change watcher,
   // to know if our index needs to be updated.
   // This is pretty brute force as it is.
-  //
-  // static TAG_WORD_SET = new Set();
-  // static STARTED_INIT = false;
-  // static COMPLETED_INIT = false;
 
   static rangesForWordInDocumentData = (
     contextWord: ContextWord | null,
     data: string
   ): Array<vscode.Range> => {
-    let ranges: Array<vscode.Range> = [];
+    return ReferenceSearch._rawRangesForWordInDocumentData(contextWord, data).map((r) => {
+      return new vscode.Range(
+        new vscode.Position(r.start.line, r.start.character),
+        new vscode.Position(r.end.line, r.end.character)
+      );
+    });
+  };
+
+  static _rawRangesForWordInDocumentData = (
+    contextWord: ContextWord | null,
+    data: string
+  ): Array<RawRange> => {
+    let ranges: Array<RawRange> = [];
     if (!contextWord) {
       return [];
     }
@@ -30,51 +48,48 @@ export class ReferenceSearch {
     }
     let lines = data.split(/\r?\n/);
     lines.map((line, lineNum) => {
-      let charNum = 0;
-      // https://stackoverflow.com/questions/17726904/javascript-splitting-a-string-yet-preserving-the-spaces
-      let words = line.split(/(\S+\s+)/);
-      // FIXME: change this to just parse each line for the Tag and Wiki-Link regexes.
-      // will dramatically simplify
-      words.map((word) => {
-        // console.log(`word: ${word} queryWord: ${queryWord}`);
-        // console.log(`word: ${word} charNum: ${charNum}`);
-        let spacesBefore = word.length - word.trimLeft().length;
-        let trimmed = word.trim();
-        let matches = false;
-        if (contextWord.type == ContextWordType.Tag) {
-          matches = trimmed == `#${contextWord.word}`;
-        } else if ((contextWord.type = ContextWordType.WikiLink)) {
-          let m = trimmed.match(/^\[\[(.*)\]\]$/);
-          let queryWord = `${basename(contextWord.word)}`;
-          if (m) {
-            let docWord = m[1];
-            // console.log(`docWord: ${docWord} queryWord: ${queryWord}`);
-            // When we are searching for the definition of a Wiki Link
-            // both trimmed and queryWord are strings that come from files:
-            // queryWord comes from the word under the cursor (the def being looked up)
-            // trimmed is a word from the current file
-            // So we pass both to the checker
-            // (which will try combinations of adding .md and .markdown to the 2nd ard)
-            matches =
-              NoteWorkspace.filePathMatchesNoteName(docWord, queryWord) ||
-              NoteWorkspace.filePathMatchesNoteName(queryWord, docWord);
-          }
-        }
-        if (matches) {
-          let r = new vscode.Range(
-            new vscode.Position(lineNum, charNum + spacesBefore),
-            // I thought we had to sub 1 to get the zero-based index of the last char of this word:
-            // new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length - 1)
-            // but the highlighting is off if we do that ¯\_(ツ)_/¯
-            new vscode.Position(lineNum, charNum + spacesBefore + trimmed.length)
-          );
+      let candidates;
+      let matchesQuery: (candidate: RegExpMatchArray, cxWord: ContextWord) => boolean;
+      if (contextWord.type == ContextWordType.Tag) {
+        candidates = line.matchAll(NoteWorkspace.rxTagNoAnchors());
+        matchesQuery = (candidate, cxWord) => {
+          return candidate[0] == `#${cxWord.word}`;
+        };
+      } else if (contextWord.type == ContextWordType.WikiLink) {
+        candidates = line.matchAll(NoteWorkspace.rxWikiLink());
+        matchesQuery = (candidate, cxWord) => {
+          return NoteWorkspace.noteNamesFuzzyMatch(candidate[0], contextWord.word);
+        };
+      }
+      Array.from(candidates || []).map((match) => {
+        if (matchesQuery(match, contextWord)) {
+          // console.log(
+          //   `${lineNum} Regex Range: (${match.index}, ${(match.index || 0) + match[0].length}) ${
+          //     match[0]
+          //   } `
+          // );
+          let s = match.index || 0;
+          let e = s + match[0].length;
+          let r: RawRange = {
+            start: { line: lineNum, character: s },
+            end: { line: lineNum, character: e },
+          };
           ranges.push(r);
         }
-        charNum += word.length;
       });
     });
     return ranges;
   };
+
+  static async searchBacklinksFor(fileBasename: string): Promise<vscode.Location[]> {
+    let cw: ContextWord = {
+      type: ContextWordType.WikiLink,
+      hasExtension: true,
+      word: fileBasename,
+      range: undefined,
+    };
+    return this.search(cw);
+  }
 
   static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
     let locations: vscode.Location[] = [];

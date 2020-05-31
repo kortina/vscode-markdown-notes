@@ -1,12 +1,12 @@
 # VS Code Markdown Notes
 
-Use `[[wiki-links]]` and `#tags` for fast-navigation between notes kept in in a VS Code workspace. Quickly create new notes from a Title Case Note Name.
+Use `[[wiki-links]]`, `backlinks`, and `#tags` for fast-navigation of markdown notes.
 
-There are many great note-taking applications ([Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/)), but few of them offer the extensibility of VS Code and the ability to use Vim bindings for editing notes.
+Automatically create notes from new inline `[[wiki-links]]`.
 
-This extension provides a number of the best features invented by these other great apps.
+Bring some of the awesome features from apps like [Notational Velocity](http://notational.net/), [nvalt](https://brettterpstra.com/projects/nvalt/), [Bear](https://bear.app/), [FSNotes](https://fsnot.es/), [Obsidian](https://obsidian.md/) to VS Code, where you also have (1) Vim key bindings and (2) excellent extensibility.
 
-You can [install it from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes). See also my other customizations for note-taking in this blog post: [Suping Up VS Code as a Markdown Notebook](https://kortina.nyc/essays/suping-up-vs-code-as-a-markdown-notebook/).
+[Install from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes). See more in the blog post: [Suping Up VS Code as a Markdown Notebook](https://kortina.nyc/essays/suping-up-vs-code-as-a-markdown-notebook/).
 
 ### `[[wiki-links]]`
 
@@ -35,6 +35,10 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ### Screenshots
 
+#### Create New Note On Missing Go To Definition
+
+![create-note-on-missing-go-to-definition](demo/create-note-on-missing-go-to-definition.gif)
+
 #### Intellisense Completion for Wiki Links, `uniqueFilenames`
 
 ![completion-unique-filenames](demo/completion-unique-filenames.gif)
@@ -43,6 +47,10 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ![completion-relative-paths](demo/completion-relative-paths.gif)
 
+### Backlinks Explorer Panel
+
+![backlinks](demo/backlinks.gif)
+
 #### Syntax Highlighting for Tags and Wiki Links
 
 ![syntax-highlighting](demo/syntax-highlighting.png)
@@ -50,14 +58,6 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 #### Peek and Go to Definition for Wiki Links
 
 ![peek-and-go-to-definition](demo/peek-and-go-to-definition.gif)
-
-#### Create New Note On Missing Go To Definition
-
-![create-note-on-missing-go-to-definition](demo/create-note-on-missing-go-to-definition.gif)
-
-#### New Note Command
-
-![new-note-command](demo/new-note-command.gif)
 
 #### Peek References to Wiki Links
 
@@ -78,6 +78,10 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 #### `cmd+shift+f` to Search Workspace for Notes with Tag
 
 ![tag-search](demo/tag-search.gif)
+
+#### New Note Command
+
+![new-note-command](demo/new-note-command.gif)
 
 ## dev
 
@@ -108,10 +112,35 @@ Run `npm install` first.
 ### TODO
 
 - Provide better support for ignore patterns, eg, don't complete `file.md` if it is within `ignored_dir/`
-- Should we support filename without extension, eg, assume `[[file]]` is a reference to `file.md`?
+- Add option to complete files without extension, to `[[file]]` vs `file.md`
 - Should we support links to headings? eg, `file.md#heading-text`?
 
 ### Development and Release
+
+#### Test
+
+For focused jest tests,
+
+- install: https://marketplace.visualstudio.com/items?itemName=kortina.run-in-terminal
+- and https://marketplace.visualstudio.com/items?itemName=vscodevim.vim
+
+Run a focused test with `,rl` on a line in a test file, eg line 8, which will make a call to:
+
+```sh
+./jest-focused.sh ./src/test/jest/extension.test.ts:8
+```
+
+to run only the test at that line. NB, you will also need [these bindings](https://github.com/kortina/dotfiles/blob/e03cea00427ebd3f306ae6a113658934037f7262/vscode/settings.json#L170) for `,rl`
+
+To run all tests,
+
+```sh
+npx jest
+```
+
+All tests are headless.
+
+#### Release
 
 To create a new release,
 

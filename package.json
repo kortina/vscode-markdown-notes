@@ -1,8 +1,8 @@
 {
   "name": "vscode-markdown-notes",
   "displayName": "VS Code Markdown Notes",
-  "description": "Navigate notes with [[wiki-links]] and #tags (like Bear, Roam, etc). Use Peek Definition to preview linked notes. Quickly create new notes with a command.",
-  "version": "0.0.8",
+  "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
+  "version": "0.0.9",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -17,6 +17,7 @@
     "notes",
     "notetaking",
     "tagging",
+    "backlinks",
     "wiki links"
   ],
   "categories": [
@@ -49,6 +50,16 @@
     "configuration": {
       "title": "VS Code Markdown Notes Configuration",
       "properties": {
+        "vscodeMarkdownNotes.noteCompletionConvention": {
+          "type": "string",
+          "enum": [
+            "rawFilename",
+            "noExtension",
+            "toSpaces"
+          ],
+          "default": "rawFilename",
+          "description": "When offering completion options for `wiki-note.md`, get `rawFilename` OR `noExtension` (`wiki-link`) or `toSpaces` (`wiki link`). Default is rawFilename. NB: when using workspaceFilenameConvention, only rawFilename is returned."
+        },
         "vscodeMarkdownNotes.workspaceFilenameConvention": {
           "type": "string",
           "enum": [
@@ -58,12 +69,30 @@
           "default": "uniqueFilenames",
           "description": "By default, expect 'uniqueFilenames' for every `.md` file in workspace and treat `file.md` as link to file in any subdirectory. If you expect collisions in filenames for notes (eg, `note1/note.md` `note2/note.md`) use 'relativePaths' to render links between files."
         },
+        "vscodeMarkdownNotes.slugifyCharacter": {
+          "type": "string",
+          "enum": [
+            "-",
+            "_",
+            "NONE"
+          ],
+          "default": "-",
+          "description": "When creating new notes from a 'Title Case Note Name', slugify non-word characters with '-' (default) or '_', or don't slugify non-word characters by setting to 'NONE.'"
+        },
         "vscodeMarkdownNotes.createNoteOnGoToDefinitionWhenMissing": {
           "type": "boolean",
           "default": true,
           "description": "By default, when invoking `editor.action.revealDefinition` on `[[note.md]]` if `note.md` does not exist in workspace, create it. NB: Works only when `vscodeMarkdownNotes.workspaceFilenameConvention` = 'uniqueFilenames'."
         }
       }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "vscodeMarkdownNotesBacklinks",
+          "name": "Backlinks"
+        }
+      ]
     }
   },
   "icon": "images/vscode-markdown-notes.png",
@@ -72,30 +101,37 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
+    "compile": "tsc -p ./",
+    "jest": "jest",
+    "lint": "eslint -c .eslintrc.js --ext .ts src",
+    "pretest": "npm run compile",
+    "test": "jest",
     "vpackage": "./node_modules/.bin/vsce package",
     "vpublish": "./node_modules/.bin/vsce publish",
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "lint": "eslint -c .eslintrc.js --ext .ts src",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.11",
+    "@babel/core": "^7.10.1",
+    "@babel/preset-env": "^7.10.1",
+    "@babel/preset-typescript": "^7.10.1",
+    "babel-jest": "^26.0.1",
     "@types/glob": "^7.1.1",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^10.12.18",
+    "@types/jest": "^25.2.3",
+    "@types/jest-cli": "^24.3.0",
+    "@types/node": "^11.9.0",
     "@types/vscode": "^1.32.0",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
-    "chai": "^4.2.0",
+    "babylon": "^6.18.0",
     "eslint": "^6.8.0",
     "glob": "^7.1.4",
-    "mocha": "^6.1.4",
+    "jest": "^26.0.1",
+    "jest-cli": "^26.0.1",
     "remark": "^12.0.0",
     "remark-wiki-link": "^0.0.4",
     "source-map-support": "^0.5.12",
+    "ts-jest": "^26.0.0",
     "typescript": "^3.8.3",
     "unified": "^9.0.0",
     "unist-util-find": "^1.0.1",

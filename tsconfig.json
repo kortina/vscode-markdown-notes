@@ -1,14 +1,12 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es6",
-		"outDir": "out",
-		"sourceMap": true,
-		"strict": true,
-		"rootDir": "src"
-	},
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	]
+  "compilerOptions": {
+    "lib": ["es2020.string"],
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "out",
+    "sourceMap": true,
+    "strict": true,
+    "rootDir": "src"
+  },
+  "exclude": ["__mocks__", "node_modules", ".vscode-test"]
 }

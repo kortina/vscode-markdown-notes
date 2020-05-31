@@ -64,11 +64,16 @@ export function getContextWord(
   regex = NoteWorkspace.rxWikiLink();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
-    // account for the (exactly) 2 [[  chars at beginning of the match
+    // Our rxWikiLink contains [[ and ]] chars
+    // but the replacement words do NOT.
+    // So, account for the (exactly) 2 [[  chars at beginning of the match
     // since our replacement words do not contain [[ chars
     let s = new vscode.Position(range.start.line, range.start.character + 2);
+    // And, account for the (exactly) 2 ]]  chars at beginning of the match
+    // since our replacement words do not contain ]] chars
+    let e = new vscode.Position(range.end.line, range.end.character - 2);
     // keep the end
-    let r = new vscode.Range(s, range.end);
+    let r = new vscode.Range(s, e);
     contextWord = document.getText(r);
     if (contextWord) {
       return {

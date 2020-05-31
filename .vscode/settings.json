@@ -1,18 +1,36 @@
 {
-    "cSpell.words": [
-        "Backlinks",
-        "Devops",
-        "Suping",
-        "basenames",
-        "filepath",
-        "jumplist",
-        "notetaking",
-        "nvalt",
-        "prefill",
-        "unist",
-        "vpackage",
-        "vpublish",
-        "vsce",
-        "vsix"
-    ]
+  "runInTerminal.commands": [
+    //////////////////////
+    // jest typescript
+    //////////////////////
+    // jest: test line
+    {
+      "cmd": "./jest-focused.sh ${relativeFile}:${line}",
+      "match": "\\.ts$",
+      "name": "l"
+    },
+    // jest: test suite
+    {
+      "cmd": "npx jest",
+      "match": "\\.ts$",
+      "name": "s"
+    }
+  ],
+  "cSpell.words": [
+    "Backlink",
+    "Backlinks",
+    "Devops",
+    "Suping",
+    "basenames",
+    "filepath",
+    "jumplist",
+    "notetaking",
+    "nvalt",
+    "prefill",
+    "unist",
+    "vpackage",
+    "vpublish",
+    "vsce",
+    "vsix"
+  ]
 }

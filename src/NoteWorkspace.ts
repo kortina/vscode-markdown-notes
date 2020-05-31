@@ -2,6 +2,32 @@ import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
 import { existsSync, readFile, writeFileSync } from 'fs';
 
+export const foo = () => {
+  return 1;
+};
+
+enum NoteCompletionConvention {
+  rawFilename = 'rawFilename',
+  noExtension = 'noExtension',
+  toSpaces = 'toSpaces',
+}
+enum WorkspaceFilenameConvention {
+  uniqueFilenames = 'uniqueFilenames',
+  relativePaths = 'relativePaths',
+}
+enum SlugifyCharacter {
+  dash = '-',
+  underscore = '_',
+  none = 'NONE',
+}
+
+type Config = {
+  noteCompletionConvention: NoteCompletionConvention;
+  workspaceFilenameConvention: WorkspaceFilenameConvention;
+  slugifyCharacter: SlugifyCharacter;
+  createNoteOnGoToDefinitionWhenMissing: boolean;
+};
+
 // This class contains:
 // 1. an interface to some of the basic user configurable settings or this extension
 // 2. command for creating a New Note
@@ -11,10 +37,36 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
-  static _rxWikiLink = '\\[\\[[\\w\\.\\-\\_\\/\\\\]+'; // [[wiki-link-regex
+  static _rxWikiLink = '\\[\\[[^\\]]+\\]\\]'; // [[wiki-link-regex]]
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _defaultExtension = 'md';
+  static SLUGIFY_NONE = 'NONE';
+  static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
+  static DEFAULT_CONFIG = {
+    noteCompletionConvention: NoteCompletionConvention.rawFilename,
+    workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
+    slugifyCharacter: SlugifyCharacter.dash,
+    createNoteOnGoToDefinitionWhenMissing: true,
+  };
+
+  static cfg(): Config {
+    let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+    return {
+      noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
+      workspaceFilenameConvention: c.get(
+        'workspaceFilenameConvention'
+      ) as WorkspaceFilenameConvention,
+      slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
+      createNoteOnGoToDefinitionWhenMissing: c.get(
+        'createNoteOnGoToDefinitionWhenMissing'
+      ) as boolean,
+    };
+  }
+
+  static slugifyChar(): string {
+    return this.cfg().slugifyCharacter;
+  }
 
   static rxTagNoAnchors(): RegExp {
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
@@ -33,20 +85,14 @@ export class NoteWorkspace {
     return new RegExp(this._rxMarkdownWordPattern);
   }
 
-  static useUniqueFilenames(): boolean {
-    // return false;
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    return cfg.get('workspaceFilenameConvention') == 'uniqueFilenames';
-  }
-
-  static createNoteOnGoToDefinitionWhenMissing(): boolean {
-    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
-    return !!cfg.get('createNoteOnGoToDefinitionWhenMissing');
-  }
-
-  static filenameForConvention(uri: vscode.Uri, fromDocument: vscode.TextDocument): string {
+  static wikiLinkCompletionForConvention(
+    uri: vscode.Uri,
+    fromDocument: vscode.TextDocument
+  ): string {
     if (this.useUniqueFilenames()) {
-      return basename(uri.fsPath);
+      let filename = basename(uri.fsPath);
+      let c = this.cfg().noteCompletionConvention;
+      return this._wikiLinkCompletionForConvention(c, filename);
     } else {
       let toPath = uri.fsPath;
       let fromDir = dirname(fromDocument.uri.fsPath.toString());
@@ -55,30 +101,58 @@ export class NoteWorkspace {
     }
   }
 
-  // should this take contextWord: ContextWord as arg? that would lead to a cirular dep
-  // should it take a uri or filepath
-  static filePathMatchesNoteName(filepath: string, noteName: string) {
-    let bn = basename(filepath);
-    return [
-      noteName, // has extension already
-      `${noteName}.md`, // add ext
-      `${noteName}.markdown`, // add ext
-    ].includes(bn);
-    // see:
-    // https://github.com/b3u/vscode-markdown-notes/blob/966219f2dcd6761b293e5bdb85069ad238b1e494/src/extension.ts#L212-L214
-    // and:
-    // https://github.com/kortina/vscode-markdown-notes/issues/4#issuecomment-629829808
+  static _wikiLinkCompletionForConvention(convention: string, filename: string): string {
+    if (convention == 'toSpaces') {
+      return this.stripExtension(filename).replace(/[-_]+/g, ' ');
+    } else if (convention == 'noExtension') {
+      return this.stripExtension(filename);
+    } else {
+      return filename;
+    }
+  }
+
+  static useUniqueFilenames(): boolean {
+    // return false;
+    return this.cfg().workspaceFilenameConvention == 'uniqueFilenames';
+  }
+
+  static createNoteOnGoToDefinitionWhenMissing(): boolean {
+    return !!this.cfg().createNoteOnGoToDefinitionWhenMissing;
+  }
+
+  static stripExtension(noteName: string): string {
+    return noteName.replace(/\.(md|markdown)$/i, '');
+  }
+
+  static normalizeNoteNameForFuzzyMatch(noteName: string): string {
+    // remove the brackets:
+    let n = noteName.replace(/[\[\]]/g, '');
+    // remove the filepath:
+    // NB: this may not work with relative paths?
+    n = basename(n);
+    // remove the extension:
+    n = this.stripExtension(n);
+    // slugify (to normalize spaces)
+    n = this.slugifyTitle(n);
+    return n;
+  }
+
+  // Compare 2 wiki-links for a fuzzy match.
+  // All of the following will return true
+  static noteNamesFuzzyMatch(left: string, right: string): boolean {
+    return this.normalizeNoteNameForFuzzyMatch(left) == this.normalizeNoteNameForFuzzyMatch(right);
   }
 
   static slugifyTitle(title: string): string {
     return title
-      .replace(/\W+/gi, this._slugifyChar) // non-words to hyphens (or underscores)
+      .replace(/\W+/gi, this.slugifyChar()) // non-words to hyphens (or underscores)
       .toLowerCase() // lower
       .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
   }
 
   static noteFileNameFromTitle(title: string): string {
-    return this.slugifyTitle(title) + `.${this._defaultExtension}`; // add extension
+    let t = this.slugifyChar() == this.SLUGIFY_NONE ? title : this.slugifyTitle(title);
+    return `${t}.${this._defaultExtension}`; // add extension
   }
 
   static newNote(context: vscode.ExtensionContext) {
@@ -101,11 +175,7 @@ export class NoteWorkspace {
           return false;
         }
 
-        const filename =
-          noteName
-            .replace(/\W+/gi, '-') // non-words to hyphens
-            .toLowerCase() // lower
-            .replace(/-*$/, '') + '.md'; // removing trailing '-' chars, add extension
+        const filename = NoteWorkspace.noteFileNameFromTitle(noteName);
         const filepath = join(workspaceUri, filename);
 
         const fileAlreadyExists = existsSync(filepath);
