@@ -68,6 +68,16 @@
           "default": "uniqueFilenames",
           "description": "By default, expect 'uniqueFilenames' for every `.md` file in workspace and treat `file.md` as link to file in any subdirectory. If you expect collisions in filenames for notes (eg, `note1/note.md` `note2/note.md`) use 'relativePaths' to render links between files."
         },
+        "vscodeMarkdownNotes.slugifyCharacter": {
+          "type": "string",
+          "enum": [
+            "-",
+            "_",
+            "NONE"
+          ],
+          "default": "-",
+          "description": "When creating new notes from a 'Title Case Note Name', slugify non-word characters with '-' (default) or '_', or don't slugify non-word characters by setting to 'NONE.'"
+        },
         "vscodeMarkdownNotes.createNoteOnGoToDefinitionWhenMissing": {
           "type": "boolean",
           "default": true,

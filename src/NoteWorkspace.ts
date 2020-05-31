@@ -18,7 +18,14 @@ export class NoteWorkspace {
   static _rxWikiLink = '\\[\\[[^\\]]+\\]\\]'; // [[wiki-link-regex]]
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _defaultExtension = 'md';
+  static SLUGIFY_NONE = 'NONE';
+  static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
+
+  static slugifyChar(): string {
+    let cfg = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
+    return cfg.get('slugifyCharacter') || this._slugifyChar;
+  }
 
   static rxTagNoAnchors(): RegExp {
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
@@ -78,6 +85,7 @@ export class NoteWorkspace {
   static stripExtension(noteName: string): string {
     return noteName.replace(/\.(md|markdown)$/i, '');
   }
+
   static normalizeNoteNameForFuzzyMatch(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
@@ -99,13 +107,14 @@ export class NoteWorkspace {
 
   static slugifyTitle(title: string): string {
     return title
-      .replace(/\W+/gi, this._slugifyChar) // non-words to hyphens (or underscores)
+      .replace(/\W+/gi, this.slugifyChar()) // non-words to hyphens (or underscores)
       .toLowerCase() // lower
       .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
   }
 
   static noteFileNameFromTitle(title: string): string {
-    return this.slugifyTitle(title) + `.${this._defaultExtension}`; // add extension
+    let t = this.slugifyChar() == this.SLUGIFY_NONE ? title : this.slugifyTitle(title);
+    return `${t}.${this._defaultExtension}`; // add extension
   }
 
   static newNote(context: vscode.ExtensionContext) {
@@ -128,11 +137,7 @@ export class NoteWorkspace {
           return false;
         }
 
-        const filename =
-          noteName
-            .replace(/\W+/gi, '-') // non-words to hyphens
-            .toLowerCase() // lower
-            .replace(/-*$/, '') + '.md'; // removing trailing '-' chars, add extension
+        const filename = NoteWorkspace.noteFileNameFromTitle(noteName);
         const filepath = join(workspaceUri, filename);
 
         const fileAlreadyExists = existsSync(filepath);

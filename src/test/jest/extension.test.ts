@@ -4,8 +4,31 @@ import { titleCaseFilename } from '../../utils';
 import { ReferenceSearch } from '../../ReferenceSearch';
 import { ContextWordType } from '../../ContextWord';
 
+jest.mock('../../NoteWorkspace');
+
 test('foo', () => {
   expect(foo()).toBe(1);
+});
+
+test('noteFileNameFromTitle', () => {
+  let orig = NoteWorkspace.slugifyChar;
+  NoteWorkspace.slugifyChar = (): string => 'NONE';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('Some Title.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some " Title ')).toEqual('some-title.md');
+  NoteWorkspace.slugifyChar = (): string => '_';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
+  NoteWorkspace.slugifyChar = orig;
+});
+
+test('rxTagNoAnchors', () => {
+  let rx = NoteWorkspace.rxTagNoAnchors();
+  expect(('http://something/ something #draft middle.'.match(rx) || [])[0]).toEqual('#draft');
+  expect(('http://something/ something end #draft'.match(rx) || [])[0]).toEqual('#draft');
+  expect(('#draft start'.match(rx) || [])[0]).toEqual('#draft');
+  expect(('http://something/ #draft.'.match(rx) || [])[0]).toEqual('#draft');
+  // TODO: should this match or not?
+  // expect('[site](http://something/#com).').not.toMatch(rx);
 });
 
 test('rxWikiLink', () => {
@@ -13,6 +36,8 @@ test('rxWikiLink', () => {
   expect(('Some [[wiki-link]].'.match(rx) || [])[0]).toEqual('[[wiki-link]]');
   expect(('Some [[wiki link]].'.match(rx) || [])[0]).toEqual('[[wiki link]]');
   expect(('Some [[wiki-link.md]].'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
+  // Should the following work? It does....
+  expect(('Some[[wiki-link.md]]nospace.'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
   expect('Some [[wiki-link.md].').not.toMatch(rx);
 });
 
