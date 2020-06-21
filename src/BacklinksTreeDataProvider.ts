@@ -125,7 +125,9 @@ class BacklinkItem extends vscode.TreeItem {
 
   // items for the locations within files
   static fromLocation(location: vscode.Location): BacklinkItem {
-    let label = `${location.range.start.line}:`; // path.basename(location.uri.fsPath);
+    // location / range is 0-indexed, but editor lines are 1-indexed
+    let lineNum = location.range.start.line + 1;
+    let label = `${lineNum}:`; // path.basename(location.uri.fsPath);
     let cs = vscode.TreeItemCollapsibleState.None;
     return new BacklinkItem(label, cs, undefined, location);
   }
@@ -168,8 +170,9 @@ class BacklinkItem extends vscode.TreeItem {
     return d;
   }
 
-  iconPath = {
-    light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-    dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg'),
-  };
+  get iconPath(): vscode.ThemeIcon | undefined {
+    // to leave more room for the ref text,
+    // don't use an icon for each line
+    return this.location ? undefined : new vscode.ThemeIcon('references');
+  }
 }
