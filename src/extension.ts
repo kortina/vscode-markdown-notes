@@ -24,6 +24,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerReferenceProvider(md, new MarkdownReferenceProvider())
   );
 
+  vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
+    console.log('onDidChangeTextDocument', e);
+  });
+
   let newNoteDisposable = vscode.commands.registerCommand(
     'vscodeMarkdownNotes.newNote',
     NoteWorkspace.newNote
