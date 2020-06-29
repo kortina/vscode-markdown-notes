@@ -7,6 +7,16 @@ assignees: ''
 
 ---
 
+**IMPORTANT**
+
+Quick suggestions are NOT enabled by default in Markdown, so to get suggestions, you have to **manually** `triggerSuggest` (`⌃Space` by default) **OR** put this in settings.json:
+
+```
+"[markdown]": {
+   "editor.quickSuggestions": true
+}
+```
+
 _Troubleshooting: Before filing a new issue, please try to verify if this is a workspace / configuration issue, or an extension / os issue:_
 
 - Checkout [the repo](https://github.com/kortina/vscode-markdown-notes): `git clone git@github.com:kortina/vscode-markdown-notes.git`
