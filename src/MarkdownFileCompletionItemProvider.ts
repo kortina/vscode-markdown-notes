@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ContextWordType, getContextWord } from './ContextWord';
 import { NoteWorkspace } from './NoteWorkspace';
-import { NoteParser, RefCache } from './NoteParser';
+import { NoteParser, ParsedFile } from './NoteParser';
 
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:

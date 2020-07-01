@@ -56,8 +56,7 @@ class RefCandidate {
 // so we don't have to re-parse the file
 // every time we want to get the locations of
 // the Tags and WikiLinks in it
-export class RefCache {
-  // FIXME: rename to ParsedFile
+export class ParsedFile {
   fsPath: string;
   data: string | undefined;
   refCandidates: Array<RefCandidate> = [];
@@ -70,18 +69,18 @@ export class RefCache {
   // when we don't want to actually parse something
   // from the filesystem.
   // Won't fail because the init does not do anything with fsPath
-  static fromData(data: string): RefCache {
-    let rc = new RefCache('NO_PATH');
-    rc.data = data;
-    rc.parseData(false);
-    return rc;
+  static fromData(data: string): ParsedFile {
+    let pf = new ParsedFile('NO_PATH');
+    pf.data = data;
+    pf.parseData(false);
+    return pf;
   }
 
   // read fsPath into this.data and return a
-  // Promise that resolves to `this` RefCache instance.
+  // Promise that resolves to `this` ParsedFile instance.
   // Usage:
-  // refCache.readFile().then(rc => console.log(rc.data));
-  readFile(useCache = false): Promise<RefCache> {
+  // parsedFile.readFile().then(pf => console.log(pf.data));
+  readFile(useCache = false): Promise<ParsedFile> {
     // console.debug(`readFile: ${this.fsPath}`);
     let that = this;
     // if we are using the cache and cached data exists,
@@ -187,15 +186,15 @@ interface Dictionary<T> {
 }
 
 export class NoteParser {
-  // mapping of file fsPaths to RefCache objects
-  static _refCaches: Dictionary<RefCache> = {};
+  // mapping of file fsPaths to ParsedFile objects
+  static _parsedFiles: Dictionary<ParsedFile> = {};
 
   static async distinctTags(): Promise<Array<string>> {
     let useCache = true;
     let _tags: Array<string> = [];
-    await NoteParser.refCachesForWorkspace(useCache).then((rcs) => {
-      rcs.map((rc) => {
-        _tags = _tags.concat(Array.from(rc.tagSet()));
+    await NoteParser.parsedFilesForWorkspace(useCache).then((pfs) => {
+      pfs.map((pf) => {
+        _tags = _tags.concat(Array.from(pf.tagSet()));
       });
     });
     return Array.from(new Set(_tags));
@@ -211,44 +210,44 @@ export class NoteParser {
     return this.search(cw);
   }
 
-  static refCacheFor(fsPath: string): RefCache {
-    let rc = NoteParser._refCaches[fsPath];
-    if (!rc) {
-      rc = new RefCache(fsPath);
+  static parsedFileFor(fsPath: string): ParsedFile {
+    let pf = NoteParser._parsedFiles[fsPath];
+    if (!pf) {
+      pf = new ParsedFile(fsPath);
     }
-    this._refCaches[fsPath] = rc;
-    return rc;
+    this._parsedFiles[fsPath] = pf;
+    return pf;
   }
 
-  static async refCachesForWorkspace(useCache = false): Promise<Array<RefCache>> {
+  static async parsedFilesForWorkspace(useCache = false): Promise<Array<ParsedFile>> {
     let files = await NoteWorkspace.noteFiles();
-    let refCaches = files.map((f) => NoteParser.refCacheFor(f.fsPath));
-    return (await Promise.all(refCaches.map((rc) => rc.readFile(useCache)))).map((rc) => {
-      rc.parseData(useCache);
-      return rc;
+    let parsedFiles = files.map((f) => NoteParser.parsedFileFor(f.fsPath));
+    return (await Promise.all(parsedFiles.map((pf) => pf.readFile(useCache)))).map((pf) => {
+      pf.parseData(useCache);
+      return pf;
     });
   }
 
   // call this when we know a file has changed contents to update the cache
   static updateCacheFor(fsPath: string) {
     let that = this;
-    let rc = NoteParser.refCacheFor(fsPath);
-    rc.readFile(false).then((_rc) => {
-      rc.parseData(false);
+    let pf = NoteParser.parsedFileFor(fsPath);
+    pf.readFile(false).then((_pf) => {
+      _pf.parseData(false);
       // remember to set in the master index:
-      that._refCaches[fsPath] = rc;
+      that._parsedFiles[fsPath] = _pf;
     });
   }
 
   // call this when we know a file has been deleted
   static clearCacheFor(fsPath: string) {
-    delete NoteParser._refCaches[fsPath];
+    delete NoteParser._parsedFiles[fsPath];
   }
 
-  static async hydrateCache(): Promise<Array<RefCache>> {
+  static async hydrateCache(): Promise<Array<ParsedFile>> {
     let useCache = false;
-    let refCaches = await NoteParser.refCachesForWorkspace(useCache);
-    return refCaches;
+    let parsedFiles = await NoteParser.parsedFilesForWorkspace(useCache);
+    return parsedFiles;
   }
 
   static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
@@ -263,11 +262,11 @@ export class NoteParser {
     } else {
       return [];
     }
-    let refCaches = await NoteParser.refCachesForWorkspace(useCache);
-    refCaches.map((rc, i) => {
-      let ranges = rc.vscodeRangesForWord(contextWord);
+    let parsedFiles = await NoteParser.parsedFilesForWorkspace(useCache);
+    parsedFiles.map((pf, i) => {
+      let ranges = pf.vscodeRangesForWord(contextWord);
       ranges.map((r) => {
-        let loc = new vscode.Location(vscode.Uri.file(rc.fsPath), r);
+        let loc = new vscode.Location(vscode.Uri.file(pf.fsPath), r);
         locations.push(loc);
       });
     });
