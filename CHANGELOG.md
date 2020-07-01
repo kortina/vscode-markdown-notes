@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.0.10](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.10) (2020-06-30)
+
+Major refactor that should dramatically improve performance by caching results of parsing files in workspace for `[[wiki-links]]` and `#tags` (instead of re-parsing just-in-time, every time we want suggestions.)
+
+**Enhancements:**
+
+- cache results of parsing files in workspace. Closes #31
+- support for `mdx` and `fountain` files and new config `vscodeMarkdownNotes.defaultFileExtension` allows you to set the extension that gets appended upon note creation. Closes #44 /ht @andermerwed
+
+**Fixes:**
+
+- newly created tags will be registered for auto-completion (once they file they are in is saved to disk). Closes #36 /ht @b3u
+- line numbers are no longer off by one. Closes #35 /ht @b3u
+
+**Cleanup:**
+
+- remove unused `RemarkParser` stuff ( left in branch https://github.com/kortina/vscode-markdown-notes/tree/ak-remark-parser )
+- renames for clarity:
+  - `ReferenceSearch` to `NoteParser`
+  - `ContextWord` to `Ref`
+- cleanup / dry-up errant references to file extension match regexes, now at `_rxFileExtensions`
+
 ## [v0.0.9](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.9) (2020-05-31)
 
 Major Refactor with regexes allowing wiki links w spaces and w/o extensions. Basic backlinks.
