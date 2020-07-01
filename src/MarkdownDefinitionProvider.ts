@@ -94,10 +94,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
         );
         return;
       }
-      // add an extension if one does not exist
-      let mdFilename = contextWord.word.match(/\.(md|markdown)$/i)
-        ? contextWord.word
-        : `${contextWord.word}.md`;
+      let mdFilename = NoteWorkspace.noteFileNameFromTitle(contextWord.word);
       // by default, create new note in same dir as the current document
       // TODO: could convert this to an option (to, eg, create in workspace root)
       const path = join(dirname(filename), mdFilename);

@@ -17,6 +17,7 @@ View and navigate backlinks with an Explorer Panel.
 
 - to open Wiki Link [[sub.md]] [[test]]
 - to createNoteOnGoToDefinitionWhenMissing [[in-the-heat-of-the-night.md]]
+- to createNoteOnGoToDefinitionWhenMissing [[In the Heat of the Night]]
 
 ---
 
