@@ -220,4 +220,12 @@ export class NoteWorkspace {
       wordPattern: this.rxMarkdownWordPattern(),
     });
   }
+
+  static async noteFiles(): Promise<Array<vscode.Uri>> {
+    let files = (await vscode.workspace.findFiles('**/*')).filter(
+      // TODO: parameterize extensions. Add $ to end?
+      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+    );
+    return files;
+  }
 }

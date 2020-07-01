@@ -48,7 +48,8 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     // However, only check for basenames in the entire project if:
     if (NoteWorkspace.useUniqueFilenames()) {
       // there should be exactly 1 file with name = selectedWord
-      files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
+      files = (await NoteWorkspace.noteFiles()).filter((f) => {
+        // files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
         return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, contextWord.word);
       });
     }

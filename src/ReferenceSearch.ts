@@ -111,6 +111,10 @@ export class RefCache {
 
   parseData(useCache = false) {
     let that = this;
+    // don't debug on blank data, only null|undefined
+    if (this.data === '') {
+      return;
+    }
     if (!this.data) {
       console.debug(`RefCandidate.parseData: no data for ${this.fsPath}`);
       return;
@@ -138,8 +142,12 @@ export class RefCache {
   // NB: assumes this.parseData MUST have been called BEFORE running
   _rawRangesForWord(contextWord: ContextWord | null): Array<RawRange> {
     let ranges: Array<RawRange> = [];
+    // don't debug on blank data, only null|undefined
+    if (this.data === '') {
+      return [];
+    }
     if (!this.data || !this.refCandidates) {
-      console.warn(
+      console.debug(
         'rangesForWordInDocumentData called with when !this.data || !this.refCandidates'
       );
       return [];
@@ -217,10 +225,7 @@ export class ReferenceSearch {
   }
 
   static async refCachesForWorkspace(useCache = false): Promise<Array<RefCache>> {
-    let files = (await vscode.workspace.findFiles('**/*')).filter(
-      // TODO: parameterize extensions. Add $ to end?
-      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-    );
+    let files = await NoteWorkspace.noteFiles();
     let refCaches = files.map((f) => ReferenceSearch.refCacheFor(f.fsPath));
     return (await Promise.all(refCaches.map((rc) => rc.readFile(useCache)))).map((rc) => {
       rc.parseData(useCache);

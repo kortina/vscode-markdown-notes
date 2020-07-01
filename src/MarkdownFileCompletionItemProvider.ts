@@ -35,10 +35,7 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         return items;
         break;
       case ContextWordType.WikiLink:
-        let files = (await vscode.workspace.findFiles('**/*')).filter(
-          // TODO: parameterize extensions. Add $ to end?
-          (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-        );
+        let files = await NoteWorkspace.noteFiles();
         items = files.map((f) => {
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);

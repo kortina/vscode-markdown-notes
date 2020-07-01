@@ -25,7 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
-    console.log('onDidChangeTextDocument', e);
     ReferenceSearch.updateCacheFor(e.document.uri.fsPath);
   });
 

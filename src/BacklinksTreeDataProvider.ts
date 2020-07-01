@@ -81,7 +81,11 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
 
   getChildren(element?: BacklinkItem): Thenable<BacklinkItem[]> {
     let f = vscode.window.activeTextEditor?.document.uri.fsPath;
-    if (!this.workspaceRoot || !f) {
+    if (!f) {
+      // no activeTextEditor, so there can be no refs
+      return Promise.resolve([]);
+    }
+    if (!this.workspaceRoot) {
       vscode.window.showInformationMessage('No refs in empty workspace');
       return Promise.resolve([]);
     }
