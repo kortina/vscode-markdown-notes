@@ -5,6 +5,7 @@ import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
 import { WorkspaceTagList } from './WorkspaceTagList';
 import { NoteWorkspace } from './NoteWorkspace';
+import { ReferenceSearch } from './ReferenceSearch';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -26,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
     console.log('onDidChangeTextDocument', e);
+    ReferenceSearch.updateCacheFor(e.document.uri.fsPath);
   });
 
   let newNoteDisposable = vscode.commands.registerCommand(

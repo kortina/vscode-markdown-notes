@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ContextWordType, getContextWord } from './ContextWord';
 import { WorkspaceTagList } from './WorkspaceTagList';
 import { NoteWorkspace } from './NoteWorkspace';
+import { ReferenceSearch, RefCache } from './ReferenceSearch';
 
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
@@ -33,7 +34,9 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         //     WorkspaceTagList.TAG_WORD_SET
         //   )}`
         // );
-        items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
+
+        // items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
+        items = (await ReferenceSearch.distinctTags()).map((t) => {
           let kind = vscode.CompletionItemKind.File;
           let label = `${t}`; // cast to a string
           let item = new vscode.CompletionItem(label, kind);

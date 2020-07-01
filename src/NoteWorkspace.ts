@@ -69,16 +69,19 @@ export class NoteWorkspace {
   }
 
   static rxTagNoAnchors(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
-    return new RegExp(this._rxTagNoAnchors, 'i');
+    return new RegExp(this._rxTagNoAnchors, 'gi');
   }
   static rxTagWithAnchors(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /^\#[\w\-\_]+$/i; // used to match entire words
-    return new RegExp(this._rxTagWithAnchors, 'i');
+    return new RegExp(this._rxTagWithAnchors, 'gi');
   }
   static rxWikiLink(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
-    return new RegExp(this._rxWikiLink, 'i');
+    return new RegExp(this._rxWikiLink, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
     // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
