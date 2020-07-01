@@ -1,8 +1,8 @@
 import 'jest';
 import { foo, NoteWorkspace } from '../../NoteWorkspace';
 import { titleCaseFilename } from '../../utils';
-import { ParsedFile, NoteParser } from '../../NoteParser';
-import { ContextWordType } from '../../ContextWord';
+import { Note, NoteParser } from '../../NoteParser';
+import { RefType } from '../../Ref';
 
 jest.mock('../../NoteWorkspace');
 
@@ -97,15 +97,15 @@ line1 word1 word2
 [[demo.md]] <- link at line5, chars 0-11
 #tag word`; // line 5, chars 0-3
 
-test('ParsedFile._rawRangesForWord', () => {
+test('Note._rawRangesForWord', () => {
   let w = {
     word: 'test.md',
     hasExtension: true,
-    type: ContextWordType.WikiLink,
+    type: RefType.WikiLink,
     range: undefined,
   };
   let ranges;
-  ranges = ParsedFile.fromData(document)._rawRangesForWord(w);
+  ranges = Note.fromData(document)._rawRangesForWord(w);
   expect(ranges).toMatchObject([
     { start: { line: 2, character: 2 }, end: { line: 2, character: 13 } },
     { start: { line: 4, character: 0 }, end: { line: 4, character: 11 } },
@@ -113,10 +113,10 @@ test('ParsedFile._rawRangesForWord', () => {
   w = {
     word: 'tag',
     hasExtension: true,
-    type: ContextWordType.Tag,
+    type: RefType.Tag,
     range: undefined,
   };
-  ranges = ParsedFile.fromData(document)._rawRangesForWord(w);
+  ranges = Note.fromData(document)._rawRangesForWord(w);
   expect(ranges).toMatchObject([
     { start: { line: 2, character: 15 }, end: { line: 2, character: 19 } },
     { start: { line: 6, character: 0 }, end: { line: 6, character: 4 } },
@@ -124,16 +124,16 @@ test('ParsedFile._rawRangesForWord', () => {
   w = {
     word: 'another_tag',
     hasExtension: true,
-    type: ContextWordType.Tag,
+    type: RefType.Tag,
     range: undefined,
   };
-  ranges = ParsedFile.fromData(document)._rawRangesForWord(w);
+  ranges = Note.fromData(document)._rawRangesForWord(w);
   expect(ranges).toMatchObject([
     { start: { line: 2, character: 20 }, end: { line: 2, character: 32 } },
   ]);
 });
 
-test('ParsedFile.tagSet', () => {
-  let tags = ParsedFile.fromData(document).tagSet();
+test('Note.tagSet', () => {
+  let tags = Note.fromData(document).tagSet();
   expect(tags).toEqual(new Set(['#another_tag', '#tag']));
 });

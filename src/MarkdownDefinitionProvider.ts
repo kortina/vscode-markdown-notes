@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ContextWord, ContextWordType, getContextWord } from './ContextWord';
+import { Ref, RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { basename, dirname, join, resolve } from 'path';
 import { existsSync, writeFileSync } from 'fs';
@@ -27,16 +27,16 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     //
     // console.debug('provideDefinition');
 
-    const contextWord = getContextWord(document, position);
-    // debugContextWord(contextWord);
-    if (contextWord.type != ContextWordType.WikiLink) {
-      // console.debug('getContextWord was not WikiLink');
+    const ref = getRefAt(document, position);
+    // debugRef(ref);
+    if (ref.type != RefType.WikiLink) {
+      // console.debug('getRefAt was not WikiLink');
       return [];
     }
 
     // TODO: parameterize extensions. return if we don't have a filename and we require extensions
     // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
-    const selectedWord = contextWord.word;
+    const selectedWord = ref.word;
     // console.debug('selectedWord', selectedWord);
     let files: Array<vscode.Uri> = [];
     // selectedWord might be either:
@@ -50,7 +50,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       // there should be exactly 1 file with name = selectedWord
       files = (await NoteWorkspace.noteFiles()).filter((f) => {
         // files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
-        return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, contextWord.word);
+        return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, ref.word);
       });
     }
     // If we did not find any files in the workspace,
@@ -67,7 +67,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
 
     // else, create the file
     if (files.length == 0) {
-      const path = MarkdownDefinitionProvider.createMissingNote(contextWord);
+      const path = MarkdownDefinitionProvider.createMissingNote(ref);
       if (path !== undefined) {
         files.push(vscode.Uri.file(path));
       }
@@ -78,9 +78,9 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
   }
 
   // FIXME: move all of the stuff that deals with create the filename to NoteWorkspace
-  static createMissingNote = (contextWord: ContextWord): string | undefined => {
-    // don't create new files if contextWord is a Tag
-    if (contextWord.type != ContextWordType.WikiLink) {
+  static createMissingNote = (ref: Ref): string | undefined => {
+    // don't create new files if ref is a Tag
+    if (ref.type != RefType.WikiLink) {
       return;
     }
     if (!NoteWorkspace.createNoteOnGoToDefinitionWhenMissing()) {
@@ -94,11 +94,11 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
         );
         return;
       }
-      let mdFilename = NoteWorkspace.noteFileNameFromTitle(contextWord.word);
+      let mdFilename = NoteWorkspace.noteFileNameFromTitle(ref.word);
       // by default, create new note in same dir as the current document
       // TODO: could convert this to an option (to, eg, create in workspace root)
       const path = join(dirname(filename), mdFilename);
-      const title = titleCaseFilename(contextWord.word);
+      const title = titleCaseFilename(ref.word);
       writeFileSync(path, `# ${title}\n\n`);
       return path;
     }
