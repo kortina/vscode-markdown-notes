@@ -4,7 +4,7 @@ import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
 import { NoteWorkspace } from './NoteWorkspace';
-import { ReferenceSearch } from './ReferenceSearch';
+import { NoteParser } from './NoteParser';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
-    ReferenceSearch.updateCacheFor(e.document.uri.fsPath);
+    NoteParser.updateCacheFor(e.document.uri.fsPath);
   });
 
   let newNoteDisposable = vscode.commands.registerCommand(
@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(newNoteDisposable);
 
   // parse the tags from every file in the workspace
-  ReferenceSearch.hydrateCache();
+  NoteParser.hydrateCache();
 
   const backlinksTreeDataProvider = new BacklinksTreeDataProvider(
     vscode.workspace.rootPath || null

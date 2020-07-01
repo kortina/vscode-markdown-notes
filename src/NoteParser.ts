@@ -186,14 +186,14 @@ interface Dictionary<T> {
   [key: string]: T;
 }
 
-export class ReferenceSearch {
+export class NoteParser {
   // mapping of file fsPaths to RefCache objects
   static _refCaches: Dictionary<RefCache> = {};
 
   static async distinctTags(): Promise<Array<string>> {
     let useCache = true;
     let _tags: Array<string> = [];
-    await ReferenceSearch.refCachesForWorkspace(useCache).then((rcs) => {
+    await NoteParser.refCachesForWorkspace(useCache).then((rcs) => {
       rcs.map((rc) => {
         _tags = _tags.concat(Array.from(rc.tagSet()));
       });
@@ -211,12 +211,8 @@ export class ReferenceSearch {
     return this.search(cw);
   }
 
-  static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
-    return ReferenceSearch.searchV2WithCache(contextWord);
-  }
-
   static refCacheFor(fsPath: string): RefCache {
-    let rc = ReferenceSearch._refCaches[fsPath];
+    let rc = NoteParser._refCaches[fsPath];
     if (!rc) {
       rc = new RefCache(fsPath);
     }
@@ -226,7 +222,7 @@ export class ReferenceSearch {
 
   static async refCachesForWorkspace(useCache = false): Promise<Array<RefCache>> {
     let files = await NoteWorkspace.noteFiles();
-    let refCaches = files.map((f) => ReferenceSearch.refCacheFor(f.fsPath));
+    let refCaches = files.map((f) => NoteParser.refCacheFor(f.fsPath));
     return (await Promise.all(refCaches.map((rc) => rc.readFile(useCache)))).map((rc) => {
       rc.parseData(useCache);
       return rc;
@@ -236,7 +232,7 @@ export class ReferenceSearch {
   // call this when we know a file has changed contents to update the cache
   static updateCacheFor(fsPath: string) {
     let that = this;
-    let rc = ReferenceSearch.refCacheFor(fsPath);
+    let rc = NoteParser.refCacheFor(fsPath);
     rc.readFile(false).then((_rc) => {
       rc.parseData(false);
       // remember to set in the master index:
@@ -246,16 +242,16 @@ export class ReferenceSearch {
 
   // call this when we know a file has been deleted
   static clearCacheFor(fsPath: string) {
-    delete ReferenceSearch._refCaches[fsPath];
+    delete NoteParser._refCaches[fsPath];
   }
 
   static async hydrateCache(): Promise<Array<RefCache>> {
     let useCache = false;
-    let refCaches = await ReferenceSearch.refCachesForWorkspace(useCache);
+    let refCaches = await NoteParser.refCachesForWorkspace(useCache);
     return refCaches;
   }
 
-  static async searchV2WithCache(contextWord: ContextWord): Promise<vscode.Location[]> {
+  static async search(contextWord: ContextWord): Promise<vscode.Location[]> {
     let useCache = true;
 
     let locations: vscode.Location[] = [];
@@ -267,7 +263,7 @@ export class ReferenceSearch {
     } else {
       return [];
     }
-    let refCaches = await ReferenceSearch.refCachesForWorkspace(useCache);
+    let refCaches = await NoteParser.refCachesForWorkspace(useCache);
     refCaches.map((rc, i) => {
       let ranges = rc.vscodeRangesForWord(contextWord);
       ranges.map((r) => {

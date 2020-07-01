@@ -1,7 +1,7 @@
 import 'jest';
 import { foo, NoteWorkspace } from '../../NoteWorkspace';
 import { titleCaseFilename } from '../../utils';
-import { RefCache, ReferenceSearch } from '../../ReferenceSearch';
+import { RefCache, NoteParser } from '../../NoteParser';
 import { ContextWordType } from '../../ContextWord';
 
 jest.mock('../../NoteWorkspace');

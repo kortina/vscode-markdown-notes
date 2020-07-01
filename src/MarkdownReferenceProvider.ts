@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ReferenceSearch } from './ReferenceSearch';
+import { NoteParser } from './NoteParser';
 import { getContextWord } from './ContextWord';
 
 export class MarkdownReferenceProvider implements vscode.ReferenceProvider {
@@ -12,6 +12,6 @@ export class MarkdownReferenceProvider implements vscode.ReferenceProvider {
     // console.debug('MarkdownReferenceProvider.provideReferences');
     const contextWord = getContextWord(document, position);
     // debugContextWord(contextWord);
-    return ReferenceSearch.search(contextWord);
+    return NoteParser.search(contextWord);
   }
 }

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ContextWordType, getContextWord } from './ContextWord';
 import { NoteWorkspace } from './NoteWorkspace';
-import { ReferenceSearch, RefCache } from './ReferenceSearch';
+import { NoteParser, RefCache } from './NoteParser';
 
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
@@ -23,7 +23,7 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         return [];
         break;
       case ContextWordType.Tag:
-        items = (await ReferenceSearch.distinctTags()).map((t) => {
+        items = (await NoteParser.distinctTags()).map((t) => {
           let kind = vscode.CompletionItemKind.File;
           let label = `${t}`; // cast to a string
           let item = new vscode.CompletionItem(label, kind);
