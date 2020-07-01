@@ -1,8 +1,8 @@
 {
   "name": "vscode-markdown-notes",
-  "displayName": "VS Code Markdown Notes",
+  "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -44,11 +44,11 @@
     "commands": [
       {
         "command": "vscodeMarkdownNotes.newNote",
-        "title": "VS Code Markdown Notes: New Note"
+        "title": "Markdown Notes: New Note"
       }
     ],
     "configuration": {
-      "title": "VS Code Markdown Notes Configuration",
+      "title": "Markdown Notes Configuration",
       "properties": {
         "vscodeMarkdownNotes.noteCompletionConvention": {
           "type": "string",
@@ -78,6 +78,11 @@
           ],
           "default": "-",
           "description": "When creating new notes from a 'Title Case Note Name', slugify non-word characters with '-' (default) or '_', or don't slugify non-word characters by setting to 'NONE.'"
+        },
+        "vscodeMarkdownNotes.defaultFileExtension": {
+          "type": "string",
+          "default": "md",
+          "description": "When creating new notes from a 'Title Case Note Name', append this extension to the filename. Defaults to 'md'"
         },
         "vscodeMarkdownNotes.createNoteOnGoToDefinitionWhenMissing": {
           "type": "boolean",

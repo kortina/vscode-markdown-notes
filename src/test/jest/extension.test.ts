@@ -1,8 +1,8 @@
 import 'jest';
 import { foo, NoteWorkspace } from '../../NoteWorkspace';
 import { titleCaseFilename } from '../../utils';
-import { ReferenceSearch } from '../../ReferenceSearch';
-import { ContextWordType } from '../../ContextWord';
+import { Note, NoteParser } from '../../NoteParser';
+import { RefType } from '../../Ref';
 
 jest.mock('../../NoteWorkspace');
 
@@ -42,6 +42,11 @@ test('rxWikiLink', () => {
   expect(('Some [[wiki-link]].'.match(rx) || [])[0]).toEqual('[[wiki-link]]');
   expect(('Some [[wiki link]].'.match(rx) || [])[0]).toEqual('[[wiki link]]');
   expect(('Some [[wiki-link.md]].'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
+  // TODO: this returns a match OK right now, but I think we will want to
+  // modify the result to contain meta-data that says there is also a #heading / parses it out
+  expect(('Some [[wiki-link.md#with-heading]].'.match(rx) || [])[0]).toEqual(
+    '[[wiki-link.md#with-heading]]'
+  );
   // Should the following work? It does....
   expect(('Some[[wiki-link.md]]no-space.'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
   expect('Some [[wiki-link.md].').not.toMatch(rx);
@@ -60,6 +65,10 @@ test('noteNamesFuzzyMatch', () => {
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md]]', 'wiki-link.md')).toBeTruthy();
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link]]', 'wiki-link.md')).toBeTruthy();
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link]]', 'wiki-link.md')).toBeTruthy();
+  // TODO: if we add support for #headings, we will want these tests to pass:
+  // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md#with-heading]]', 'wiki-link.md')).toBeTruthy();
+  // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link#with-heading]]', 'wiki-link.md')).toBeTruthy();
+  // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link#with-heading]]', 'wiki-link.md')).toBeTruthy();
 });
 
 test('noteNamesFuzzyMatch', () => {
@@ -72,6 +81,7 @@ test('noteNamesFuzzyMatch', () => {
   expect(NoteWorkspace._wikiLinkCompletionForConvention('rawFilename', 'the-note-name.md')).toEqual(
     'the-note-name.md'
   );
+  // TODO: how should this behaving with #headings?
 });
 
 test('titleCaseFilename', () => {
@@ -87,15 +97,15 @@ line1 word1 word2
 [[demo.md]] <- link at line5, chars 0-11
 #tag word`; // line 5, chars 0-3
 
-test('ReferenceSearch._rawRangesForWordInDocumentData', () => {
+test('Note._rawRangesForWord', () => {
   let w = {
     word: 'test.md',
     hasExtension: true,
-    type: ContextWordType.WikiLink,
+    type: RefType.WikiLink,
     range: undefined,
   };
   let ranges;
-  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
+  ranges = Note.fromData(document)._rawRangesForWord(w);
   expect(ranges).toMatchObject([
     { start: { line: 2, character: 2 }, end: { line: 2, character: 13 } },
     { start: { line: 4, character: 0 }, end: { line: 4, character: 11 } },
@@ -103,12 +113,27 @@ test('ReferenceSearch._rawRangesForWordInDocumentData', () => {
   w = {
     word: 'tag',
     hasExtension: true,
-    type: ContextWordType.Tag,
+    type: RefType.Tag,
     range: undefined,
   };
-  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
+  ranges = Note.fromData(document)._rawRangesForWord(w);
   expect(ranges).toMatchObject([
     { start: { line: 2, character: 15 }, end: { line: 2, character: 19 } },
     { start: { line: 6, character: 0 }, end: { line: 6, character: 4 } },
   ]);
+  w = {
+    word: 'another_tag',
+    hasExtension: true,
+    type: RefType.Tag,
+    range: undefined,
+  };
+  ranges = Note.fromData(document)._rawRangesForWord(w);
+  expect(ranges).toMatchObject([
+    { start: { line: 2, character: 20 }, end: { line: 2, character: 32 } },
+  ]);
+});
+
+test('Note.tagSet', () => {
+  let tags = Note.fromData(document).tagSet();
+  expect(tags).toEqual(new Set(['#another_tag', '#tag']));
 });

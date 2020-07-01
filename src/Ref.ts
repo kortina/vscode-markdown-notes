@@ -1,42 +1,47 @@
+/* 
+A `Ref` is a match for:
+
+- a [[wiki-link]]
+- a #tag
+
+in the content of a Note document in your workspace.
+
+*/
 import * as vscode from 'vscode';
-// import { RemarkParser } from './RemarkParser';
 import { NoteWorkspace } from './NoteWorkspace';
 
-export enum ContextWordType {
+export enum RefType {
   Null, // 0
   WikiLink, // 1
   Tag, // 2
 }
 
-export interface ContextWord {
-  type: ContextWordType;
+export interface Ref {
+  type: RefType;
   word: string;
   hasExtension: boolean | null;
   range: vscode.Range | undefined;
 }
 
-export const debugContextWord = (contextWord: ContextWord) => {
-  const { type, word, hasExtension, range } = contextWord;
+export const debugRef = (ref: Ref) => {
+  const { type, word, hasExtension, range } = ref;
   console.debug({
-    type: ContextWordType[contextWord.type],
-    word: contextWord.word,
-    hasExtension: contextWord.hasExtension,
-    range: contextWord.range,
+    type: RefType[ref.type],
+    word: ref.word,
+    hasExtension: ref.hasExtension,
+    range: ref.range,
   });
 };
 
-export const NULL_CONTEXT_WORD = {
-  type: ContextWordType.Null,
+export const NULL_REF = {
+  type: RefType.Null,
   word: '',
   hasExtension: null,
   range: undefined,
 };
 
-export function getContextWord(
-  document: vscode.TextDocument,
-  position: vscode.Position
-): ContextWord {
-  let contextWord: string;
+export function getRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
+  let ref: string;
   let regex: RegExp;
   let range: vscode.Range | undefined;
 
@@ -50,11 +55,11 @@ export function getContextWord(
   if (range) {
     // here we do nothing to modify the range because the replacements
     // will include the # character, so we want to keep the leading #
-    contextWord = document.getText(range);
-    if (contextWord) {
+    ref = document.getText(range);
+    if (ref) {
       return {
-        type: ContextWordType.Tag,
-        word: contextWord.replace(/^\#+/, ''),
+        type: RefType.Tag,
+        word: ref.replace(/^\#+/, ''),
         hasExtension: null,
         range: range,
       };
@@ -74,17 +79,17 @@ export function getContextWord(
     let e = new vscode.Position(range.end.line, range.end.character - 2);
     // keep the end
     let r = new vscode.Range(s, e);
-    contextWord = document.getText(r);
-    if (contextWord) {
+    ref = document.getText(r);
+    if (ref) {
       return {
-        type: ContextWordType.WikiLink,
-        word: contextWord, // .replace(/^\[+/, ''),
+        type: RefType.WikiLink,
+        word: ref, // .replace(/^\[+/, ''),
         // TODO: parameterize extensions. Add $ to end?
-        hasExtension: !!contextWord.match(/\.(md|markdown)/i),
+        hasExtension: !!ref.match(/\.(md|markdown)/i),
         range: r, // range,
       };
     }
   }
 
-  return NULL_CONTEXT_WORD;
+  return NULL_REF;
 }

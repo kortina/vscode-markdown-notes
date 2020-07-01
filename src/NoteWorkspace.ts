@@ -22,10 +22,11 @@ enum SlugifyCharacter {
 }
 
 type Config = {
-  noteCompletionConvention: NoteCompletionConvention;
-  workspaceFilenameConvention: WorkspaceFilenameConvention;
-  slugifyCharacter: SlugifyCharacter;
   createNoteOnGoToDefinitionWhenMissing: boolean;
+  defaultFileExtension: string;
+  noteCompletionConvention: NoteCompletionConvention;
+  slugifyCharacter: SlugifyCharacter;
+  workspaceFilenameConvention: WorkspaceFilenameConvention;
 };
 
 // This class contains:
@@ -39,28 +40,31 @@ export class NoteWorkspace {
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[^\\]]+\\]\\]'; // [[wiki-link-regex]]
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
-  static _defaultExtension = 'md';
+  static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
+  static _defaultFileExtension = 'md';
   static SLUGIFY_NONE = 'NONE';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
   static DEFAULT_CONFIG = {
-    noteCompletionConvention: NoteCompletionConvention.rawFilename,
-    workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
-    slugifyCharacter: SlugifyCharacter.dash,
     createNoteOnGoToDefinitionWhenMissing: true,
+    defaultFileExtension: NoteWorkspace._defaultFileExtension,
+    noteCompletionConvention: NoteCompletionConvention.rawFilename,
+    slugifyCharacter: SlugifyCharacter.dash,
+    workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
   };
 
   static cfg(): Config {
     let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
     return {
-      noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
-      workspaceFilenameConvention: c.get(
-        'workspaceFilenameConvention'
-      ) as WorkspaceFilenameConvention,
-      slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
       createNoteOnGoToDefinitionWhenMissing: c.get(
         'createNoteOnGoToDefinitionWhenMissing'
       ) as boolean,
+      defaultFileExtension: c.get('defaultFileExtension') as string,
+      noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
+      slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
+      workspaceFilenameConvention: c.get(
+        'workspaceFilenameConvention'
+      ) as WorkspaceFilenameConvention,
     };
   }
 
@@ -68,21 +72,32 @@ export class NoteWorkspace {
     return this.cfg().slugifyCharacter;
   }
 
+  static defaultFileExtension(): string {
+    return this.cfg().defaultFileExtension;
+  }
+
   static rxTagNoAnchors(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
-    return new RegExp(this._rxTagNoAnchors, 'i');
+    return new RegExp(this._rxTagNoAnchors, 'gi');
   }
   static rxTagWithAnchors(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /^\#[\w\-\_]+$/i; // used to match entire words
-    return new RegExp(this._rxTagWithAnchors, 'i');
+    return new RegExp(this._rxTagWithAnchors, 'gi');
   }
   static rxWikiLink(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
     // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
-    return new RegExp(this._rxWikiLink, 'i');
+    return new RegExp(this._rxWikiLink, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
     // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
     return new RegExp(this._rxMarkdownWordPattern);
+  }
+  static rxFileExtensions(): RegExp {
+    // return noteName.replace(/\.(md|markdown|mdx|fountain)$/i, '');
+    return new RegExp(this._rxFileExtensions, 'i');
   }
 
   static wikiLinkCompletionForConvention(
@@ -121,7 +136,7 @@ export class NoteWorkspace {
   }
 
   static stripExtension(noteName: string): string {
-    return noteName.replace(/\.(md|markdown)$/i, '');
+    return noteName.replace(NoteWorkspace.rxFileExtensions(), '');
   }
 
   static normalizeNoteNameForFuzzyMatch(noteName: string): string {
@@ -152,7 +167,7 @@ export class NoteWorkspace {
 
   static noteFileNameFromTitle(title: string): string {
     let t = this.slugifyChar() == this.SLUGIFY_NONE ? title : this.slugifyTitle(title);
-    return `${t}.${this._defaultExtension}`; // add extension
+    return t.match(this.rxFileExtensions()) ? t : `${t}.${this.defaultFileExtension()}`;
   }
 
   static newNote(context: vscode.ExtensionContext) {
@@ -216,5 +231,13 @@ export class NoteWorkspace {
     vscode.languages.setLanguageConfiguration('markdown', {
       wordPattern: this.rxMarkdownWordPattern(),
     });
+  }
+
+  static async noteFiles(): Promise<Array<vscode.Uri>> {
+    let files = (await vscode.workspace.findFiles('**/*')).filter(
+      // TODO: parameterize extensions. Add $ to end?
+      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+    );
+    return files;
   }
 }
