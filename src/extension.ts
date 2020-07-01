@@ -3,7 +3,6 @@ import { BacklinksTreeDataProvider } from './BacklinksTreeDataProvider';
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
-import { WorkspaceTagList } from './WorkspaceTagList';
 import { NoteWorkspace } from './NoteWorkspace';
 import { ReferenceSearch } from './ReferenceSearch';
 // import { debug } from 'util';
@@ -37,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(newNoteDisposable);
 
   // parse the tags from every file in the workspace
-  WorkspaceTagList.initSet();
+  ReferenceSearch.hydrateCache();
 
   const backlinksTreeDataProvider = new BacklinksTreeDataProvider(
     vscode.workspace.rootPath || null

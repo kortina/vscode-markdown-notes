@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { ContextWordType, getContextWord } from './ContextWord';
-import { WorkspaceTagList } from './WorkspaceTagList';
 import { NoteWorkspace } from './NoteWorkspace';
 import { ReferenceSearch, RefCache } from './ReferenceSearch';
 
@@ -18,24 +17,12 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
     context: vscode.CompletionContext
   ) {
     const contextWord = getContextWord(document, position);
-    // console.debug(
-    //   `contextWord: '${contextWord.word}' start: (${contextWord.range?.start.line}, ${contextWord.range?.start.character}) end: (${contextWord.range?.end.line}, ${contextWord.range?.end.character})  context: (${position.line}, ${position.character})`
-    // );
-    // console.debug(`provideCompletionItems ${ContextWordType[contextWord.type]}`);
     let items = [];
     switch (contextWord.type) {
       case ContextWordType.Null:
         return [];
         break;
       case ContextWordType.Tag:
-        // console.debug(`ContextWordType.Tag`);
-        // console.debug(
-        //   `contextWord.word: ${contextWord.word} TAG_WORD_SET: ${Array.from(
-        //     WorkspaceTagList.TAG_WORD_SET
-        //   )}`
-        // );
-
-        // items = Array.from(WorkspaceTagList.TAG_WORD_SET).map((t) => {
         items = (await ReferenceSearch.distinctTags()).map((t) => {
           let kind = vscode.CompletionItemKind.File;
           let label = `${t}`; // cast to a string

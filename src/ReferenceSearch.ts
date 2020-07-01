@@ -124,13 +124,14 @@ export class RefCache {
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
-        // console.log('match tag', lineNum, match);
+        // console.log('match tag', that.fsPath, lineNum, match);
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, ContextWordType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, ContextWordType.WikiLink));
       });
     });
+    // console.debug(`parsed ${this.fsPath}. refCandidates:`, this.refCandidates);
     this._parsed = true;
   }
 
@@ -207,24 +208,29 @@ export class ReferenceSearch {
   }
 
   static refCacheFor(fsPath: string): RefCache {
-    return ReferenceSearch._refCaches[fsPath] || new RefCache(fsPath);
+    let rc = ReferenceSearch._refCaches[fsPath];
+    if (!rc) {
+      rc = new RefCache(fsPath);
+    }
+    this._refCaches[fsPath] = rc;
+    return rc;
   }
 
   static async refCachesForWorkspace(useCache = false): Promise<Array<RefCache>> {
-    // console.log(`query: ${query}`);
     let files = (await vscode.workspace.findFiles('**/*')).filter(
       // TODO: parameterize extensions. Add $ to end?
       (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
     );
-    // let refCaches = files.map((f) => new RefCache(f.fsPath));
     let refCaches = files.map((f) => ReferenceSearch.refCacheFor(f.fsPath));
-    return Promise.all(refCaches.map((rc) => rc.readFile(useCache)));
+    return (await Promise.all(refCaches.map((rc) => rc.readFile(useCache)))).map((rc) => {
+      rc.parseData(useCache);
+      return rc;
+    });
   }
 
   // call this when we know a file has changed contents to update the cache
   static updateCacheFor(fsPath: string) {
     let that = this;
-    console.debug(`updateCacheFor: ${fsPath}`);
     let rc = ReferenceSearch.refCacheFor(fsPath);
     rc.readFile(false).then((_rc) => {
       rc.parseData(false);
@@ -236,6 +242,12 @@ export class ReferenceSearch {
   // call this when we know a file has been deleted
   static clearCacheFor(fsPath: string) {
     delete ReferenceSearch._refCaches[fsPath];
+  }
+
+  static async hydrateCache(): Promise<Array<RefCache>> {
+    let useCache = false;
+    let refCaches = await ReferenceSearch.refCachesForWorkspace(useCache);
+    return refCaches;
   }
 
   static async searchV2WithCache(contextWord: ContextWord): Promise<vscode.Location[]> {
@@ -250,13 +262,8 @@ export class ReferenceSearch {
     } else {
       return [];
     }
-    // console.log(`query: ${query}`);
     let refCaches = await ReferenceSearch.refCachesForWorkspace(useCache);
     refCaches.map((rc, i) => {
-      // console.debug('--------------------');
-      // console.log(rc.fsPath);
-      rc.parseData(useCache);
-      // console.log(rc.refCandidates);
       let ranges = rc.vscodeRangesForWord(contextWord);
       ranges.map((r) => {
         let loc = new vscode.Location(vscode.Uri.file(rc.fsPath), r);
@@ -264,102 +271,6 @@ export class ReferenceSearch {
       });
     });
 
-    // console.log(locations);
     return locations;
   }
-
-  // legacy search, no cache support
-  static async searchV1NoCache(contextWord: ContextWord): Promise<vscode.Location[]> {
-    let locations: vscode.Location[] = [];
-    let query: string;
-    if (contextWord.type == ContextWordType.Tag) {
-      query = `#${contextWord.word}`;
-    } else if ((contextWord.type = ContextWordType.WikiLink)) {
-      query = `[[${basename(contextWord.word)}]]`;
-    } else {
-      return [];
-    }
-    // console.log(`query: ${query}`);
-    let files = (await vscode.workspace.findFiles('**/*')).filter(
-      // TODO: parameterize extensions. Add $ to end?
-      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
-    );
-    let paths = files.map((f) => f.fsPath);
-    let fileBuffers = await Promise.all(paths.map((p) => fsp.readFile(p)));
-    fileBuffers.map((data, i) => {
-      let path = files[i].path;
-      // console.debug('--------------------');
-      // console.log(path);
-      // console.log(`${data}`.split(/\n/)[0]);
-      let ranges = this.rangesForWordInDocumentData(contextWord, `${data}`);
-      ranges.map((r) => {
-        let loc = new vscode.Location(vscode.Uri.file(path), r);
-        locations.push(loc);
-      });
-    });
-
-    // console.log(locations);
-    return locations;
-  }
-
-  // for legacy search
-  static rangesForWordInDocumentData = (
-    contextWord: ContextWord | null,
-    data: string
-  ): Array<vscode.Range> => {
-    return ReferenceSearch._rawRangesForWordInDocumentData(contextWord, data).map((r) => {
-      return new vscode.Range(
-        new vscode.Position(r.start.line, r.start.character),
-        new vscode.Position(r.end.line, r.end.character)
-      );
-    });
-  };
-
-  // for legacy search
-  static _rawRangesForWordInDocumentData = (
-    contextWord: ContextWord | null,
-    data: string
-  ): Array<RawRange> => {
-    let ranges: Array<RawRange> = [];
-    if (!contextWord) {
-      return [];
-    }
-
-    if (![ContextWordType.Tag, ContextWordType.WikiLink].includes(contextWord.type)) {
-      return [];
-    }
-    let lines = data.split(/\r?\n/);
-    lines.map((line, lineNum) => {
-      let candidates;
-      let matchesQuery: (candidate: RegExpMatchArray, cxWord: ContextWord) => boolean;
-      if (contextWord.type == ContextWordType.Tag) {
-        candidates = line.matchAll(NoteWorkspace.rxTagNoAnchors());
-        matchesQuery = (candidate, cxWord) => {
-          return candidate[0] == `#${cxWord.word}`;
-        };
-      } else if (contextWord.type == ContextWordType.WikiLink) {
-        candidates = line.matchAll(NoteWorkspace.rxWikiLink());
-        matchesQuery = (candidate, cxWord) => {
-          return NoteWorkspace.noteNamesFuzzyMatch(candidate[0], contextWord.word);
-        };
-      }
-      Array.from(candidates || []).map((match) => {
-        if (matchesQuery(match, contextWord)) {
-          // console.log(
-          //   `${lineNum} Regex Range: (${match.index}, ${(match.index || 0) + match[0].length}) ${
-          //     match[0]
-          //   } `
-          // );
-          let s = match.index || 0;
-          let e = s + match[0].length;
-          let r: RawRange = {
-            start: { line: lineNum, character: s },
-            end: { line: lineNum, character: e },
-          };
-          ranges.push(r);
-        }
-      });
-    });
-    return ranges;
-  };
 }

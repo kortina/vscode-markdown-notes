@@ -97,43 +97,6 @@ line1 word1 word2
 [[demo.md]] <- link at line5, chars 0-11
 #tag word`; // line 5, chars 0-3
 
-// Legacy just-in-time search
-test('ReferenceSearch._rawRangesForWordInDocumentData', () => {
-  let w = {
-    word: 'test.md',
-    hasExtension: true,
-    type: ContextWordType.WikiLink,
-    range: undefined,
-  };
-  let ranges;
-  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
-  expect(ranges).toMatchObject([
-    { start: { line: 2, character: 2 }, end: { line: 2, character: 13 } },
-    { start: { line: 4, character: 0 }, end: { line: 4, character: 11 } },
-  ]);
-  w = {
-    word: 'tag',
-    hasExtension: true,
-    type: ContextWordType.Tag,
-    range: undefined,
-  };
-  ranges = ReferenceSearch._rawRangesForWordInDocumentData(w, document);
-  expect(ranges).toMatchObject([
-    { start: { line: 2, character: 15 }, end: { line: 2, character: 19 } },
-    { start: { line: 6, character: 0 }, end: { line: 6, character: 4 } },
-  ]);
-  w = {
-    word: 'another_tag',
-    hasExtension: true,
-    type: ContextWordType.Tag,
-    range: undefined,
-  };
-  ranges = RefCache.fromData(document)._rawRangesForWord(w);
-  expect(ranges).toMatchObject([
-    { start: { line: 2, character: 20 }, end: { line: 2, character: 32 } },
-  ]);
-});
-
 test('RefCache._rawRangesForWord', () => {
   let w = {
     word: 'test.md',
