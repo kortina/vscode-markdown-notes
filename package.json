@@ -88,6 +88,11 @@
           "type": "boolean",
           "default": true,
           "description": "By default, when invoking `editor.action.revealDefinition` on `[[note.md]]` if `note.md` does not exist in workspace, create it. NB: Works only when `vscodeMarkdownNotes.workspaceFilenameConvention` = 'uniqueFilenames'."
+        },
+        "vscodeMarkdownNotes.newNoteTemplate": {
+          "type": "string",
+          "default": "# ${noteName}\n\n",
+          "description": "template for auto-created note files. Available tokens: ${noteName}, ${timestamp}"
         }
       }
     },

@@ -99,7 +99,8 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       // TODO: could convert this to an option (to, eg, create in workspace root)
       const path = join(dirname(filename), mdFilename);
       const title = titleCaseFilename(ref.word);
-      writeFileSync(path, `# ${title}\n\n`);
+      const content = NoteWorkspace.newNoteContent(title);
+      writeFileSync(path, content);
       return path;
     }
   };

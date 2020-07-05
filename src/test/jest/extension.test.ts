@@ -137,3 +137,45 @@ test('Note.tagSet', () => {
   let tags = Note.fromData(document).tagSet();
   expect(tags).toEqual(new Set(['#another_tag', '#tag']));
 });
+
+describe('NoteWorkspace.newNoteContent', () => {
+  const newNote = (template: string, title: string) => {
+    NoteWorkspace.cfg = () => {
+      return {
+        ...NoteWorkspace.DEFAULT_CONFIG,
+        newNoteTemplate: template
+      }
+    };
+  
+    return NoteWorkspace.newNoteContent(title);
+  }
+  it('handles noteName tag', () => {
+    const template = "# ${noteName}\n\nThis is ${noteName}";
+    
+    const content = newNote(template, "this is my test note!");
+
+    expect(content).toBe('# this is my test note!\n\nThis is this is my test note!')
+  });
+
+  it('handles escaped newlines', () => {
+    const template = "# Title\\n\\nContent";
+    
+    const content = newNote(template, 'nevermind');
+
+    expect(content).toBe('# Title\n\nContent');
+  });
+
+  it('handles timestamp', () => {
+    const template = "# Title\n\nCreated: ${timestamp}\n Last modified: ${timestamp}";
+    
+    const content = newNote(template, 'nevermind');
+    const regex = /# Title\n\nCreated: (.*)\n Last modified: (.*)/;
+    
+    expect(content).toMatch(regex);
+    const matches = regex.exec(content);
+    const date1 = Date.parse(matches![1]);
+    expect(date1).not.toBe(Number.NaN);
+    const date2 = Date.parse(matches![2]);
+    expect(date2).not.toBe(Number.NaN);
+  });
+});
