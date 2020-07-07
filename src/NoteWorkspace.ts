@@ -152,10 +152,24 @@ export class NoteWorkspace {
     return n;
   }
 
+  static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
+    // remove the brackets:
+    let n = noteName.replace(/[\[\]]/g, '');    
+    // remove the extension:
+    n = this.stripExtension(n);
+    // slugify (to normalize spaces)
+    n = this.slugifyTitle(n);
+    return n;
+  }
+
   // Compare 2 wiki-links for a fuzzy match.
   // All of the following will return true
   static noteNamesFuzzyMatch(left: string, right: string): boolean {
-    return this.normalizeNoteNameForFuzzyMatch(left) == this.normalizeNoteNameForFuzzyMatch(right);
+    return this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() == this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase();
+  }
+
+  static noteNamesFuzzyMatchText(left: string, right: string): boolean {
+    return this.normalizeNoteNameForFuzzyMatchText(left).toLowerCase() == this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase();
   }
 
   static slugifyTitle(title: string): string {

@@ -71,6 +71,43 @@ test('noteNamesFuzzyMatch', () => {
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link#with-heading]]', 'wiki-link.md')).toBeTruthy();
 });
 
+test('noteNamesFuzzyMatchSlashes', () => {
+  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatch('dir/sub/link-topic.md')).toEqual(
+    'link-topic'
+  );
+  // lower case is expected because 'slugifyTitle' includes toLowerCase
+  expect(NoteWorkspace.slugifyTitle('Link/Topic')).toEqual(
+    'link-topic'
+  );
+  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatchText('Link/Topic')).toEqual(
+    'link-topic'
+  );  
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')
+  ).toBeTruthy();
+});
+
 test('noteNamesFuzzyMatch', () => {
   expect(NoteWorkspace._wikiLinkCompletionForConvention('toSpaces', 'the-note-name.md')).toEqual(
     'the note name'

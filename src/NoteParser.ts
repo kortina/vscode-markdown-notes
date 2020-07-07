@@ -41,7 +41,7 @@ class RefCandidate {
     if (ref.type == RefType.Tag) {
       return this.rawText == `#${ref.word}`;
     } else if (ref.type == RefType.WikiLink) {
-      return NoteWorkspace.noteNamesFuzzyMatch(this.rawText, ref.word);
+      return NoteWorkspace.noteNamesFuzzyMatchText(this.rawText, ref.word);
     }
     return false;
   }
