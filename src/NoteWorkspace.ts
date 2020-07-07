@@ -160,6 +160,7 @@ export class NoteWorkspace {
 
   static slugifyTitle(title: string): string {
     return title
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
       .replace(/\W+/gi, this.slugifyChar()) // non-words to hyphens (or underscores)
       .toLowerCase() // lower
       .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
