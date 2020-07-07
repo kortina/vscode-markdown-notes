@@ -25,7 +25,8 @@ test('noteFileNameFromTitle', () => {
   NoteWorkspace.slugifyChar = (): string => '_';
   expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
   NoteWorkspace.slugifyChar = (): string => '-';
-  expect(NoteWorkspace.noteFileNameFromTitle('Šömè Títlê')).toEqual('some-title.md');
+  expect(NoteWorkspace.noteFileNameFromTitle('タイトル')).toEqual('タイトル.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
   NoteWorkspace.slugifyChar = orig;
 });
 
