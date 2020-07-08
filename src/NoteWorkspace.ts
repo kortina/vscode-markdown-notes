@@ -52,6 +52,12 @@ export class NoteWorkspace {
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
   };
+  static DOCUMENT_SELECTOR = [
+    // { scheme: 'file', language: 'markdown' },
+    // { scheme: 'file', language: 'mdx' },
+    { language: 'markdown' },
+    { language: 'mdx' },
+  ];
 
   static cfg(): Config {
     let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -228,8 +234,10 @@ export class NoteWorkspace {
 
   static overrideMarkdownWordPattern() {
     // console.debug('overrideMarkdownWordPattern');
-    vscode.languages.setLanguageConfiguration('markdown', {
-      wordPattern: this.rxMarkdownWordPattern(),
+    this.DOCUMENT_SELECTOR.map((ds) => {
+      vscode.languages.setLanguageConfiguration(ds.language, {
+        wordPattern: this.rxMarkdownWordPattern(),
+      });
     });
   }
 
