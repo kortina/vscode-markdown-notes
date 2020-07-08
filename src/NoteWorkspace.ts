@@ -18,6 +18,8 @@ enum WorkspaceFilenameConvention {
 enum SlugifyCharacter {
   dash = '-',
   underscore = '_',
+  fullwidthDash = '－',
+  fullwidthUnderscore = '＿',
   none = 'NONE',
 }
 
