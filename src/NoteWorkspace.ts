@@ -164,7 +164,7 @@ export class NoteWorkspace {
     return title
       .replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()) // punctuation and whitespace to hyphens (or underscores)
       .toLowerCase() // lower
-      .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
+      .replace(/[-_－＿]*$/, ''); // removing trailing '-' and '_' chars
   }
 
   static noteFileNameFromTitle(title: string): string {
