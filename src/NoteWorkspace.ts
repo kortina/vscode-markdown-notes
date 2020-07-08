@@ -160,15 +160,18 @@ export class NoteWorkspace {
     return this.normalizeNoteNameForFuzzyMatch(left) == this.normalizeNoteNameForFuzzyMatch(right);
   }
 
+  static cleanTitle (title: string): string {
+    return title.toLowerCase() // lower
+      .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
+  }
   static slugifyTitle(title: string): string {
-    return title
-      .replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()) // punctuation and whitespace to hyphens (or underscores)
-      .toLowerCase() // lower
-      .replace(/[-_－＿]*$/, ''); // removing trailing '-' and '_' chars
+    return this.slugifyChar() == 'NONE' ? 
+      title :
+      title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
   }
 
   static noteFileNameFromTitle(title: string): string {
-    let t = this.slugifyChar() == this.SLUGIFY_NONE ? title : this.slugifyTitle(title);
+    let t = this.cleanTitle(this.slugifyTitle(title));
     return t.match(this.rxFileExtensions()) ? t : `${t}.${this.defaultFileExtension()}`;
   }
 
