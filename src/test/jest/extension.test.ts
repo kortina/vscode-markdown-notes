@@ -19,11 +19,22 @@ test('foo', () => {
 test('noteFileNameFromTitle', () => {
   let orig = NoteWorkspace.slugifyChar;
   NoteWorkspace.slugifyChar = (): string => 'NONE';
-  expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('Some Title.md');
+  expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('some title.md');
+  NoteWorkspace.slugifyChar = (): string => 'NONE';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some Title ')).toEqual('some title.md');
   NoteWorkspace.slugifyChar = (): string => '-';
   expect(NoteWorkspace.noteFileNameFromTitle('Some " Title ')).toEqual('some-title.md');
   NoteWorkspace.slugifyChar = (): string => '_';
   expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('Šömè Țítlê')).toEqual('šömè-țítlê.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('題目')).toEqual('題目.md');
+  NoteWorkspace.slugifyChar = (): string => '－';
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual('ｓｏｍｅ－ｔｉｔｌｅ.md');
+  NoteWorkspace.slugifyChar = (): string => '－';
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual('ｓｏｍｅ－ｔｉｔｌｅ.md');
+  
   NoteWorkspace.slugifyChar = orig;
 });
 
