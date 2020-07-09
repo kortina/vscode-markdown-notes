@@ -31,10 +31,17 @@ test('noteFileNameFromTitle', () => {
   NoteWorkspace.slugifyChar = (): string => '-';
   expect(NoteWorkspace.noteFileNameFromTitle('題目')).toEqual('題目.md');
   NoteWorkspace.slugifyChar = (): string => '－';
-  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual('ｓｏｍｅ－ｔｉｔｌｅ.md');
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual(
+    'ｓｏｍｅ－ｔｉｔｌｅ.md'
+  );
   NoteWorkspace.slugifyChar = (): string => '－';
-  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual('ｓｏｍｅ－ｔｉｔｌｅ.md');
-  
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual(
+    'ｓｏｍｅ－ｔｉｔｌｅ.md'
+  );
+
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some \r \n Title')).toEqual('some-title.md');
+
   NoteWorkspace.slugifyChar = orig;
 });
 
