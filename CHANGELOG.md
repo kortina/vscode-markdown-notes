@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.0.11](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.11) (2020-07-08)
+
+Many bugfixes from [foam](https://github.com/foambubble/foam) community.
+
+**Fixes:**
+
+- fix bug where extension functionality would not work when editing files with language `mdx`. #51 closes #45
+- fix bug where `[[Link/Topic]]` would not correctly find note namec `link-topic.md`. tx to @eBerdnA for #52 closes #50
+- fix bug where all non-ASCII word characters would be replaced with `-` characters. tx to @digiguru for #53 closes #47
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/4af718ecf037791507d0d67d59f97ee5b961cccb..43ca88c91653136330c18450fb0ad51698e7decf
+
 ## [v0.0.10](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.10) (2020-06-30)
 
 Major refactor that should dramatically improve performance by caching results of parsing files in workspace for `[[wiki-links]]` and `#tags` (instead of re-parsing just-in-time, every time we want suggestions.)
@@ -29,7 +43,7 @@ Major Refactor with regexes allowing wiki links w spaces and w/o extensions. Bas
 **Enhancements:**
 
 - allow spaces in filename #12 /ht @lukakemperle @b3u @lukesmurray
-- add configurable slug character: '-' or '_' or 'NONE' #17 /ht @jli
+- add configurable slug character: '-' or '\_' or 'NONE' #17 /ht @jli
 - add a very basic **Backlinks Panel** #13 /tx @pomdtr @b3u @lukesmurray
 - add a config option to complete wiki-links without the file-extension
 - add a config option to complete wiki-links with spaces
@@ -51,7 +65,7 @@ Major Refactor with regexes allowing wiki links w spaces and w/o extensions. Bas
 
 - #4 - gets References and Definitions working for `[[links-with-no-extension]]` Thanks @b3u for [comments / code snippets](https://github.com/kortina/vscode-markdown-notes/issues/4#issuecomment-628778993). Also thanks to @quickfold @lukesmurray @jay-pee for discussion on this thread
   - NB: will still need to add a setting where you can get completions without the extension, but this should be easy to do
-- #28 - fixes bug with New Note command on Windows. Thanks @davovscapcom 
+- #28 - fixes bug with New Note command on Windows. Thanks @davovscapcom
 
 **Cleanup:**
 
@@ -83,9 +97,7 @@ Tx all for being part of discussion leading up to this release.
 
 - add mocha test runner
 
-
 ## [v0.0.5](https://github.com/kortina/vscode-markdown-notes/releases/tag/v0.0.5) (2020-05-11)
-
 
 **Fixes:**
 
@@ -98,7 +110,6 @@ Tx all for being part of discussion leading up to this release.
 
 - upgrade to vsce 1.75.0
 
-
 ## [v0.0.4](https://github.com/kortina/vscode-markdown-notes/releases/tag/v0.0.4) (2020-04-18)
 
 **Enhancements:**
@@ -109,7 +120,7 @@ Tx all for being part of discussion leading up to this release.
 
 **Fixes:**
 
-- typo `markdwon` was causing extension not to work for `.markdown` files (it would only work for `.md` files). 
+- typo `markdwon` was causing extension not to work for `.markdown` files (it would only work for `.md` files).
 
 ## [v0.0.2](https://github.com/kortina/vscode-markdown-notes/releases/tag/v0.0.2) (2020-02-22)
 
@@ -123,7 +134,6 @@ Tx all for being part of discussion leading up to this release.
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```
-
 
 ## [v0.0.1](https://github.com/kortina/vscode-markdown-notes/releases/tag/v0.0.1) (2020-02-13)
 
