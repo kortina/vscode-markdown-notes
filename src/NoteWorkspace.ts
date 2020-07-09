@@ -162,7 +162,7 @@ export class NoteWorkspace {
 
   static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
     // remove the brackets:
-    let n = noteName.replace(/[\[\]]/g, '');    
+    let n = noteName.replace(/[\[\]]/g, '');
     // remove the extension:
     n = this.stripExtension(n);
     // slugify (to normalize spaces)
@@ -173,25 +173,34 @@ export class NoteWorkspace {
   // Compare 2 wiki-links for a fuzzy match.
   // All of the following will return true
   static noteNamesFuzzyMatch(left: string, right: string): boolean {
-    return this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() == this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase();
+    return (
+      this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
+      this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+    );
   }
 
   static noteNamesFuzzyMatchText(left: string, right: string): boolean {
-    return this.normalizeNoteNameForFuzzyMatchText(left).toLowerCase() == this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase();
+    return (
+      this.normalizeNoteNameForFuzzyMatchText(left).toLowerCase() ==
+      this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+    );
   }
 
-  static cleanTitle (title: string): string {
-    return title.toLowerCase() // lower
+  static cleanTitle(title: string): string {
+    return title
+      .toLowerCase() // lower
       .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
   }
   static slugifyTitle(title: string): string {
-    return this.slugifyChar() == 'NONE' ? 
-      title :
-      title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
+    let t =
+      this.slugifyChar() == 'NONE'
+        ? title
+        : title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
+    return this.cleanTitle(t);
   }
 
   static noteFileNameFromTitle(title: string): string {
-    let t = this.cleanTitle(this.slugifyTitle(title));
+    let t = this.slugifyTitle(title);
     return t.match(this.rxFileExtensions()) ? t : `${t}.${this.defaultFileExtension()}`;
   }
 
@@ -261,9 +270,9 @@ export class NoteWorkspace {
   }
 
   static async noteFiles(): Promise<Array<vscode.Uri>> {
+    let that = this;
     let files = (await vscode.workspace.findFiles('**/*')).filter(
-      // TODO: parameterize extensions. Add $ to end?
-      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+      (f) => f.scheme == 'file' && f.path.match(that.rxFileExtensions())
     );
     return files;
   }
