@@ -22,41 +22,29 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     token: vscode.CancellationToken
   ) {
-    // FIXME: this whole function really needs to be cleaned up
-    // It's just kind of gross calling methods from all over the place
-    //
-    // console.debug('provideDefinition');
-
     const ref = getRefAt(document, position);
-    // debugRef(ref);
     if (ref.type != RefType.WikiLink) {
-      // console.debug('getRefAt was not WikiLink');
       return [];
     }
 
-    // TODO: parameterize extensions. return if we don't have a filename and we require extensions
-    // const markdownFileRegex = /[\w\.\-\_\/\\]+\.(md|markdown)/i;
-    const selectedWord = ref.word;
-    // console.debug('selectedWord', selectedWord);
     let files: Array<vscode.Uri> = [];
-    // selectedWord might be either:
+    // ref.word might be either:
     // a basename for a unique file in the workspace
     // or, a relative path to a file
-    // Since, selectedWord is just a string of text from a document,
+    // Since, ref.word is just a string of text from a document,
     // there is no guarantee useUniqueFilenames will tell us
     // it is not a relative path.
     // However, only check for basenames in the entire project if:
     if (NoteWorkspace.useUniqueFilenames()) {
-      // there should be exactly 1 file with name = selectedWord
+      // there should be exactly 1 file with name = ref.word
       files = (await NoteWorkspace.noteFiles()).filter((f) => {
-        // files = (await vscode.workspace.findFiles('**/*')).filter((f) => {
         return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, ref.word);
       });
     }
     // If we did not find any files in the workspace,
     // see if a file exists at the relative path:
     if (files.length == 0) {
-      const relativePath = selectedWord;
+      const relativePath = ref.word;
       let fromDir = dirname(document.uri.fsPath.toString());
       const absPath = resolve(fromDir, relativePath);
       if (existsSync(absPath)) {
@@ -100,6 +88,13 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       const path = join(dirname(filename), mdFilename);
       const title = titleCaseFilename(ref.word);
       const content = NoteWorkspace.newNoteContent(title);
+      // do one final check to make sure we are definitely NOT overwriting an existing file:
+      if (existsSync(path)) {
+        vscode.window.showWarningMessage(
+          `Error creating note, file at path already exists: ${path}`
+        );
+        return;
+      }
       writeFileSync(path, content);
       return path;
     }

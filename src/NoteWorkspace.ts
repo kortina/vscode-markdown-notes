@@ -19,6 +19,8 @@ enum WorkspaceFilenameConvention {
 enum SlugifyCharacter {
   dash = '-',
   underscore = '_',
+  fullwidthDash = '－',
+  fullwidthUnderscore = '＿',
   none = 'NONE',
 }
 
@@ -56,6 +58,12 @@ export class NoteWorkspace {
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate
   };
+  static DOCUMENT_SELECTOR = [
+    // { scheme: 'file', language: 'markdown' },
+    // { scheme: 'file', language: 'mdx' },
+    { language: 'markdown' },
+    { language: 'mdx' },
+  ];
 
   static cfg(): Config {
     let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
@@ -161,21 +169,47 @@ export class NoteWorkspace {
     return n;
   }
 
+  static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
+    // remove the brackets:
+    let n = noteName.replace(/[\[\]]/g, '');
+    // remove the extension:
+    n = this.stripExtension(n);
+    // slugify (to normalize spaces)
+    n = this.slugifyTitle(n);
+    return n;
+  }
+
   // Compare 2 wiki-links for a fuzzy match.
   // All of the following will return true
   static noteNamesFuzzyMatch(left: string, right: string): boolean {
-    return this.normalizeNoteNameForFuzzyMatch(left) == this.normalizeNoteNameForFuzzyMatch(right);
+    return (
+      this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
+      this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+    );
   }
 
-  static slugifyTitle(title: string): string {
+  static noteNamesFuzzyMatchText(left: string, right: string): boolean {
+    return (
+      this.normalizeNoteNameForFuzzyMatchText(left).toLowerCase() ==
+      this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+    );
+  }
+
+  static cleanTitle(title: string): string {
     return title
-      .replace(/\W+/gi, this.slugifyChar()) // non-words to hyphens (or underscores)
       .toLowerCase() // lower
-      .replace(/[-_]*$/, ''); // removing trailing '-' and '_' chars
+      .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
+  }
+  static slugifyTitle(title: string): string {
+    let t =
+      this.slugifyChar() == 'NONE'
+        ? title
+        : title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
+    return this.cleanTitle(t);
   }
 
   static noteFileNameFromTitle(title: string): string {
-    let t = this.slugifyChar() == this.SLUGIFY_NONE ? title : this.slugifyTitle(title);
+    let t = this.slugifyTitle(title);
     return t.match(this.rxFileExtensions()) ? t : `${t}.${this.defaultFileExtension()}`;
   }
 
@@ -246,15 +280,17 @@ export class NoteWorkspace {
 
   static overrideMarkdownWordPattern() {
     // console.debug('overrideMarkdownWordPattern');
-    vscode.languages.setLanguageConfiguration('markdown', {
-      wordPattern: this.rxMarkdownWordPattern(),
+    this.DOCUMENT_SELECTOR.map((ds) => {
+      vscode.languages.setLanguageConfiguration(ds.language, {
+        wordPattern: this.rxMarkdownWordPattern(),
+      });
     });
   }
 
   static async noteFiles(): Promise<Array<vscode.Uri>> {
+    let that = this;
     let files = (await vscode.workspace.findFiles('**/*')).filter(
-      // TODO: parameterize extensions. Add $ to end?
-      (f) => f.scheme == 'file' && f.path.match(/\.(md|markdown)/i)
+      (f) => f.scheme == 'file' && f.path.match(that.rxFileExtensions())
     );
     return files;
   }

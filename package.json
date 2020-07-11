@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -37,7 +37,8 @@
         "scopeName": "text.markdown.notes",
         "path": "./syntaxes/notes.tmLanguage.json",
         "injectTo": [
-          "text.html.markdown"
+          "text.html.markdown",
+          "text.html.markdown.jsx"
         ]
       }
     ],

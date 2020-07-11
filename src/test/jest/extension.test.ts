@@ -19,11 +19,29 @@ test('foo', () => {
 test('noteFileNameFromTitle', () => {
   let orig = NoteWorkspace.slugifyChar;
   NoteWorkspace.slugifyChar = (): string => 'NONE';
-  expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('Some Title.md');
+  expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('some title.md');
+  NoteWorkspace.slugifyChar = (): string => 'NONE';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some Title ')).toEqual('some title.md');
   NoteWorkspace.slugifyChar = (): string => '-';
   expect(NoteWorkspace.noteFileNameFromTitle('Some " Title ')).toEqual('some-title.md');
   NoteWorkspace.slugifyChar = (): string => '_';
   expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('Šömè Țítlê')).toEqual('šömè-țítlê.md');
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('題目')).toEqual('題目.md');
+  NoteWorkspace.slugifyChar = (): string => '－';
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual(
+    'ｓｏｍｅ－ｔｉｔｌｅ.md'
+  );
+  NoteWorkspace.slugifyChar = (): string => '－';
+  expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual(
+    'ｓｏｍｅ－ｔｉｔｌｅ.md'
+  );
+
+  NoteWorkspace.slugifyChar = (): string => '-';
+  expect(NoteWorkspace.noteFileNameFromTitle('Some \r \n Title')).toEqual('some-title.md');
+
   NoteWorkspace.slugifyChar = orig;
 });
 
@@ -69,6 +87,43 @@ test('noteNamesFuzzyMatch', () => {
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md#with-heading]]', 'wiki-link.md')).toBeTruthy();
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link#with-heading]]', 'wiki-link.md')).toBeTruthy();
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link#with-heading]]', 'wiki-link.md')).toBeTruthy();
+});
+
+test('noteNamesFuzzyMatchSlashes', () => {
+  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatch('dir/sub/link-topic.md')).toEqual(
+    'link-topic'
+  );
+  // lower case is expected because 'slugifyTitle' includes toLowerCase
+  expect(NoteWorkspace.slugifyTitle('Link/Topic')).toEqual(
+    'link-topic'
+  );
+  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatchText('Link/Topic')).toEqual(
+    'link-topic'
+  );  
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/Topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/topic')
+  ).toBeTruthy();
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')
+  ).toBeTruthy();
 });
 
 test('noteNamesFuzzyMatch', () => {

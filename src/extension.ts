@@ -10,18 +10,18 @@ import { NoteParser } from './NoteParser';
 
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
-  const md = { scheme: 'file', language: 'markdown' };
+  const ds = NoteWorkspace.DOCUMENT_SELECTOR;
   NoteWorkspace.overrideMarkdownWordPattern(); // still nec to get ../ to trigger suggestions in `relativePaths` mode
 
   context.subscriptions.push(
-    vscode.languages.registerCompletionItemProvider(md, new MarkdownFileCompletionItemProvider())
+    vscode.languages.registerCompletionItemProvider(ds, new MarkdownFileCompletionItemProvider())
   );
   context.subscriptions.push(
-    vscode.languages.registerDefinitionProvider(md, new MarkdownDefinitionProvider())
+    vscode.languages.registerDefinitionProvider(ds, new MarkdownDefinitionProvider())
   );
 
   context.subscriptions.push(
-    vscode.languages.registerReferenceProvider(md, new MarkdownReferenceProvider())
+    vscode.languages.registerReferenceProvider(ds, new MarkdownReferenceProvider())
   );
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
