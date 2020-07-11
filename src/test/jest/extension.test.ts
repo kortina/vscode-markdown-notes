@@ -166,16 +166,14 @@ describe('NoteWorkspace.newNoteContent', () => {
   });
 
   it('handles timestamp', () => {
-    const template = "# Title\n\nCreated: ${timestamp}\n Last modified: ${timestamp}";
+    const template = "# Title\n\nCreated: ${timestamp}\n";
     
     const content = newNote(template, 'nevermind');
-    const regex = /# Title\n\nCreated: (.*)\n Last modified: (.*)/;
+    const regex = /# Title\n\nCreated: (.*)\n/;
     
     expect(content).toMatch(regex);
     const matches = regex.exec(content);
     const date1 = Date.parse(matches![1]);
     expect(date1).not.toBe(Number.NaN);
-    const date2 = Date.parse(matches![2]);
-    expect(date2).not.toBe(Number.NaN);
   });
 });
