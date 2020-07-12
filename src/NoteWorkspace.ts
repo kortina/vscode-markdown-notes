@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
 import { existsSync, readFile, writeFileSync } from 'fs';
+import { config } from 'process';
 
 export const foo = () => {
   return 1;
@@ -29,6 +30,7 @@ type Config = {
   noteCompletionConvention: NoteCompletionConvention;
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
+  newNoteTemplate: string;
 };
 
 // This class contains:
@@ -44,15 +46,17 @@ export class NoteWorkspace {
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
+  static _defaultNoteTemplate = '# ${noteName}\n\n';
   static SLUGIFY_NONE = 'NONE';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
-  static DEFAULT_CONFIG = {
+  static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
     defaultFileExtension: NoteWorkspace._defaultFileExtension,
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
+    newNoteTemplate: NoteWorkspace._defaultNoteTemplate
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -73,6 +77,7 @@ export class NoteWorkspace {
       workspaceFilenameConvention: c.get(
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
+      newNoteTemplate: c.get('newNoteTemplate') as string
     };
   }
 
@@ -82,6 +87,10 @@ export class NoteWorkspace {
 
   static defaultFileExtension(): string {
     return this.cfg().defaultFileExtension;
+  }
+
+  static newNoteTemplate(): string {
+    return this.cfg().newNoteTemplate;
   }
 
   static rxTagNoAnchors(): RegExp {
@@ -230,7 +239,7 @@ export class NoteWorkspace {
         const fileAlreadyExists = existsSync(filepath);
         // create the file if it does not exists
         if (!fileAlreadyExists) {
-          const contents = `# ${noteName}\n\n`;
+          const contents = NoteWorkspace.newNoteContent(noteName);
           writeFileSync(filepath, contents);
         }
 
@@ -258,6 +267,15 @@ export class NoteWorkspace {
         // console.error(err);
       }
     );
+  }
+
+  static newNoteContent(noteName: string) {
+    const template = NoteWorkspace.newNoteTemplate();
+    const contents = template
+      .replace(/\\n/g, "\n")
+      .replace(/\$\{noteName\}/g, noteName)
+      .replace(/\$\{timestamp\}/g, new Date().toISOString());
+    return contents;
   }
 
   static overrideMarkdownWordPattern() {

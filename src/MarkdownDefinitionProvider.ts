@@ -87,6 +87,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
       // TODO: could convert this to an option (to, eg, create in workspace root)
       const path = join(dirname(filename), mdFilename);
       const title = titleCaseFilename(ref.word);
+      const content = NoteWorkspace.newNoteContent(title);
       // do one final check to make sure we are definitely NOT overwriting an existing file:
       if (existsSync(path)) {
         vscode.window.showWarningMessage(
@@ -94,7 +95,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
         );
         return;
       }
-      writeFileSync(path, `# ${title}\n\n`);
+      writeFileSync(path, content);
       return path;
     }
   };
