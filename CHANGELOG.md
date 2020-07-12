@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.0.12](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.12) (2020-07-12)
+
+Configurable template for new notes.
+
+**Enhancements:**
+
+- Adds new config, `vscodeMarkdownNotes.newNoteTemplate`: Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z.
+
+Tx @qbikez for #49 closes #48
+
 ## [v0.0.11](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.11) (2020-07-08)
 
 Many bugfixes from [foam](https://github.com/foambubble/foam) community.

@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",

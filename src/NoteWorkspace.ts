@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { basename, dirname, join, normalize, relative, resolve } from 'path';
-import { existsSync, readFile, writeFileSync } from 'fs';
-import { config } from 'process';
+import { basename, dirname, join, normalize, relative } from 'path';
+import { existsSync, writeFileSync } from 'fs';
 
 export const foo = () => {
   return 1;
@@ -56,7 +55,7 @@ export class NoteWorkspace {
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
-    newNoteTemplate: NoteWorkspace._defaultNoteTemplate
+    newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -77,7 +76,7 @@ export class NoteWorkspace {
       workspaceFilenameConvention: c.get(
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
-      newNoteTemplate: c.get('newNoteTemplate') as string
+      newNoteTemplate: c.get('newNoteTemplate') as string,
     };
   }
 
@@ -272,7 +271,7 @@ export class NoteWorkspace {
   static newNoteContent(noteName: string) {
     const template = NoteWorkspace.newNoteTemplate();
     const contents = template
-      .replace(/\\n/g, "\n")
+      .replace(/\\n/g, '\n')
       .replace(/\$\{noteName\}/g, noteName)
       .replace(/\$\{timestamp\}/g, new Date().toISOString());
     return contents;
