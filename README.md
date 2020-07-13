@@ -8,6 +8,8 @@ Bring some of the awesome features from apps like [Notational Velocity](http://n
 
 [Install from the VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes). See more in the blog post: [Suping Up VS Code as a Markdown Notebook](https://kortina.nyc/essays/suping-up-vs-code-as-a-markdown-notebook/).
 
+For common issues / workarounds, please see [TROUBLESHOOTING-FAQ.md](https://github.com/kortina/vscode-markdown-notes/blob/master/TROUBLESHOOTING-FAQ.md)
+
 ### `[[wiki-links]]`
 
 A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https://bear.app/) is the ability to quickly reference other notes using "Cross-Note Links" in the `[[wiki-link]]` style.
@@ -86,28 +88,6 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 ## dev
 
 Run `npm install` first.
-
-### FAQ
-
-- "Autocomplete / Intellisense is not working - why?"
-  - Quick suggestions are not enabled by default in Markdown, so you have to manually `triggerSuggest` OR put this in settings.json:
-  ```
-  "[markdown]": {
-     "editor.quickSuggestions": true
-     // If you turn this on and DO NOT want suggestions
-     // for non-wiki-link, non-tag words,
-     // You may also want to add this setting:
-     // "editor.wordBasedSuggestions": false,
-  }
-  ```
-- "New note is not working - why?"
-  - New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
-
-### Known Issues
-
-- The `ctrl+o` VSCodeVim jumplist shortcut does not return you to the correct place after using "Go to Definition" (`ctrl+]`): https://github.com/VSCodeVim/Vim/issues/3277 (The VSCode `Go Back` command (`ctrl+-`) does work, however.)
-- This extension sets the `wordPattern` for 'markdown' in order to (1) enable proper completion of relative paths and (2) make it such that if you `cmd+shift+f` on a `#tag` the search will prefill with "#tag" and not just "tag":
-  <br />`vscode.languages.setLanguageConfiguration('markdown', { wordPattern: /([\#\.\/\\\w_]+)/ });`
 
 ### TODO
 

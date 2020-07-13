@@ -7,28 +7,7 @@ assignees: ''
 
 ---
 
-**IMPORTANT**
-
-Quick suggestions are NOT enabled by default in Markdown, so to get suggestions, you have to **manually** `triggerSuggest` (`⌃Space` by default) **OR** put this in settings.json:
-
-```
-"[markdown]": {
-   "editor.quickSuggestions": true
-}
-```
-
-_Troubleshooting: Before filing a new issue, please try to verify if this is a workspace / configuration issue, or an extension / os issue:_
-
-- Checkout [the repo](https://github.com/kortina/vscode-markdown-notes): `git clone git@github.com:kortina/vscode-markdown-notes.git`
-- Open the test notebook directory: `cd vscode-markdown-notes/test && code .`
-- Open `top.md` in the test workspace in VS Code
-- [ ] typing `[[t`,  _triggerSuggest_ (`⌃Space` by default) gives completions: `test.md`, `top.md`
-- [ ] typing `[[s`,  _triggerSuggest_ (`⌃Space` by default) gives completions: `sub.md`, `sub2.md`
-- [ ] typing `#a`,  _triggerSuggest_ (`⌃Space` by default) gives completions: `#another_tag`, `#tag`
-- [ ] typing `[[test.md]]`, moving cursor over this word,  _peekDefinition_ (`⌥F12` by default) opens Peek Definition window
-- Did your bug occur in the test directory?
-  - [ ] Yes
-  - [ ] No 
+_Before filing a new issue, **please see [TROUBLESHOOTING-FAQ.md](https://github.com/kortina/vscode-markdown-notes/blob/master/TROUBLESHOOTING-FAQ.md)** for common issues / workarounds, and follow the **Troubleshooting Checklist** to try to further diagnose the problem._
 
 **Describe the bug**
 A clear and concise description of what the bug is.
