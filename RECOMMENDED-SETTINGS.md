@@ -9,7 +9,7 @@
 
 Quick suggestions are NOT enabled by default in Markdown, so to get suggestions, you have to **manually** `triggerSuggest` (`⌃Space` by default) **OR** put set `editor.quickSuggestions` to `true` in your `settings.json`:
 
-```json
+```jsonc
   // vscode settings.json
   // The following settings will only apply to markdown files:
   "[markdown]": {
@@ -31,7 +31,7 @@ Quick suggestions are NOT enabled by default in Markdown, so to get suggestions,
 
 ### VS Code Workspace Settings
 
-```json
+```jsonc
 {
   // save files after a delay automatically
   "files.autoSave": "afterDelay",
@@ -51,7 +51,7 @@ Quick suggestions are NOT enabled by default in Markdown, so to get suggestions,
 
 "This is the kitchen sink of settings I use." - @lukesmurray
 
-```json
+```jsonc
     "vim.normalModeKeyBindingsNonRecursive": [
     // open references panel with gr
     {
