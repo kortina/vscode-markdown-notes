@@ -1,7 +1,8 @@
-# TROUBLESHOOTING / FAQ
+# Troubleshooting / FAQ
 
-- [TROUBLESHOOTING / FAQ](#troubleshooting--faq)
+- [Troubleshooting / FAQ](#troubleshooting--faq)
     - [Autocomplete / Intellisense is not working - why?](#autocomplete--intellisense-is-not-working---why)
+    - [What other settings do you recommend when using this extension?](#what-other-settings-do-you-recommend-when-using-this-extension)
     - [Troubleshooting Checklist](#troubleshooting-checklist)
     - [New note is not working - why?](#new-note-is-not-working---why)
     - [Known Issues](#known-issues)
@@ -15,12 +16,15 @@ Quick suggestions are NOT enabled by default in Markdown, so to get suggestions,
 ```
 "[markdown]": {
     "editor.quickSuggestions": true
-    // If you turn this on and DO NOT want suggestions
-    // for non-wiki-link, non-tag words,
-    // You may also want to add this setting:
-    // "editor.wordBasedSuggestions": false,
 }
 ```
+
+### What other settings do you recommend when using this extension?
+
+See the
+[RECOMMENDED-SETTINGS](https://github.com/kortina/vscode-markdown-notes/blob/master/RECOMMENDED-SETTINGS.md)
+doc.
+
 
 ### Troubleshooting Checklist
 

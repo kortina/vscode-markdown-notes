@@ -10,6 +10,8 @@ Bring some of the awesome features from apps like [Notational Velocity](http://n
 
 For common issues / workarounds, please see [TROUBLESHOOTING-FAQ.md](https://github.com/kortina/vscode-markdown-notes/blob/master/TROUBLESHOOTING-FAQ.md)
 
+Also, take a look at the [RECOMMENDED-SETTINGS.md](https://github.com/kortina/vscode-markdown-notes/blob/master/RECOMMENDED-SETTINGS.md)
+
 ### `[[wiki-links]]`
 
 A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https://bear.app/) is the ability to quickly reference other notes using "Cross-Note Links" in the `[[wiki-link]]` style.
