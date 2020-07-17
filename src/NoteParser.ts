@@ -253,7 +253,7 @@ export class NoteParser {
     let query: string;
     if (ref.type == RefType.Tag) {
       query = `#${ref.word}`;
-    } else if ((ref.type = RefType.WikiLink)) {
+    } else if (ref.type == RefType.WikiLink) {
       query = `[[${basename(ref.word)}]]`;
     } else {
       return [];
