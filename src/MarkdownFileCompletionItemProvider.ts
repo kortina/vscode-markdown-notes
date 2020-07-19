@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser, Note } from './NoteParser';
-import { resolve } from 'dns';
 
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
