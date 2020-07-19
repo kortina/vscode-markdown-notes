@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser, Note } from './NoteParser';
+import { resolve } from 'dns';
 
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
@@ -36,15 +37,18 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         break;
       case RefType.WikiLink:
         let files = await NoteWorkspace.noteFiles();
-        items = files.map((f) => {
+        items = await Promise.all(files.map(async(f) => {
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
           let item = new vscode.CompletionItem(label, kind);
+          await vscode.workspace.openTextDocument(f.path).then((doc) => {
+            item.documentation = new vscode.MarkdownString(doc.getText());
+          })
           if (ref && ref.range) {
             item.range = ref.range;
           }
           return item;
-        });
+        }));
         return items;
         break;
       default:
