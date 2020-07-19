@@ -30,6 +30,8 @@ type Config = {
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  provideSuggestionDetails: boolean;
+  compileSuggestionDetails: boolean;
 };
 
 // This class contains:
@@ -51,6 +53,8 @@ export class NoteWorkspace {
   static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
+    provideSuggestionDetails: false,
+    compileSuggestionDetails: false,
     defaultFileExtension: NoteWorkspace._defaultFileExtension,
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
@@ -77,6 +81,8 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      provideSuggestionDetails: c.get('provideSuggestionDetails') as boolean,
+      compileSuggestionDetails: c.get('compileSuggestionDetails') as boolean,
     };
   }
 
@@ -149,6 +155,14 @@ export class NoteWorkspace {
 
   static createNoteOnGoToDefinitionWhenMissing(): boolean {
     return !!this.cfg().createNoteOnGoToDefinitionWhenMissing;
+  }
+
+  static provideSuggestionDetails(): boolean {
+    return this.cfg().provideSuggestionDetails;
+  }
+
+  static compileSuggestionDetails(): boolean {
+    return this.cfg().compileSuggestionDetails;
   }
 
   static stripExtension(noteName: string): string {
