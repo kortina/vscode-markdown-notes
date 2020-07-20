@@ -36,34 +36,18 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         break;
       case RefType.WikiLink:
         let files = await NoteWorkspace.noteFiles();
-        if (NoteWorkspace.provideSuggestionDetails()) {
-          items = await Promise.all(files.map(async(f) => {
-            let kind = vscode.CompletionItemKind.File;
-            let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
-            let item = new vscode.CompletionItem(label, kind);
-            await vscode.workspace.openTextDocument(f.path).then((doc) => {
-              if (NoteWorkspace.compileSuggestionDetails()) {
-                item.documentation = new vscode.MarkdownString(doc.getText());
-              } else {
-                item.documentation = doc.getText();
-              }
-            })
-            if (ref && ref.range) {
-              item.range = ref.range;
-            }
-            return item;
-          }));
-        } else {
-          items = files.map((f) => {
-            let kind = vscode.CompletionItemKind.File;
-            let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
-            let item = new vscode.CompletionItem(label, kind);
-            if (ref && ref.range) {
-              item.range = ref.range;
-            }
-            return item;
-          });
-        }
+        items = files.map((f) => {
+          let kind = vscode.CompletionItemKind.File;
+          let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
+          let item = new vscode.CompletionItem(label, kind);
+          let note = NoteParser.noteFromFsPath(f.fsPath)
+          item.detail = note.title
+          item.documentation = note.documentation()
+          if (ref && ref.range) {
+            item.range = ref.range;
+          }
+          return item;
+        });
         return items;
         break;
       default:
