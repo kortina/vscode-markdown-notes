@@ -6,6 +6,13 @@ import { Ref, RefType } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 
 const RETURN_TYPE_VSCODE = 'vscode';
+
+// ? key issue is `label`
+// type CompletionItemDetails = {
+//   label: string;
+//   detail: string;
+//   documentation: string;
+// };
 type RawPosition = {
   line: number;
   character: number;
@@ -56,6 +63,7 @@ export class Note {
   fsPath: string;
   data: string | undefined;
   refCandidates: Array<RefCandidate> = [];
+  title: string | undefined;
   private _parsed: boolean = false;
   constructor(fsPath: string) {
     this.fsPath = fsPath;
@@ -120,8 +128,15 @@ export class Note {
     // reset the refCandidates Array
     this.refCandidates = [];
 
+    let searchTitle = true;
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
+      if (searchTitle) {
+        Array.from(line.matchAll(NoteWorkspace.rxTitle())).map((match) => {
+          this.title = match[0].trim();
+          searchTitle = false; // * only search for the first # h1
+        })
+      }
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
         // console.log('match tag', that.fsPath, lineNum, match);
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
@@ -174,6 +189,17 @@ export class Note {
         _tagSet.add(rc.rawText);
       });
     return _tagSet;
+  }
+
+  // completionItem.documentation ()
+  documentation(): string | vscode.MarkdownString | undefined {
+    if (this.data === undefined) {
+      return ""
+    } else if (NoteWorkspace.compileSuggestionDetails()) {
+      return new vscode.MarkdownString(this.data)
+    } else {
+      return this.data
+    }
   }
 }
 
@@ -268,5 +294,9 @@ export class NoteParser {
     });
 
     return locations;
+  }
+
+  static noteFromFsPath(fsPath: string): Note {
+    return this._notes[fsPath];
   }
 }
