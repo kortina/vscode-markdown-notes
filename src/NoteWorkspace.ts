@@ -44,6 +44,7 @@ export class NoteWorkspace {
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[^\\]]+\\]\\]'; // [[wiki-link-regex]]
+  static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+))([^\\r\\n]+)';
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
@@ -112,6 +113,9 @@ export class NoteWorkspace {
     // NB: MUST have g flag to match multiple words per line
     // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
     return new RegExp(this._rxWikiLink, 'gi');
+  }
+  static rxTitle(): RegExp {
+    return new RegExp(this._rxTitle, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
     // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
