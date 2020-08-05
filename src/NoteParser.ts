@@ -24,14 +24,20 @@ class RefCandidate {
     this.refType = refType;
   }
   static fromMatch = (lineNum: number, match: RegExpMatchArray, cwType: RefType): RefCandidate => {
-    // console.debug(`RefCandidate.fromMatch`, match[0]);
+    console.debug(`RefCandidate.fromMatch`, match[0]);
     let s = match.index || 0;
     let e = s + match[0].length;
     let r: RawRange = {
       start: { line: lineNum, character: s },
       end: { line: lineNum, character: e },
     };
-    return new RefCandidate(match[0], r, cwType);
+    if (cwType == RefType.WikiLink) {
+      return new RefCandidate(match[1], r, cwType);
+    }
+    else {
+      return new RefCandidate(match[0], r, cwType);
+    }
+    
   };
 
   matchesContextWord(ref: Ref): boolean {
@@ -123,10 +129,11 @@ export class Note {
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
-        // console.log('match tag', that.fsPath, lineNum, match);
+        
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
+        console.log('match tag', match);
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
     });
