@@ -31,12 +31,7 @@ class RefCandidate {
       start: { line: lineNum, character: s },
       end: { line: lineNum, character: e },
     };
-    if (cwType == RefType.WikiLink) {
-      return new RefCandidate(match[1], r, cwType);
-    }
-    else {
-      return new RefCandidate(match[0], r, cwType);
-    }
+    return new RefCandidate(match[0], r, cwType);
     
   };
 
@@ -133,7 +128,7 @@ export class Note {
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
-        console.log('match tag', match);
+        //console.log('match tag', match);
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
     });

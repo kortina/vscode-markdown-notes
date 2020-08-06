@@ -39,6 +39,7 @@ export const titleCaseFilename = (filename: string): string => {
   }
   return titleCase(
     filename
+      .replace(/\|[^\\\[]$/, '') // remove wikilink
       .replace(/\.(md|markdown)$/, '')
       .replace(/[-_]/gi, ' ')
       .replace(/\s+/, ' ')
