@@ -171,6 +171,8 @@ export class NoteWorkspace {
   static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
+    // remove the potential wikilink:
+    n = n.replace(/\|[^\\\[]+$/, '');
     // remove the extension:
     n = this.stripExtension(n);
     // slugify (to normalize spaces)
