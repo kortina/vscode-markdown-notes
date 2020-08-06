@@ -82,7 +82,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
     ref = document.getText(r);
     if (ref) {
       
-      ref = ref.replace(/\|[^\\\[]$/, ''); // Remove piped wikilink
+      ref = ref.replace(/\|[^\\\[]+$/, ''); // Remove piped wikilink
 
       return {
         type: RefType.WikiLink,
