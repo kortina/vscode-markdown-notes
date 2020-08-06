@@ -32,7 +32,6 @@ class RefCandidate {
       end: { line: lineNum, character: e },
     };
     return new RefCandidate(match[0], r, cwType);
-    
   };
 
   matchesContextWord(ref: Ref): boolean {
@@ -128,7 +127,8 @@ export class Note {
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
-        //console.log('match tag', match);
+        // console.log('match tag', that.fsPath, lineNum, match);
+
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
     });
