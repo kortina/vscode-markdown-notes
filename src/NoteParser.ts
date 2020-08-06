@@ -24,7 +24,7 @@ class RefCandidate {
     this.refType = refType;
   }
   static fromMatch = (lineNum: number, match: RegExpMatchArray, cwType: RefType): RefCandidate => {
-    console.debug(`RefCandidate.fromMatch`, match[0]);
+    // console.debug(`RefCandidate.fromMatch`, match[0]);
     let s = match.index || 0;
     let e = s + match[0].length;
     let r: RawRange = {
