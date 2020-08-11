@@ -23,6 +23,11 @@ enum SlugifyCharacter {
   none = 'NONE',
 }
 
+enum PipedWikilinksSyntax {
+  filedesc = 'file|desc',
+  descfile = 'desc|file',
+}
+
 type Config = {
   createNoteOnGoToDefinitionWhenMissing: boolean;
   defaultFileExtension: string;
@@ -30,6 +35,8 @@ type Config = {
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  allowPipedWikiLinks: boolean;
+  pipedWikiLinksSyntax: PipedWikilinksSyntax;
 };
 
 // This class contains:
@@ -56,6 +63,8 @@ export class NoteWorkspace {
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
+    allowPipedWikiLinks: false,
+    pipedWikiLinksSyntax: PipedWikilinksSyntax.descfile,
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -77,6 +86,8 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
+      pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikilinksSyntax,
     };
   }
 
@@ -90,6 +101,14 @@ export class NoteWorkspace {
 
   static newNoteTemplate(): string {
     return this.cfg().newNoteTemplate;
+  }
+
+  static allowPipedWikiLinks(): boolean {
+    return this.cfg().allowPipedWikiLinks;
+  }
+
+  static pipedWikiLinksSyntax(): string {
+    return this.cfg().pipedWikiLinksSyntax;
   }
 
   static rxTagNoAnchors(): RegExp {
@@ -168,11 +187,32 @@ export class NoteWorkspace {
     return n;
   }
 
+  static cleanPipedWikiLink(noteName: string): string {
+
+    // Check whether or not we should remove the description
+
+    if (NoteWorkspace.allowPipedWikiLinks()) {
+
+      if (NoteWorkspace.pipedWikiLinksSyntax() == 'file|desc') {
+        noteName = noteName.replace(/\|[^\\\[]+$/, ''); // Remove description from the end
+        
+      } else {
+        noteName = noteName.replace(/^[^\\\[]+\|/, ''); // Remove description from the beginning
+      }
+
+      return noteName;
+
+    // If piped wikilinks aren't used, don't alter the notename.
+    } else {
+      return noteName;
+    }
+  }
+
   static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
-    // remove the potential wikilink:
-    n = n.replace(/\|[^\\\[]+$/, '');
+    // remove the potential description:
+    n = this.cleanPipedWikiLink(n);
     // remove the extension:
     n = this.stripExtension(n);
     // slugify (to normalize spaces)
