@@ -8,7 +8,11 @@ jest.mock('../../NoteWorkspace');
 
 beforeEach(() => {
   NoteWorkspace.cfg = () => {
-    return NoteWorkspace.DEFAULT_CONFIG;
+    let config =  NoteWorkspace.DEFAULT_CONFIG;
+
+    // Allow piped wikilinks in order to test them
+    config.allowPipedWikiLinks = true;
+    return config;
   };
 });
 
@@ -124,6 +128,28 @@ test('noteNamesFuzzyMatchSlashes', () => {
   expect(
     NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')
   ).toBeTruthy();
+
+  // Piped wikilinks
+  expect(
+    NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
+  ).toBeTruthy();
+});
+
+test('cleanPipedWikiLinks', () => {
+  expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
+    "file"
+  );
+  expect(NoteWorkspace.cleanPipedWikiLink("description with lots of spaces, and other symbols|file.md")).toEqual(
+    "file.md"
+  );
+  expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
+    "file"
+  );
+
+  // Odd case, but I suppose it should be treated
+  expect(NoteWorkspace.cleanPipedWikiLink("description|file|but-with-a-pipe-symbol.md")).toEqual(
+    "file|but-with-a-pipe-symbol.md"
+  );
 });
 
 test('noteNamesFuzzyMatch', () => {
@@ -199,17 +225,17 @@ describe('NoteWorkspace.newNoteContent', () => {
       return {
         ...NoteWorkspace.DEFAULT_CONFIG,
         newNoteTemplate: template
-      }
+      };
     };
   
     return NoteWorkspace.newNoteContent(title);
-  }
+  };
   it('handles noteName tag', () => {
     const template = "# ${noteName}\n\nThis is ${noteName}";
     
     const content = newNote(template, "this is my test note!");
 
-    expect(content).toBe('# this is my test note!\n\nThis is this is my test note!')
+    expect(content).toBe('# this is my test note!\n\nThis is this is my test note!');
   });
 
   it('handles escaped newlines', () => {
