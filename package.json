@@ -108,6 +108,13 @@
           ],
           "default": "file|desc",
           "description": "Describes what piped wikilink syntax to use: either [[file|description]], or [[description|file]]."
+        },
+        "vscodeMarkdownNotes.pipedWikiLinksSeparator": {
+          "type": "string",
+          "default": "\\|",
+          "pattern": "[^\\[\\]]+",
+          "patternErrorMessage": "Warning: This separator will unfortunately not work - It would break the wikilink syntax.",
+          "markdownDescription": "States what separator should be used - **Note: Special regex characters should be escaped! Example: '|' should be '\\\\|'**"
         }
       }
     },

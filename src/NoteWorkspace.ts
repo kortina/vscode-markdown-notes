@@ -37,6 +37,7 @@ type Config = {
   newNoteTemplate: string;
   allowPipedWikiLinks: boolean;
   pipedWikiLinksSyntax: PipedWikilinksSyntax;
+  pipedWikiLinksSeparator: string;
 };
 
 // This class contains:
@@ -48,7 +49,7 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
-  static _rxWikiLink = /\[\[[^\\\|\]]+(\|[^\\\|\]]+)?\]\]/; // [[wiki-link-regex(|with potential pipe)?]]
+  static _rxWikiLink = "\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]"; // [[wiki-link-regex(|with potential pipe)?]]
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
@@ -65,6 +66,7 @@ export class NoteWorkspace {
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikilinksSyntax.descfile,
+    pipedWikiLinksSeparator: "\\|",
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -88,6 +90,7 @@ export class NoteWorkspace {
       newNoteTemplate: c.get('newNoteTemplate') as string,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
       pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikilinksSyntax,
+      pipedWikiLinksSeparator: c.get('pipedWikiLinksSeparator') as string,
     };
   }
 
@@ -111,6 +114,10 @@ export class NoteWorkspace {
     return this.cfg().pipedWikiLinksSyntax;
   }
 
+  static pipedWikiLinksSeparator(): string {
+    return this.cfg().pipedWikiLinksSeparator;
+  }
+
   static rxTagNoAnchors(): RegExp {
     // NB: MUST have g flag to match multiple words per line
     // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
@@ -124,6 +131,7 @@ export class NoteWorkspace {
   static rxWikiLink(): RegExp {
     // NB: MUST have g flag to match multiple words per line
     // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
+    this._rxWikiLink = this._rxWikiLink.replace(/sep/g,NoteWorkspace.pipedWikiLinksSeparator());
     return new RegExp(this._rxWikiLink, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
@@ -193,13 +201,22 @@ export class NoteWorkspace {
 
     if (NoteWorkspace.allowPipedWikiLinks()) {
 
+      let separator: string = NoteWorkspace.pipedWikiLinksSeparator();
+      let capturegroup = "[^\\["+separator+"]+";
+      let regex: RegExp;
+
       if (NoteWorkspace.pipedWikiLinksSyntax() == 'file|desc') {
-        noteName = noteName.replace(/\|[^\\\[]+$/, ''); // Remove description from the end
+
+        // Should capture the "|desc" at the end of a wikilink
+        regex = new RegExp(separator + capturegroup +"$");
         
       } else {
-        noteName = noteName.replace(/^[^\\\[]+\|/, ''); // Remove description from the beginning
+        
+        // Should capture the "desc|" at the beginning of a wikilink
+        regex = new RegExp("^"+capturegroup+separator);
       }
 
+      noteName = noteName.replace(regex, ''); // Remove description from the end
       return noteName;
 
     // If piped wikilinks aren't used, don't alter the notename.
