@@ -30,6 +30,7 @@ type Config = {
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  triggerSuggestOnReplacement: boolean;
 };
 
 // This class contains:
@@ -46,6 +47,7 @@ export class NoteWorkspace {
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
   static _defaultNoteTemplate = '# ${noteName}\n\n';
+  static _defaultTriggerSuggestOnReplacement = true;
   static SLUGIFY_NONE = 'NONE';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
@@ -56,6 +58,7 @@ export class NoteWorkspace {
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
+    triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -77,6 +80,7 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
     };
   }
 
@@ -90,6 +94,10 @@ export class NoteWorkspace {
 
   static newNoteTemplate(): string {
     return this.cfg().newNoteTemplate;
+  }
+
+  static triggerSuggestOnReplacement() {
+    return this.cfg().triggerSuggestOnReplacement;
   }
 
   static rxTagNoAnchors(): RegExp {

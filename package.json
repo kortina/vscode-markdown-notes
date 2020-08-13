@@ -95,6 +95,11 @@
           "default": "# ${noteName}\n\n",
           "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
         }
+      },
+      "vscodeMarkdownNotes.triggerSuggestOnReplacement": {
+          "type": "boolean",
+          "default": true,
+          "description": "Trigger suggest on both insertion AND replacement of new character inside a wiki-link. Defaults true. Set false to only trigger suggest on insertion. See PR #69 for details."
       }
     },
     "views": {
