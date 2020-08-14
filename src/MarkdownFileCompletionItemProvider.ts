@@ -17,13 +17,11 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
     context: vscode.CompletionContext
   ) {
     const ref = getRefAt(document, position);
-    let items = [];
     switch (ref.type) {
       case RefType.Null:
         return [];
-        break;
       case RefType.Tag:
-        items = (await NoteParser.distinctTags()).map((t) => {
+        return (await NoteParser.distinctTags()).map((t) => {
           let kind = vscode.CompletionItemKind.File;
           let label = `${t}`; // cast to a string
           let item = new vscode.CompletionItem(label, kind);
@@ -32,11 +30,8 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           }
           return item;
         });
-        return items;
-        break;
       case RefType.WikiLink:
-        let files = await NoteWorkspace.noteFiles();
-        items = files.map((f) => {
+        return (await NoteWorkspace.noteFiles()).map((f) => {
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
           let item = new vscode.CompletionItem(label, kind);
@@ -45,11 +40,6 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           }
           return item;
         });
-        return items;
-        break;
-      default:
-        return [];
-        break;
     }
   }
 }

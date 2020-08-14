@@ -63,7 +63,9 @@ test('rxWikiLink', () => {
   let rx = NoteWorkspace.rxWikiLink();
   expect(('Some [[wiki-link]].'.match(rx) || [])[0]).toEqual('[[wiki-link]]');
   expect(('Some [[wiki link]].'.match(rx) || [])[0]).toEqual('[[wiki link]]');
+  expect(('一段 [[链接]]。'.match(rx) || [])[0]).toEqual('[[链接]]');
   expect(('Some [[wiki-link.md]].'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
+  expect(('一段 [[链接.md]]。'.match(rx) || [])[0]).toEqual('[[链接.md]]');
   // TODO: this returns a match OK right now, but I think we will want to
   // modify the result to contain meta-data that says there is also a #heading / parses it out
   expect(('Some [[wiki-link.md#with-heading]].'.match(rx) || [])[0]).toEqual(
@@ -71,6 +73,7 @@ test('rxWikiLink', () => {
   );
   // Should the following work? It does....
   expect(('Some[[wiki-link.md]]no-space.'.match(rx) || [])[0]).toEqual('[[wiki-link.md]]');
+  expect(('一段[[链接]]无空格。'.match(rx) || [])[0]).toEqual('[[链接]]');
   expect('Some [[wiki-link.md].').not.toMatch(rx);
 });
 
@@ -87,6 +90,7 @@ test('noteNamesFuzzyMatch', () => {
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md]]', 'wiki-link.md')).toBeTruthy();
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link]]', 'wiki-link.md')).toBeTruthy();
   expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link]]', 'wiki-link.md')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('[[链接]]', '链接.md')).toBeTruthy();
   // TODO: if we add support for #headings, we will want these tests to pass:
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md#with-heading]]', 'wiki-link.md')).toBeTruthy();
   // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link#with-heading]]', 'wiki-link.md')).toBeTruthy();
