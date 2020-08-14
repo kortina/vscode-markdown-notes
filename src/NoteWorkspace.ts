@@ -49,7 +49,7 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
-  static _rxWikiLink = "\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]"; // [[wiki-link-regex(|with potential pipe)?]]
+  static _rxWikiLink = "\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]"; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
