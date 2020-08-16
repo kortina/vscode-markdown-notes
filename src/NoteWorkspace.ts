@@ -35,6 +35,7 @@ type Config = {
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  triggerSuggestOnReplacement: boolean;
   allowPipedWikiLinks: boolean;
   pipedWikiLinksSyntax: PipedWikilinksSyntax;
   pipedWikiLinksSeparator: string;
@@ -54,6 +55,7 @@ export class NoteWorkspace {
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
   static _defaultNoteTemplate = '# ${noteName}\n\n';
+  static _defaultTriggerSuggestOnReplacement = true;
   static SLUGIFY_NONE = 'NONE';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
@@ -64,6 +66,7 @@ export class NoteWorkspace {
     slugifyCharacter: SlugifyCharacter.dash,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
+    triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikilinksSyntax.descfile,
     pipedWikiLinksSeparator: "\\|",
@@ -88,6 +91,7 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
       pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikilinksSyntax,
       pipedWikiLinksSeparator: c.get('pipedWikiLinksSeparator') as string,
@@ -105,6 +109,9 @@ export class NoteWorkspace {
   static newNoteTemplate(): string {
     return this.cfg().newNoteTemplate;
   }
+
+  static triggerSuggestOnReplacement() {
+    return this.cfg().triggerSuggestOnReplacement;
 
   static allowPipedWikiLinks(): boolean {
     return this.cfg().allowPipedWikiLinks;

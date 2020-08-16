@@ -40,6 +40,8 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           }
           return item;
         });
+      default:
+        return [];
     }
   }
 }

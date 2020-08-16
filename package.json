@@ -116,6 +116,11 @@
           "patternErrorMessage": "Warning: This separator will unfortunately not work - It would break the wikilink syntax.",
           "markdownDescription": "States what separator should be used - **Note: Special regex characters should be escaped! Example: '|' should be '\\\\|'**"
         }
+      },
+      "vscodeMarkdownNotes.triggerSuggestOnReplacement": {
+          "type": "boolean",
+          "default": true,
+          "description": "Trigger suggest on both insertion AND replacement of new character inside a wiki-link. Defaults true. Set false to only trigger suggest on insertion. See PR #69 for details."
       }
     },
     "views": {
