@@ -99,37 +99,16 @@ test('noteNamesFuzzyMatchSlashes', () => {
     'link-topic'
   );
   // lower case is expected because 'slugifyTitle' includes toLowerCase
-  expect(NoteWorkspace.slugifyTitle('Link/Topic')).toEqual(
-    'link-topic'
-  );
-  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatchText('Link/Topic')).toEqual(
-    'link-topic'
-  );  
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/Topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/Topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/Topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/topic')
-  ).toBeTruthy();
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')
-  ).toBeTruthy();
-
+  expect(NoteWorkspace.slugifyTitle('Link/Topic')).toEqual('link-topic');
+  expect(NoteWorkspace.normalizeNoteNameForFuzzyMatchText('Link/Topic')).toEqual('link-topic');
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/Topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/Topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'link/Topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/topic')).toBeTruthy();
+  expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')).toBeTruthy();
 });
 
 test('noteNamesFuzzyMatch', () => {
@@ -199,8 +178,7 @@ test('Note.tagSet', () => {
   expect(tags).toEqual(new Set(['#another_tag', '#tag']));
 });
 
-
-describe("Wikilinks", () => {
+describe('WikiLinks', () => {
   beforeEach(() => {
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
@@ -210,37 +188,29 @@ describe("Wikilinks", () => {
   });
 
   test('cleanPipedWikiLinks', () => {
-  
-    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
-      "file"
-    );
-    expect(NoteWorkspace.cleanPipedWikiLink("description with lots of spaces, and other symbols|file.md")).toEqual(
-      "file.md"
-    );
-    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
-      "file"
-    );
-  
-    // Odd case, but I suppose it should be treated
-    expect(NoteWorkspace.cleanPipedWikiLink("description|file|but-with-a-pipe-symbol.md")).toEqual(
-      "file|but-with-a-pipe-symbol.md"
-    );
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
+    expect(
+      NoteWorkspace.cleanPipedWikiLink('description with lots of spaces, and other symbols|file.md')
+    ).toEqual('file.md');
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
 
+    // Odd case, but I suppose it should be treated
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file|but-with-a-pipe-symbol.md')).toEqual(
+      'file|but-with-a-pipe-symbol.md'
+    );
   });
-  test("NoteWorkspace.noteNamesFuzzyMatch", () => {
+  test('NoteWorkspace.noteNamesFuzzyMatch', () => {
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
-  
+
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
-
   });
 
   // Tests the different settings for piped wikilinks
-  test("Config changes", () => {
-
+  test('Config changes', () => {
     // 1: Disable piped wikilinks
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
@@ -248,20 +218,16 @@ describe("Wikilinks", () => {
       return config;
     };
     // Because of this change, these should not match anymore...
-    expect(
-      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
-    ).toBeFalsy();
+    expect(NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')).toBeFalsy();
 
     // ... And cleanPipedWikiLink should return the original string.
-    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
-      "description|file"
-    );
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('description|file');
 
     // 2: Use a different separator
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
       config.allowPipedWikiLinks = true;
-      config.pipedWikiLinksSeparator = "@";
+      config.pipedWikiLinksSeparator = '@';
       return config;
     };
 
@@ -269,15 +235,13 @@ describe("Wikilinks", () => {
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description@filename.md')
     ).toBeTruthy();
 
-    expect(NoteWorkspace.cleanPipedWikiLink("description@file")).toEqual(
-      "file"
-    );
+    expect(NoteWorkspace.cleanPipedWikiLink('description@file')).toEqual('file');
 
     // 3: Use a different syntax
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
       config.allowPipedWikiLinks = true;
-      config.pipedWikiLinksSeparator = "\\|";
+      config.pipedWikiLinksSeparator = '\\|';
       return config;
     };
 
@@ -289,12 +253,8 @@ describe("Wikilinks", () => {
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'filename.md|description')
     ).toBeTruthy();
 
-    expect(NoteWorkspace.cleanPipedWikiLink("file|description")).toEqual(
-      "file"
-    );
-
+    expect(NoteWorkspace.cleanPipedWikiLink('file|description')).toEqual('file');
   });
-
 });
 
 describe('NoteWorkspace.newNoteContent', () => {
@@ -302,34 +262,34 @@ describe('NoteWorkspace.newNoteContent', () => {
     NoteWorkspace.cfg = () => {
       return {
         ...NoteWorkspace.DEFAULT_CONFIG,
-        newNoteTemplate: template
+        newNoteTemplate: template,
       };
     };
-  
+
     return NoteWorkspace.newNoteContent(title);
   };
   it('handles noteName tag', () => {
-    const template = "# ${noteName}\n\nThis is ${noteName}";
-    
-    const content = newNote(template, "this is my test note!");
+    const template = '# ${noteName}\n\nThis is ${noteName}';
+
+    const content = newNote(template, 'this is my test note!');
 
     expect(content).toBe('# this is my test note!\n\nThis is this is my test note!');
   });
 
   it('handles escaped newlines', () => {
-    const template = "# Title\\n\\nContent";
-    
+    const template = '# Title\\n\\nContent';
+
     const content = newNote(template, 'nevermind');
 
     expect(content).toBe('# Title\n\nContent');
   });
 
   it('handles timestamp', () => {
-    const template = "# Title\n\nCreated: ${timestamp}\n";
-    
+    const template = '# Title\n\nCreated: ${timestamp}\n';
+
     const content = newNote(template, 'nevermind');
     const regex = /# Title\n\nCreated: (.*)\n/;
-    
+
     expect(content).toMatch(regex);
     const matches = regex.exec(content);
     const date1 = Date.parse(matches![1]);

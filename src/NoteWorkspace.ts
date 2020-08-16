@@ -23,9 +23,9 @@ enum SlugifyCharacter {
   none = 'NONE',
 }
 
-enum PipedWikilinksSyntax {
-  filedesc = 'file|desc',
-  descfile = 'desc|file',
+enum PipedWikiLinksSyntax {
+  fileDesc = 'file|desc',
+  descFile = 'desc|file',
 }
 
 type Config = {
@@ -37,7 +37,7 @@ type Config = {
   newNoteTemplate: string;
   triggerSuggestOnReplacement: boolean;
   allowPipedWikiLinks: boolean;
-  pipedWikiLinksSyntax: PipedWikilinksSyntax;
+  pipedWikiLinksSyntax: PipedWikiLinksSyntax;
   pipedWikiLinksSeparator: string;
 };
 
@@ -50,7 +50,7 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
-  static _rxWikiLink = "\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]"; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
+  static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
@@ -68,8 +68,8 @@ export class NoteWorkspace {
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
     triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
     allowPipedWikiLinks: false,
-    pipedWikiLinksSyntax: PipedWikilinksSyntax.descfile,
-    pipedWikiLinksSeparator: "\\|",
+    pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+    pipedWikiLinksSeparator: '\\|',
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -93,7 +93,7 @@ export class NoteWorkspace {
       newNoteTemplate: c.get('newNoteTemplate') as string,
       triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
-      pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikilinksSyntax,
+      pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikiLinksSyntax,
       pipedWikiLinksSeparator: c.get('pipedWikiLinksSeparator') as string,
     };
   }
@@ -112,6 +112,7 @@ export class NoteWorkspace {
 
   static triggerSuggestOnReplacement() {
     return this.cfg().triggerSuggestOnReplacement;
+  }
 
   static allowPipedWikiLinks(): boolean {
     return this.cfg().allowPipedWikiLinks;
@@ -138,7 +139,7 @@ export class NoteWorkspace {
   static rxWikiLink(): RegExp {
     // NB: MUST have g flag to match multiple words per line
     // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
-    this._rxWikiLink = this._rxWikiLink.replace(/sep/g,NoteWorkspace.pipedWikiLinksSeparator());
+    this._rxWikiLink = this._rxWikiLink.replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator());
     return new RegExp(this._rxWikiLink, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
@@ -203,30 +204,25 @@ export class NoteWorkspace {
   }
 
   static cleanPipedWikiLink(noteName: string): string {
-
     // Check whether or not we should remove the description
 
     if (NoteWorkspace.allowPipedWikiLinks()) {
-
       let separator: string = NoteWorkspace.pipedWikiLinksSeparator();
-      let capturegroup = "[^\\["+separator+"]+";
+      let captureGroup = '[^\\[' + separator + ']+';
       let regex: RegExp;
 
       if (NoteWorkspace.pipedWikiLinksSyntax() == 'file|desc') {
-
-        // Should capture the "|desc" at the end of a wikilink
-        regex = new RegExp(separator + capturegroup +"$");
-        
+        // Should capture the "|desc" at the end of a wiki-link
+        regex = new RegExp(separator + captureGroup + '$');
       } else {
-        
-        // Should capture the "desc|" at the beginning of a wikilink
-        regex = new RegExp("^"+capturegroup+separator);
+        // Should capture the "desc|" at the beginning of a wiki-link
+        regex = new RegExp('^' + captureGroup + separator);
       }
 
       noteName = noteName.replace(regex, ''); // Remove description from the end
       return noteName;
 
-    // If piped wikilinks aren't used, don't alter the notename.
+      // If piped wiki-links aren't used, don't alter the note name.
     } else {
       return noteName;
     }

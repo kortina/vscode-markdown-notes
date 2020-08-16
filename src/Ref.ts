@@ -81,8 +81,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
     let r = new vscode.Range(s, e);
     ref = document.getText(r);
     if (ref) {
-      
-      // Check for piped wikilinks
+      // Check for piped wiki-links
       ref = NoteWorkspace.cleanPipedWikiLink(ref);
 
       return {
