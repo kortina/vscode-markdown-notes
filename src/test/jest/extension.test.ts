@@ -3,16 +3,13 @@ import { foo, NoteWorkspace } from '../../NoteWorkspace';
 import { titleCaseFilename } from '../../utils';
 import { Note, NoteParser } from '../../NoteParser';
 import { RefType } from '../../Ref';
+import { config } from 'process';
 
 jest.mock('../../NoteWorkspace');
 
 beforeEach(() => {
   NoteWorkspace.cfg = () => {
-    let config =  NoteWorkspace.DEFAULT_CONFIG;
-
-    // Allow piped wikilinks in order to test them
-    config.allowPipedWikiLinks = true;
-    return config;
+    return NoteWorkspace.DEFAULT_CONFIG;
   };
 });
 
@@ -133,27 +130,6 @@ test('noteNamesFuzzyMatchSlashes', () => {
     NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'link/Topic')
   ).toBeTruthy();
 
-  // Piped wikilinks
-  expect(
-    NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
-  ).toBeTruthy();
-});
-
-test('cleanPipedWikiLinks', () => {
-  expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
-    "file"
-  );
-  expect(NoteWorkspace.cleanPipedWikiLink("description with lots of spaces, and other symbols|file.md")).toEqual(
-    "file.md"
-  );
-  expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
-    "file"
-  );
-
-  // Odd case, but I suppose it should be treated
-  expect(NoteWorkspace.cleanPipedWikiLink("description|file|but-with-a-pipe-symbol.md")).toEqual(
-    "file|but-with-a-pipe-symbol.md"
-  );
 });
 
 test('noteNamesFuzzyMatch', () => {
@@ -221,6 +197,104 @@ test('Note._rawRangesForWord', () => {
 test('Note.tagSet', () => {
   let tags = Note.fromData(document).tagSet();
   expect(tags).toEqual(new Set(['#another_tag', '#tag']));
+});
+
+
+describe("Wikilinks", () => {
+  beforeEach(() => {
+    NoteWorkspace.cfg = () => {
+      let config = NoteWorkspace.DEFAULT_CONFIG;
+      config.allowPipedWikiLinks = true;
+      return config;
+    };
+  });
+
+  test('cleanPipedWikiLinks', () => {
+  
+    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
+      "file"
+    );
+    expect(NoteWorkspace.cleanPipedWikiLink("description with lots of spaces, and other symbols|file.md")).toEqual(
+      "file.md"
+    );
+    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
+      "file"
+    );
+  
+    // Odd case, but I suppose it should be treated
+    expect(NoteWorkspace.cleanPipedWikiLink("description|file|but-with-a-pipe-symbol.md")).toEqual(
+      "file|but-with-a-pipe-symbol.md"
+    );
+
+  });
+  test("NoteWorkspace.noteNamesFuzzyMatch", () => {
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
+    ).toBeTruthy();
+  
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
+    ).toBeTruthy();
+
+  });
+
+  // Tests the different settings for piped wikilinks
+  test("Config changes", () => {
+
+    // 1: Disable piped wikilinks
+    NoteWorkspace.cfg = () => {
+      let config = NoteWorkspace.DEFAULT_CONFIG;
+      config.allowPipedWikiLinks = false;
+      return config;
+    };
+    // Because of this change, these should not match anymore...
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
+    ).toBeFalsy();
+
+    // ... And cleanPipedWikiLink should return the original string.
+    expect(NoteWorkspace.cleanPipedWikiLink("description|file")).toEqual(
+      "description|file"
+    );
+
+    // 2: Use a different separator
+    NoteWorkspace.cfg = () => {
+      let config = NoteWorkspace.DEFAULT_CONFIG;
+      config.allowPipedWikiLinks = true;
+      config.pipedWikiLinksSeparator = "@";
+      return config;
+    };
+
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description@filename.md')
+    ).toBeTruthy();
+
+    expect(NoteWorkspace.cleanPipedWikiLink("description@file")).toEqual(
+      "file"
+    );
+
+    // 3: Use a different syntax
+    NoteWorkspace.cfg = () => {
+      let config = NoteWorkspace.DEFAULT_CONFIG;
+      config.allowPipedWikiLinks = true;
+      config.pipedWikiLinksSeparator = "\\|";
+      return config;
+    };
+
+    NoteWorkspace.pipedWikiLinksSyntax = () => {
+      return 'file|desc';
+    };
+
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'filename.md|description')
+    ).toBeTruthy();
+
+    expect(NoteWorkspace.cleanPipedWikiLink("file|description")).toEqual(
+      "file"
+    );
+
+  });
+
 });
 
 describe('NoteWorkspace.newNoteContent', () => {
