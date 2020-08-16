@@ -123,10 +123,12 @@ export class Note {
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
-        // console.log('match tag', that.fsPath, lineNum, match);
+        
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
+        // console.log('match tag', that.fsPath, lineNum, match);
+
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
     });
