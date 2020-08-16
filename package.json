@@ -94,6 +94,27 @@
           "type": "string",
           "default": "# ${noteName}\n\n",
           "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
+        },
+        "vscodeMarkdownNotes.allowPipedWikiLinks": {
+          "type": "boolean",
+          "default": false,
+          "description": "States whether or not to use piped wikilinks. When set to false, this will ignore any '|' character and slugify it as normal."
+        },
+        "vscodeMarkdownNotes.pipedWikiLinksSyntax": {
+          "type": "string",
+          "enum": [
+            "desc|file",
+            "file|desc"
+          ],
+          "default": "file|desc",
+          "description": "Describes what piped wikilink syntax to use: either [[file|description]], or [[description|file]]."
+        },
+        "vscodeMarkdownNotes.pipedWikiLinksSeparator": {
+          "type": "string",
+          "default": "\\|",
+          "pattern": "[^\\[\\]]+",
+          "patternErrorMessage": "Warning: This separator will unfortunately not work - It would break the wikilink syntax.",
+          "markdownDescription": "States what separator should be used - **Note: Special regex characters should be escaped! Example: '|' should be '\\\\|'**"
         }
       },
       "vscodeMarkdownNotes.triggerSuggestOnReplacement": {
