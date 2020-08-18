@@ -2,6 +2,8 @@
 
 ## [v0.0.15](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.15) (2020-08-18)
 
+**Fixes:**
+
 Fix bug where `vscodeMarkdownNotes.triggerSuggestOnReplacement` was not registering.
 
 Tx @Gh0u1L5 for #78.
