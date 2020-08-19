@@ -7,12 +7,6 @@ import { NoteWorkspace } from './NoteWorkspace';
 
 const RETURN_TYPE_VSCODE = 'vscode';
 
-// ? key issue is `label`
-// type CompletionItemDetails = {
-//   label: string;
-//   detail: string;
-//   documentation: string;
-// };
 type RawPosition = {
   line: number;
   character: number;
@@ -135,13 +129,14 @@ export class Note {
         Array.from(line.matchAll(NoteWorkspace.rxTitle())).map((match) => {
           this.title = match[0].trim();
           searchTitle = false; // * only search for the first # h1
-        })
+        });
       }
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
-        // console.log('match tag', that.fsPath, lineNum, match);
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
+        // console.log('match tag', that.fsPath, lineNum, match);
+
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
     });
@@ -194,11 +189,11 @@ export class Note {
   // completionItem.documentation ()
   documentation(): string | vscode.MarkdownString | undefined {
     if (this.data === undefined) {
-      return ""
+      return "";
     } else if (NoteWorkspace.compileSuggestionDetails()) {
-      return new vscode.MarkdownString(this.data)
+      return new vscode.MarkdownString(this.data);
     } else {
-      return this.data
+      return this.data;
     }
   }
 }

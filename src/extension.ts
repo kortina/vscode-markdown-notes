@@ -5,6 +5,7 @@ import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
 import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItemProvider';
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
+import { getRefAt, RefType } from './Ref';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -26,6 +27,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
     NoteParser.updateCacheFor(e.document.uri.fsPath);
+
+    if (NoteWorkspace.triggerSuggestOnReplacement()) {
+      // See discussion on https://github.com/kortina/vscode-markdown-notes/pull/69/
+      const shouldSuggest = e.contentChanges.some((change) => {
+        const ref = getRefAt(e.document, change.range.end);
+        return ref.type != RefType.Null && change.rangeLength > ref.word.length;
+      });
+      if (shouldSuggest) {
+        vscode.commands.executeCommand('editor.action.triggerSuggest');
+      }
+    }
   });
 
   let newNoteDisposable = vscode.commands.registerCommand(
