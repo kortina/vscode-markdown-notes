@@ -3,6 +3,14 @@ import { RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 
+class MarkdownFileCompletionItem extends vscode.CompletionItem {
+  fsPath?: string;
+
+  constructor(label: string, kind?: vscode.CompletionItemKind, fsPath?: string) {
+    super(label, kind);
+    this.fsPath = fsPath;
+  }
+}
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
 // 1. [[wiki-links]]
@@ -17,13 +25,11 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
     context: vscode.CompletionContext
   ) {
     const ref = getRefAt(document, position);
-    let items = [];
     switch (ref.type) {
       case RefType.Null:
         return [];
-        break;
       case RefType.Tag:
-        items = (await NoteParser.distinctTags()).map((t) => {
+        return (await NoteParser.distinctTags()).map((t) => {
           let kind = vscode.CompletionItemKind.File;
           let label = `${t}`; // cast to a string
           let item = new vscode.CompletionItem(label, kind);
@@ -32,27 +38,31 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           }
           return item;
         });
-        return items;
-        break;
       case RefType.WikiLink:
-        let files = await NoteWorkspace.noteFiles();
-        items = files.map((f) => {
+        return (await NoteWorkspace.noteFiles()).map((f) => {
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
-          let item = new vscode.CompletionItem(label, kind);
-          let note = NoteParser.noteFromFsPath(f.fsPath)
-          item.detail = note.title
-          item.documentation = note.documentation()
+          let item = new MarkdownFileCompletionItem(label, kind, f.fsPath);
           if (ref && ref.range) {
             item.range = ref.range;
           }
           return item;
         });
-        return items;
-        break;
       default:
         return [];
-        break;
     }
+  }
+
+  public async resolveCompletionItem(
+    item: MarkdownFileCompletionItem,
+    token: vscode.CancellationToken
+  ): Promise<MarkdownFileCompletionItem> {
+    const fsPath = item.fsPath;
+    if (fsPath) {
+      let note = NoteParser.noteFromFsPath(fsPath);
+      item.detail = note.title;
+      item.documentation = note.documentation();
+    }
+    return item;
   }
 }
