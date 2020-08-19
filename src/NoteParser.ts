@@ -132,6 +132,7 @@ export class Note {
         });
       }
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
+
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {

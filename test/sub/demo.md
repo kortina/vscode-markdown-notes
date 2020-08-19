@@ -27,7 +27,7 @@ View and navigate backlinks with an Explorer Panel.
 
 ---
 
-`⌥F12` (`cmd+k cmd+n`) / Peek References / `editor.action.peekDefinition`
+`⌥F12` (`cmd+k cmd+n`) / Peek References / `editor.action.referenceSearch.trigger`
 
 - for Wiki Link [[sub.md]] [[test]]
 - for Tag #tag
@@ -41,7 +41,7 @@ View and navigate backlinks with an Explorer Panel.
 
 ---
 
-`⇧⌥F12` (`ctr+⌥+r`) / Find All References / `references-view.find`
+`⇧⌥F12` (`cmd+k cmd+f`) / Find All References / `references-view.find`
 
 - for Wiki Link [[sub.md]] [[test]]
 - for Tag #tag

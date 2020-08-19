@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -120,6 +120,11 @@
           "pattern": "[^\\[\\]]+",
           "patternErrorMessage": "Warning: This separator will unfortunately not work - It would break the wiki-link syntax.",
           "markdownDescription": "States what separator should be used - **Note: Special regex characters should be escaped! Example: '|' should be '\\\\|'**"
+        },
+        "vscodeMarkdownNotes.triggerSuggestOnReplacement": {
+          "type": "boolean",
+          "default": true,
+          "description": "Trigger suggest on both insertion AND replacement of new character inside a wiki-link. Defaults true. Set false to only trigger suggest on insertion. See PR #69 for details."
         }
       },
       "vscodeMarkdownNotes.triggerSuggestOnReplacement": {

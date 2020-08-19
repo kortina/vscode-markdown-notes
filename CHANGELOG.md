@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.0.15](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.15) (2020-08-18)
+
+**Fixes:**
+
+Fix bug where `vscodeMarkdownNotes.triggerSuggestOnReplacement` was not registering.
+
+Tx @Gh0u1L5 for #78.
+
+## [v0.0.14](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.14) (2020-08-16)
+
+Support `[[piped-wiki-links|with a description]]` and bugfixes.
+
+**Enhancements:**
+
+- Support a "piped wiki link" in either the [MediaWiki](https://meta.wikimedia.org/wiki/Help:Piped_link) (`[[file-name|Link Text]]`) or [Github Wiki](https://github.com/gollum/gollum/wiki#link-tag) (`[[Link Text|file-name]]`) style.
+  - See the new settings:
+    - `vscodeMarkdownNotes.allowPipedWikiLinks`
+    - `vscodeMarkdownNotes.pipedWikiLinksSyntax`
+    - `vscodeMarkdownNotes.pipedWikiLinksSeparator`
+  - Tx to @thomaskoppelaar for #73
+
+**Fixes:**
+
+- Add support for unicode filenames. Tx @Gh0u1L5 for #69
+  - also adds feature `triggerSuggestOnReplacement` (which I made a setting in #76)
+- Bump lodash from 4.17.15 to 4.17.19 #64
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/2cb1262cca8fa218fe6d38256a64fc3146983722..13b2464983b64a51ee58832759b1b9ec11a48ed8
+
 ## [v0.0.13](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.13) (2020-07-16)
 
 Bugfix.
@@ -8,7 +39,6 @@ Bugfix.
 
 Fix https://github.com/kortina/vscode-markdown-notes/issues/58
 when using `Go to Reference` outside `[[]]`, the `NULL_REF.type` will set to `RefType.WikiLink`, which causes the auto-complete for wiki links all the time. /tx @ahazxm
-
 
 ## [v0.0.12](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.12) (2020-07-12)
 
