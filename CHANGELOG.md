@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.0.13](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.13) (2020-07-16)
+
+Bugfix.
+
+**Fixes:**
+
+Fix https://github.com/kortina/vscode-markdown-notes/issues/58
+when using `Go to Reference` outside `[[]]`, the `NULL_REF.type` will set to `RefType.WikiLink`, which causes the auto-complete for wiki links all the time. /tx @ahazxm
+
+
 ## [v0.0.12](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.12) (2020-07-12)
 
 Configurable template for new notes.
