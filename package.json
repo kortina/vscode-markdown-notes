@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -89,6 +89,11 @@
           "type": "boolean",
           "default": true,
           "description": "By default, when invoking `editor.action.revealDefinition` on `[[note.md]]` if `note.md` does not exist in workspace, create it. NB: Works only when `vscodeMarkdownNotes.workspaceFilenameConvention` = 'uniqueFilenames'."
+        },
+        "vscodeMarkdownNotes.newNoteDirectory": {
+          "type": "string",
+          "default": "SAME_AS_ACTIVE_NOTE",
+          "description": "Directory for creating new notes. Defaults to 'SAME_AS_ACTIVE_NOTE'; you can also use 'WORKSPACE_ROOT'; or a 'subdirectory/path' in the Workspace Root."
         },
         "vscodeMarkdownNotes.newNoteTemplate": {
           "type": "string",

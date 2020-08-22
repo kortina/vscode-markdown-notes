@@ -33,7 +33,7 @@ underneath unlike until up upon versus via with within without yet
 };
 
 // take some-filename-in-case to "Some Filename in Case" Title
-export const titleCaseFilename = (filename: string): string => {
+export const titleCaseFromFilename = (filename: string): string => {
   if (!filename) {
     return filename;
   }
