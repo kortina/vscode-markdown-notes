@@ -57,7 +57,11 @@ export class Note {
   fsPath: string;
   data: string | undefined;
   refCandidates: Array<RefCandidate> = [];
-  title: string | undefined;
+  title: {
+    text: string;
+    line: number;
+    contextLine: number; // line number after all empty lines
+  } | undefined;
   private _parsed: boolean = false;
   constructor(fsPath: string) {
     this.fsPath = fsPath;
@@ -123,12 +127,25 @@ export class Note {
     this.refCandidates = [];
 
     let searchTitle = true;
+    let isSkip = false;
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
+      if (isSkip) { // ! skip all empty lines after title `# title`
+        if (line.trim() == '') {
+          that.title!.contextLine = lineNum;
+        } else {
+          isSkip = false;
+        }
+      }
       if (searchTitle) {
         Array.from(line.matchAll(NoteWorkspace.rxTitle())).map((match) => {
-          this.title = match[0].trim();
+          that.title = {
+            text: '# ' + match[0].trim(),
+            line: lineNum,
+            contextLine: lineNum
+          };
           searchTitle = false; // * only search for the first # h1
+          isSkip = true;
         });
       }
       Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
@@ -191,10 +208,21 @@ export class Note {
   documentation(): string | vscode.MarkdownString | undefined {
     if (this.data === undefined) {
       return "";
-    } else if (NoteWorkspace.compileSuggestionDetails()) {
-      return new vscode.MarkdownString(this.data);
     } else {
-      return this.data;
+      let data = this.data;
+      if (this.title) { // get the portion of the note after the title
+        data = this.data.split(/\r?\n/).slice(this.title.contextLine + 1).join('\n');
+      }
+      if (NoteWorkspace.compileSuggestionDetails()) {
+        try {
+          let result = new vscode.MarkdownString(data);
+          return result;
+        } catch (error) {
+          return "";
+        }
+      } else {
+        return data;
+      }
     }
   }
 }
@@ -292,7 +320,7 @@ export class NoteParser {
     return locations;
   }
 
-  static noteFromFsPath(fsPath: string): Note {
+  static noteFromFsPath(fsPath: string): Note | undefined {
     return this._notes[fsPath];
   }
 }
