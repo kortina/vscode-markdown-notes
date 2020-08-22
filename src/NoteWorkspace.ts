@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { basename, dirname, join, normalize, relative } from 'path';
+import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
 import { existsSync, writeFileSync } from 'fs';
 
 export const foo = () => {
@@ -39,6 +39,7 @@ type Config = {
   allowPipedWikiLinks: boolean;
   pipedWikiLinksSyntax: PipedWikiLinksSyntax;
   pipedWikiLinksSeparator: string;
+  newNoteDirectory: string;
 };
 
 // This class contains:
@@ -57,6 +58,8 @@ export class NoteWorkspace {
   static _defaultNoteTemplate = '# ${noteName}\n\n';
   static _defaultTriggerSuggestOnReplacement = true;
   static SLUGIFY_NONE = 'NONE';
+  static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
+  static NEW_NOTE_WORKSPACE_ROOT = 'WORKSPACE_ROOT';
   static _defaultSlugifyChar = '-';
   static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
@@ -70,6 +73,7 @@ export class NoteWorkspace {
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
     pipedWikiLinksSeparator: '\\|',
+    newNoteDirectory: NoteWorkspace.NEW_NOTE_SAME_AS_ACTIVE_NOTE,
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -95,6 +99,7 @@ export class NoteWorkspace {
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
       pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikiLinksSyntax,
       pipedWikiLinksSeparator: c.get('pipedWikiLinksSeparator') as string,
+      newNoteDirectory: c.get('newNoteDirectory') as string,
     };
   }
 
@@ -124,6 +129,10 @@ export class NoteWorkspace {
 
   static pipedWikiLinksSeparator(): string {
     return this.cfg().pipedWikiLinksSeparator;
+  }
+
+  static newNoteDirectory(): string {
+    return this.cfg().newNoteDirectory;
   }
 
   static rxTagNoAnchors(): RegExp {
@@ -282,27 +291,13 @@ export class NoteWorkspace {
       value: '',
     });
 
-    let workspaceUri = '';
-    if (vscode.workspace.workspaceFolders) {
-      workspaceUri = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
-    }
-
     inputBoxPromise.then(
       (noteName) => {
         if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
           // console.debug('Abort: noteName was empty.');
           return false;
         }
-
-        const filename = NoteWorkspace.noteFileNameFromTitle(noteName);
-        const filepath = join(workspaceUri, filename);
-
-        const fileAlreadyExists = existsSync(filepath);
-        // create the file if it does not exists
-        if (!fileAlreadyExists) {
-          const contents = NoteWorkspace.newNoteContent(noteName);
-          writeFileSync(filepath, contents);
-        }
+        const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(noteName);
 
         // open the file:
         vscode.window
@@ -325,9 +320,71 @@ export class NoteWorkspace {
       },
       (err) => {
         vscode.window.showErrorMessage('Error creating new note.');
-        // console.error(err);
       }
     );
+  }
+
+  static createNewNoteFile(noteTitle: string) {
+    let workspacePath = '';
+    if (vscode.workspace.workspaceFolders) {
+      workspacePath = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
+    }
+    const activeFile = vscode.window.activeTextEditor?.document;
+    let activePath = activeFile ? dirname(activeFile.uri.fsPath) : null;
+
+    let noteDirectory = this.newNoteDirectory();
+    // first handle the case where we try to use same dir as active note:
+    if (noteDirectory == this.NEW_NOTE_SAME_AS_ACTIVE_NOTE) {
+      if (activePath) {
+        noteDirectory = activePath;
+      } else {
+        vscode.window.showWarningMessage(
+          `Error. newNoteDirectory was NEW_NOT_SAME_AS_ACTIVE_NOTE but no active note directory found. Using WORKSPACE_ROOT.`
+        );
+        noteDirectory = this.NEW_NOTE_WORKSPACE_ROOT;
+      }
+    }
+    // next, handle a case where this is set to a custom path
+    if (noteDirectory != this.NEW_NOTE_WORKSPACE_ROOT) {
+      // If the noteDirectory was set from the current activePath,
+      // it will already be absolute.
+      // Also, might as well handle case where user has
+      // an absolute path in their settings.
+      if (!isAbsolute(noteDirectory)) {
+        noteDirectory = join(workspacePath, noteDirectory);
+      }
+      const dirExists = existsSync(noteDirectory);
+      if (!dirExists) {
+        vscode.window.showWarningMessage(
+          `Error. newNoteDirectory \`${noteDirectory}\` does not exist. Using WORKSPACE_ROOT.`
+        );
+        noteDirectory = this.NEW_NOTE_WORKSPACE_ROOT;
+      }
+    }
+    // need to recheck this in case we handled correctly above.
+    // on errors, we will have set to this value:
+    if (noteDirectory == this.NEW_NOTE_WORKSPACE_ROOT) {
+      noteDirectory = workspacePath;
+    }
+
+    const filename = NoteWorkspace.noteFileNameFromTitle(noteTitle);
+    const filepath = join(noteDirectory, filename);
+
+    const fileAlreadyExists = existsSync(filepath);
+    if (fileAlreadyExists) {
+      vscode.window.showWarningMessage(
+        `Error creating note, file at path already exists: ${filepath}`
+      );
+    } else {
+      // create the file if it does not exist
+      const contents = NoteWorkspace.newNoteContent(noteTitle);
+      writeFileSync(filepath, contents);
+    }
+
+    return {
+      filepath: filepath,
+      fileAlreadyExists: fileAlreadyExists,
+    };
   }
 
   static newNoteContent(noteName: string) {

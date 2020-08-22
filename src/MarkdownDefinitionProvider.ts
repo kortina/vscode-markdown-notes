@@ -3,7 +3,7 @@ import { Ref, RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { basename, dirname, join, resolve } from 'path';
 import { existsSync, writeFileSync } from 'fs';
-import { titleCaseFilename } from './utils';
+import { titleCaseFromFilename } from './utils';
 
 // Given a document and position, check whether the current word matches one of
 // this context: [[wiki-link]]
@@ -65,7 +65,6 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     return files.map((f) => new vscode.Location(f, p));
   }
 
-  // FIXME: move all of the stuff that deals with create the filename to NoteWorkspace
   static createMissingNote = (ref: Ref): string | undefined => {
     // don't create new files if ref is a Tag
     if (ref.type != RefType.WikiLink) {
@@ -82,21 +81,9 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
         );
         return;
       }
-      let mdFilename = NoteWorkspace.noteFileNameFromTitle(ref.word);
-      // by default, create new note in same dir as the current document
-      // TODO: could convert this to an option (to, eg, create in workspace root)
-      const path = join(dirname(filename), mdFilename);
-      const title = titleCaseFilename(ref.word);
-      const content = NoteWorkspace.newNoteContent(title);
-      // do one final check to make sure we are definitely NOT overwriting an existing file:
-      if (existsSync(path)) {
-        vscode.window.showWarningMessage(
-          `Error creating note, file at path already exists: ${path}`
-        );
-        return;
-      }
-      writeFileSync(path, content);
-      return path;
+      const title = titleCaseFromFilename(ref.word);
+      const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(title);
+      return filepath;
     }
   };
 }

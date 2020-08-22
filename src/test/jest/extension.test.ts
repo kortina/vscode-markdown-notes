@@ -1,6 +1,6 @@
 import 'jest';
 import { foo, NoteWorkspace } from '../../NoteWorkspace';
-import { titleCaseFilename } from '../../utils';
+import { titleCaseFromFilename } from '../../utils';
 import { Note, NoteParser } from '../../NoteParser';
 import { RefType } from '../../Ref';
 import { config } from 'process';
@@ -124,9 +124,9 @@ test('noteNamesFuzzyMatch', () => {
   // TODO: how should this behaving with #headings?
 });
 
-test('titleCaseFilename', () => {
-  expect(titleCaseFilename('the-heat-is-on.md')).toEqual('The Heat Is On');
-  expect(titleCaseFilename('in-the-heat-of-the-night.md')).toEqual('In the Heat of the Night');
+test('titleCaseFromFilename', () => {
+  expect(titleCaseFromFilename('the-heat-is-on.md')).toEqual('The Heat Is On');
+  expect(titleCaseFromFilename('in-the-heat-of-the-night.md')).toEqual('In the Heat of the Night');
 });
 
 let document = `line0 word1
