@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.0.16](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.16) (2020-08-21)
+
+**Enhancements:**
+
+- add setting `vscodeMarkdownNotes.newNoteDirectory`, can be set to:
+  - `SAME_AS_ACTIVE_NOTE`
+  - `WORKSPACE_ROOT`
+  - or `subdirectory/path` in workspace root
+- resolves #74
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/808af92c40676ab2a9ae1d1de3611a930c6c5818..fa011bb64c363a05231a043f39f800e7497617a9
+
 ## [v0.0.15](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.15) (2020-08-18)
 
 **Fixes:**
