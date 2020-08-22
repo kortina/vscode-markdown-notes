@@ -10,6 +10,15 @@
   - or `subdirectory/path` in workspace root
 - resolves #74
 
+An example workspace config you might want to use to manage `_posts` on a jekyll blog:
+
+```jsonc
+{
+  "vscodeMarkdownNotes.newNoteDirectory": "_posts",
+  "vscodeMarkdownNotes.newNoteTemplate": "---\nlayout: post\ntitle: '${noteName}'\nauthor: kortina\n---\n\n"
+}
+```
+
 **Diff:**
 
 https://github.com/kortina/vscode-markdown-notes/compare/808af92c40676ab2a9ae1d1de3611a930c6c5818..fa011bb64c363a05231a043f39f800e7497617a9
