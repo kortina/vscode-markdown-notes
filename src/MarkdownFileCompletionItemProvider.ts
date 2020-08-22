@@ -60,8 +60,10 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
     const fsPath = item.fsPath;
     if (fsPath) {
       let note = NoteParser.noteFromFsPath(fsPath);
-      item.detail = note.title;
-      item.documentation = note.documentation();
+      if (note) {
+        item.detail = note.title?.text;
+        item.documentation = note.documentation();
+      }
     }
     return item;
   }
