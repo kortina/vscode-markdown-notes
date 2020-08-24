@@ -100,6 +100,11 @@
           "default": "# ${noteName}\n\n",
           "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
         },
+        "vscodeMarkdownNotes.compileSuggestionDetails": {
+          "type": "boolean",
+          "default": false,
+          "description": "Specifies whether to compile the markdown content for details when showing suggestion details"
+        },
         "vscodeMarkdownNotes.allowPipedWikiLinks": {
           "type": "boolean",
           "default": false,

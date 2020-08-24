@@ -35,13 +35,13 @@ type Config = {
   slugifyCharacter: SlugifyCharacter;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  compileSuggestionDetails: boolean;
   triggerSuggestOnReplacement: boolean;
   allowPipedWikiLinks: boolean;
   pipedWikiLinksSyntax: PipedWikiLinksSyntax;
   pipedWikiLinksSeparator: string;
   newNoteDirectory: string;
 };
-
 // This class contains:
 // 1. an interface to some of the basic user configurable settings or this extension
 // 2. command for creating a New Note
@@ -52,6 +52,7 @@ export class NoteWorkspace {
   static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
+  static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static _defaultFileExtension = 'md';
@@ -64,6 +65,7 @@ export class NoteWorkspace {
   static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
+    compileSuggestionDetails: false,
     defaultFileExtension: NoteWorkspace._defaultFileExtension,
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
@@ -95,6 +97,7 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      compileSuggestionDetails: c.get('compileSuggestionDetails') as boolean,
       triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
       pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikiLinksSyntax,
@@ -151,6 +154,9 @@ export class NoteWorkspace {
     this._rxWikiLink = this._rxWikiLink.replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator());
     return new RegExp(this._rxWikiLink, 'gi');
   }
+  static rxTitle(): RegExp {
+    return new RegExp(this._rxTitle, 'gi');
+  }
   static rxMarkdownWordPattern(): RegExp {
     // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
     return new RegExp(this._rxMarkdownWordPattern);
@@ -193,6 +199,11 @@ export class NoteWorkspace {
 
   static createNoteOnGoToDefinitionWhenMissing(): boolean {
     return !!this.cfg().createNoteOnGoToDefinitionWhenMissing;
+  }
+
+
+  static compileSuggestionDetails(): boolean {
+    return this.cfg().compileSuggestionDetails;
   }
 
   static stripExtension(noteName: string): string {

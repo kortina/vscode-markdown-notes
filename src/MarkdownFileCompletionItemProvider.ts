@@ -1,8 +1,16 @@
 import * as vscode from 'vscode';
 import { RefType, getRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
-import { NoteParser, Note } from './NoteParser';
+import { NoteParser } from './NoteParser';
 
+class MarkdownFileCompletionItem extends vscode.CompletionItem {
+  fsPath?: string;
+
+  constructor(label: string, kind?: vscode.CompletionItemKind, fsPath?: string) {
+    super(label, kind);
+    this.fsPath = fsPath;
+  }
+}
 // Given a document and position, check whether the current word matches one of
 // these 2 contexts:
 // 1. [[wiki-links]]
@@ -34,7 +42,7 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
         return (await NoteWorkspace.noteFiles()).map((f) => {
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
-          let item = new vscode.CompletionItem(label, kind);
+          let item = new MarkdownFileCompletionItem(label, kind, f.fsPath);
           if (ref && ref.range) {
             item.range = ref.range;
           }
@@ -43,5 +51,20 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
       default:
         return [];
     }
+  }
+
+  public async resolveCompletionItem(
+    item: MarkdownFileCompletionItem,
+    token: vscode.CancellationToken
+  ): Promise<MarkdownFileCompletionItem> {
+    const fsPath = item.fsPath;
+    if (fsPath) {
+      let note = NoteParser.noteFromFsPath(fsPath);
+      if (note) {
+        item.detail = note.title?.text;
+        item.documentation = note.documentation();
+      }
+    }
+    return item;
   }
 }
