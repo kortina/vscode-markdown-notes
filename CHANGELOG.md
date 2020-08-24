@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.0.17](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.17) (2020-08-23)
+
+Add `CompletionItem.documentation` to provide more details about completion options.
+
+**Enhancements:**
+
+- Set `CompletionItem.documentation` to the file contents, giving more detail to disambiguate between long / similar filenames. Closes #38. Tx @ahazxm
+  - Add `vscodeMarkdownNotes.compileSuggestionDetails` setting, which determines whether to render the markdown in the `CompletionItem.documentation`
+    - `true`: ![true](https://user-images.githubusercontent.com/24939578/90867513-13994e80-e3c8-11ea-9bb3-a98767796a2d.png)
+    - `false`: ![false](https://user-images.githubusercontent.com/24939578/90867523-16943f00-e3c8-11ea-86e8-29b7bd0cc0b7.png)
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/fa011bb64c363a05231a043f39f800e7497617a9..271cf75cc2311a120eabd08f060270f927c0e401
+
 ## [v0.0.16](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.16) (2020-08-21)
 
 **Enhancements:**

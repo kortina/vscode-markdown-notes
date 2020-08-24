@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -103,7 +103,7 @@
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
           "default": false,
-          "description": "Specifies whether to compile the markdown content for details when showing suggestion details"
+          "description": "Set `true` to compile the markdown content when showing suggestion documentation for a CompletionItem. Defaults `false`."
         },
         "vscodeMarkdownNotes.allowPipedWikiLinks": {
           "type": "boolean",
