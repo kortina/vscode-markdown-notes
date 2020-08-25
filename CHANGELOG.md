@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.0.18](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.18) (2020-08-24)
+
+Add `$date` var for use in `vscodeMarkdownNotes.newNoteTemplate`.
+
+**Enhancements:**
+
+- New `$date` template var will expand to `YYYY-MM-DD` format date.
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/271cf75cc2311a120eabd08f060270f927c0e401..8efafabe9d299a7e2c1d34559764952aa338888c
+
 ## [v0.0.17](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.17) (2020-08-23)
 
 Add `CompletionItem.documentation` to provide more details about completion options.

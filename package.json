@@ -98,7 +98,7 @@
         "vscodeMarkdownNotes.newNoteTemplate": {
           "type": "string",
           "default": "# ${noteName}\n\n",
-          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}, ${date}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z. Date is YYYY-MM-dd format."
+          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}, ${date}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z. Date is YYYY-MM-DD format."
         },
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
