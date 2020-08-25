@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -98,7 +98,7 @@
         "vscodeMarkdownNotes.newNoteTemplate": {
           "type": "string",
           "default": "# ${noteName}\n\n",
-          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
+          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}, ${date}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z. Date is YYYY-MM-dd format."
         },
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
