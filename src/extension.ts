@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { API } from './API';
 import { BacklinksTreeDataProvider } from './BacklinksTreeDataProvider';
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
@@ -45,6 +46,11 @@ export function activate(context: vscode.ExtensionContext) {
     NoteWorkspace.newNote
   );
   context.subscriptions.push(newNoteDisposable);
+  let d = vscode.commands.registerCommand(
+    'vscodeMarkdownNotes.notesForWikiLink',
+    API.notesForWikiLink
+  );
+  context.subscriptions.push(d);
 
   // parse the tags from every file in the workspace
   NoteParser.hydrateCache();

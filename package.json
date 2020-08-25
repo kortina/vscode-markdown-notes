@@ -46,6 +46,10 @@
       {
         "command": "vscodeMarkdownNotes.newNote",
         "title": "Markdown Notes: New Note"
+      },
+      {
+        "command": "vscodeMarkdownNotes.notesForWikiLink",
+        "title": "Given some wiki-link text (from between double-brackets) such as \"my-note\" or \"my-note.md\" return a Note[] (typically of length 1) where the note filename is a match for the wiki-link text."
       }
     ],
     "configuration": {

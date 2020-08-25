@@ -5,7 +5,7 @@ import { NoteWorkspace } from './NoteWorkspace';
 import { refFromWikiLinkText } from './Ref';
 
 // This class serves as the public interface to commands that this extension exposes.
-class API {
+export class API {
   // Use vscode.window.showInputBox
   // to prompt user for a new note name
   // and create it upon entry.
@@ -21,6 +21,9 @@ class API {
   //   fsPath: string; // filesystem path to the Note
   //   data: string; // text contents of the Note
   // };
+  //
+  // example:
+  // let notes = await vscode.commands.executeCommand('vscodeMarkdownNotes.notesForWikiLink', 'demo');
   static async notesForWikiLink(
     wikiLinkText: string,
     relativeToDocument: vscode.TextDocument | undefined | null
