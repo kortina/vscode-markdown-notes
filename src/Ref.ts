@@ -96,3 +96,16 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
 
   return NULL_REF;
 }
+
+export const refHasExtension = (word: string): boolean => {
+  return !!word.match(/\.(md|markdown)/i);
+};
+
+export const refFromWikiLinkText = (wikiLinkText: string): Ref => {
+  return {
+    type: RefType.WikiLink,
+    word: wikiLinkText,
+    hasExtension: refHasExtension(wikiLinkText),
+    range: undefined,
+  };
+};

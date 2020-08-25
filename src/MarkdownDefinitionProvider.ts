@@ -28,6 +28,25 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     let files: Array<vscode.Uri> = [];
+    files = await MarkdownDefinitionProvider.filesForWikiLinkRef(ref, document);
+
+    // else, create the file
+    if (files.length == 0) {
+      const path = MarkdownDefinitionProvider.createMissingNote(ref);
+      if (path !== undefined) {
+        files.push(vscode.Uri.file(path));
+      }
+    }
+
+    const p = new vscode.Position(0, 0);
+    return files.map((f) => new vscode.Location(f, p));
+  }
+
+  static async filesForWikiLinkRef(
+    ref: Ref,
+    relativeToDocument: vscode.TextDocument | undefined | null
+  ): Promise<Array<vscode.Uri>> {
+    let files: Array<vscode.Uri> = [];
     // ref.word might be either:
     // a basename for a unique file in the workspace
     // or, a relative path to a file
@@ -43,26 +62,16 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     }
     // If we did not find any files in the workspace,
     // see if a file exists at the relative path:
-    if (files.length == 0) {
+    if (files.length == 0 && relativeToDocument && relativeToDocument.uri) {
       const relativePath = ref.word;
-      let fromDir = dirname(document.uri.fsPath.toString());
+      let fromDir = dirname(relativeToDocument.uri.fsPath.toString());
       const absPath = resolve(fromDir, relativePath);
       if (existsSync(absPath)) {
         const f = vscode.Uri.file(absPath);
         files.push(f);
       }
     }
-
-    // else, create the file
-    if (files.length == 0) {
-      const path = MarkdownDefinitionProvider.createMissingNote(ref);
-      if (path !== undefined) {
-        files.push(vscode.Uri.file(path));
-      }
-    }
-
-    const p = new vscode.Position(0, 0);
-    return files.map((f) => new vscode.Location(f, p));
+    return files;
   }
 
   static createMissingNote = (ref: Ref): string | undefined => {
