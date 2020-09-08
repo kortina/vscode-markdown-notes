@@ -32,7 +32,7 @@ export class API {
     let files: Array<vscode.Uri> = await MarkdownDefinitionProvider.filesForWikiLinkRef(
       ref,
       relativeToDocument
-    );
+    ); // TODO: async
     let notes: Note[] = (files || [])
       .filter((f) => f.fsPath)
       .map((f) => NoteParser.noteFromFsPath(f.fsPath))
