@@ -1,7 +1,7 @@
 import 'jest';
-import { foo, NoteWorkspace } from '../../NoteWorkspace';
+import { foo, NoteWorkspace, SlugifyMethod } from '../../NoteWorkspace';
 import { titleCaseFromFilename } from '../../utils';
-import { Note, NoteParser } from '../../NoteParser';
+import { Note } from '../../NoteParser';
 import { RefType } from '../../Ref';
 import { config } from 'process';
 
@@ -15,6 +15,14 @@ beforeEach(() => {
 
 test('foo', () => {
   expect(foo()).toBe(1);
+});
+
+test('slugifyMethod', () => {
+  let orig = NoteWorkspace.slugifyMethod;
+  expect(NoteWorkspace.noteFileNameFromTitle("Don't Let Go!!")).toEqual('dont-let-go.md');
+  NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.classic;
+  expect(NoteWorkspace.noteFileNameFromTitle("Don't Let Go!!")).toEqual('don-t-let-go.md');
+  NoteWorkspace.slugifyMethod = orig;
 });
 
 test('noteFileNameFromTitle', () => {

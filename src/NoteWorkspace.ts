@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
 import { existsSync, writeFileSync } from 'fs';
+const GithubSlugger = require('github-slugger');
+const SLUGGER = new GithubSlugger();
 
 export const foo = () => {
   return 1;
@@ -23,6 +25,11 @@ enum SlugifyCharacter {
   none = 'NONE',
 }
 
+export enum SlugifyMethod {
+  github = 'github-slugger',
+  classic = 'classic',
+}
+
 enum PipedWikiLinksSyntax {
   fileDesc = 'file|desc',
   descFile = 'desc|file',
@@ -33,6 +40,7 @@ type Config = {
   defaultFileExtension: string;
   noteCompletionConvention: NoteCompletionConvention;
   slugifyCharacter: SlugifyCharacter;
+  slugifyMethod: SlugifyMethod;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
   compileSuggestionDetails: boolean;
@@ -62,6 +70,7 @@ export class NoteWorkspace {
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
   static NEW_NOTE_WORKSPACE_ROOT = 'WORKSPACE_ROOT';
   static _defaultSlugifyChar = '-';
+  static _defaultSlugifyMethod = SlugifyMethod.github;
   static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
@@ -69,6 +78,7 @@ export class NoteWorkspace {
     defaultFileExtension: NoteWorkspace._defaultFileExtension,
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
+    slugifyMethod: SlugifyMethod.github,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
     triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
@@ -93,6 +103,7 @@ export class NoteWorkspace {
       defaultFileExtension: c.get('defaultFileExtension') as string,
       noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
       slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
+      slugifyMethod: c.get('slugifyMethod') as SlugifyMethod,
       workspaceFilenameConvention: c.get(
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
@@ -108,6 +119,10 @@ export class NoteWorkspace {
 
   static slugifyChar(): string {
     return this.cfg().slugifyCharacter;
+  }
+
+  static slugifyMethod(): string {
+    return this.cfg().slugifyMethod;
   }
 
   static defaultFileExtension(): string {
@@ -280,12 +295,25 @@ export class NoteWorkspace {
       .toLowerCase() // lower
       .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
   }
-  static slugifyTitle(title: string): string {
+
+  static slugifyClassic(title: string): string {
     let t =
       this.slugifyChar() == 'NONE'
         ? title
         : title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
     return this.cleanTitle(t);
+  }
+
+  static slugifyGithub(title: string): string {
+    return SLUGGER.slug(title);
+  }
+
+  static slugifyTitle(title: string): string {
+    if (this.slugifyMethod() == SlugifyMethod.classic) {
+      return this.slugifyClassic(title);
+    } else {
+      return this.slugifyGithub(title);
+    }
   }
 
   static noteFileNameFromTitle(title: string): string {
