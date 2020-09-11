@@ -1,0 +1,151 @@
+❯  npx jest
+ FAIL  out/test/jest/extension.test.js
+  ✓ foo (2 ms)
+  ✓ slugifyMethod (1 ms)
+  ✕ noteFileNameFromTitle (3 ms)
+  ✓ rxTagNoAnchors (1 ms)
+  ✓ rxWikiLink (1 ms)
+  ✕ noteNamesFuzzyMatch (1 ms)
+  ✕ noteNamesFuzzyMatchSlashes (1 ms)
+  ✓ noteNamesFuzzyMatch (1 ms)
+  ✓ titleCaseFromFilename
+  ✕ Note._rawRangesForWord (4 ms)
+  ✓ Note.tagSet (1 ms)
+  WikiLinks
+    ✓ cleanPipedWikiLinks (1 ms)
+    ✕ NoteWorkspace.noteNamesFuzzyMatch
+    ✕ Config changes (1 ms)
+  NoteWorkspace.newNoteContent
+    ✓ handles noteName tag
+    ✓ handles escaped newlines (1 ms)
+    ✓ handles timestamp
+    ✓ handles date
+
+  ● noteFileNameFromTitle
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: "some title.md"
+    Received: "some-title.md"
+
+      29 |   let orig = NoteWorkspace.slugifyChar;
+      30 |   NoteWorkspace.slugifyChar = (): string => 'NONE';
+    > 31 |   expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('some title.md');
+         |                                                             ^
+      32 |   NoteWorkspace.slugifyChar = (): string => 'NONE';
+      33 |   expect(NoteWorkspace.noteFileNameFromTitle('Some Title ')).toEqual('some title.md');
+      34 |   NoteWorkspace.slugifyChar = (): string => '-';
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:31:61)
+
+  ● noteNamesFuzzyMatch
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      86 |   expect(
+      87 |     NoteWorkspace.noteNamesFuzzyMatch('dir/sub/the-heat-is-on.md', 'the-heat-is-on.md')
+    > 88 |   ).toBeTruthy();
+         |     ^
+      89 |   expect(
+      90 |     NoteWorkspace.noteNamesFuzzyMatch('dir/sub/the-heat-is-on.md', 'the-heat-is-on')
+      91 |   ).toBeTruthy();
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:88:5)
+
+  ● noteNamesFuzzyMatchSlashes
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: "link-topic"
+    Received: "linktopic"
+
+      108 |   );
+      109 |   // lower case is expected because 'slugifyTitle' includes toLowerCase
+    > 110 |   expect(NoteWorkspace.slugifyTitle('Link/Topic')).toEqual('link-topic');
+          |                                                    ^
+      111 |   expect(NoteWorkspace.normalizeNoteNameForFuzzyMatchText('Link/Topic')).toEqual('link-topic');
+      112 |   expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/link-topic.md', 'Link/Topic')).toBeTruthy();
+      113 |   expect(NoteWorkspace.noteNamesFuzzyMatch('dir/sub/Link-Topic.md', 'Link/Topic')).toBeTruthy();
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:110:52)
+
+  ● Note._rawRangesForWord
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 22
+    + Received  +  1
+
+    - Array [
+    -   Object {
+    -     "end": Object {
+    -       "character": 13,
+    -       "line": 2,
+    -     },
+    -     "start": Object {
+    -       "character": 2,
+    -       "line": 2,
+    -     },
+    -   },
+    -   Object {
+    -     "end": Object {
+    -       "character": 11,
+    -       "line": 4,
+    -     },
+    -     "start": Object {
+    -       "character": 0,
+    -       "line": 4,
+    -     },
+    -   },
+    - ]
+    + Array []
+
+      155 |   let ranges;
+      156 |   ranges = Note.fromData(document)._rawRangesForWord(w);
+    > 157 |   expect(ranges).toMatchObject([
+          |                  ^
+      158 |     { start: { line: 2, character: 2 }, end: { line: 2, character: 13 } },
+      159 |     { start: { line: 4, character: 0 }, end: { line: 4, character: 11 } },
+      160 |   ]);
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:157:18)
+
+  ● WikiLinks › NoteWorkspace.noteNamesFuzzyMatch
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      211 |     expect(
+      212 |       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
+    > 213 |     ).toBeTruthy();
+          |       ^
+      214 | 
+      215 |     expect(
+      216 |       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:213:7)
+
+  ● WikiLinks › Config changes
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      242 |     expect(
+      243 |       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description@filename.md')
+    > 244 |     ).toBeTruthy();
+          |       ^
+      245 | 
+      246 |     expect(NoteWorkspace.cleanPipedWikiLink('description@file')).toEqual('file');
+      247 | 
+
+      at Object.<anonymous> (src/test/jest/extension.test.ts:244:7)
+
+Test Suites: 1 failed, 1 total
+Tests:       6 failed, 12 passed, 18 total
+Snapshots:   0 total
+Time:        0.841 s, estimated 1 s
+Ran all test suites.
