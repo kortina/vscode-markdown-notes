@@ -84,6 +84,9 @@ export class NoteWorkspace {
     { language: 'mdx' },
   ];
 
+  // Cache object to store results from noteFiles() in order to provide a synchronous method to the preview renderer.
+  static noteFileCache: vscode.Uri[] = [];
+
   static cfg(): Config {
     let c = vscode.workspace.getConfiguration('vscodeMarkdownNotes');
     return {
@@ -421,6 +424,11 @@ export class NoteWorkspace {
     let files = (await vscode.workspace.findFiles('**/*')).filter(
       (f) => f.scheme == 'file' && f.path.match(that.rxFileExtensions())
     );
+    this.noteFileCache = files;
     return files;
+  }
+
+  static noteFilesFromCache(): Array<vscode.Uri> {
+    return this.noteFileCache;
   }
 }

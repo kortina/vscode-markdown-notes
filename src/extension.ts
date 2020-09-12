@@ -10,6 +10,60 @@ import { getRefAt, RefType } from './Ref';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
+let c = vscode.workspace.getConfiguration("vscodeMarkdownNotes");
+
+// Function that returns a filename based on the given wikilink.
+// Initially uses filesForWikiLinkRefFromCache() to try and find a matching file.
+// If this fails, it will attempt to make a (relative) link based on the label given.
+function PageNameGenerator(label: string) {
+    console.debug(label);
+    const ref = {
+        type: RefType.WikiLink,
+        word: label,
+        hasExtension: false,
+        range: undefined
+    }
+    const results = MarkdownDefinitionProvider.filesForWikiLinkRefFromCache(ref, null);
+
+    label = label.replace(/\.[^\.\\\/]+$/, '');
+
+    // Either use the first result of the cache, or in the case that it's empty use the label to create a path
+    let path: string = (results.length != 0) ? results[0].path : NoteWorkspace.noteFileNameFromTitle(label);
+    
+    return path;
+}
+
+function postProcessPageName(pageName: string) {
+    pageName = pageName.trim();
+    pageName = pageName.replace(/\.[^\.\\\/]+$/, '');
+
+    return pageName;
+
+}
+  
+function postProcessLabel(label: string) {
+	label = label.trim();
+	
+	// Remove filename extension
+	label = label.replace(/\.[^/.]+$/, "");
+    
+    
+    label = label.split(`${c.get('slugifyCharacter')}`).join(" ");
+    if (c.get('showFileExtensionInPreview')) {
+        label += `.${c.get('defaultFileExtension')}`;
+    }
+
+    switch (c.get('previewlabelstyling')) {
+        case "[[label]]":
+            return `[[${label}]]`;
+        case "[label]":
+            return `[${label}]`;
+        case "label":
+            return label;
+    }
+    ;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
   const ds = NoteWorkspace.DOCUMENT_SELECTOR;
@@ -62,4 +116,21 @@ export function activate(context: vscode.ExtensionContext) {
   const treeView = vscode.window.createTreeView('vscodeMarkdownNotesBacklinks', {
     treeDataProvider: backlinksTreeDataProvider,
   });
+
+  // See: https://code.visualstudio.com/api/extension-guides/markdown-extension
+  // For more information on how this works.
+  return {
+    extendMarkdownIt(md: any) {
+        return md.use(
+            
+            require('@thomaskoppelaar/markdown-it-wikilinks')({ 
+                generatePageNameFromLabel: PageNameGenerator, 
+                postProcessPageName: postProcessPageName, 
+                postProcessLabel: postProcessLabel,
+                uriSuffix: `.${c.get('defaultFileExtension')}`,
+                description_then_file: c.get("pipedWikiLinksSyntax") == "desc|file",
+                separator: c.get("pipedWikiLinksSeparator")
+            }));
+    }
+    };
 }
