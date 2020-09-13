@@ -15,7 +15,7 @@ export function PageNameGenerator(label: string) {
     }
     const results = MarkdownDefinitionProvider.filesForWikiLinkRefFromCache(ref, null);
 
-    label = label.replace(/\.[^\.\\\/]+$/, '');
+    label = NoteWorkspace.stripExtension(label);
 
     // Either use the first result of the cache, or in the case that it's empty use the label to create a path
     let path: string = (results.length != 0) ? results[0].path : NoteWorkspace.noteFileNameFromTitle(label);
@@ -36,7 +36,7 @@ export function postProcessLabel(label: string) {
     // De-slugify label into whitespaces
     label = label.split(NoteWorkspace.slugifyChar()).join(" ");
 
-    if (NoteWorkspace.showFileExtensionInPreview()) {
+    if (NoteWorkspace.previewShowFileExtension()) {
         label += `.${NoteWorkspace.defaultFileExtension()}`;
     }
 
