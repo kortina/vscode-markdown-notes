@@ -7,7 +7,7 @@ import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItem
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 import { getRefAt, RefType } from './Ref';
-import { PageNameGenerator, postProcessPageName, postProcessLabel, pluginSettings } from './MarkdownRenderingPlugin';
+import { pluginSettings } from './MarkdownRenderingPlugin';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
