@@ -7,7 +7,7 @@ import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItem
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 import { getRefAt, RefType } from './Ref';
-import { PageNameGenerator, postProcessPageName, postProcessLabel } from './MarkdownRenderingPlugin';
+import { PageNameGenerator, postProcessPageName, postProcessLabel, pluginSettings } from './MarkdownRenderingPlugin';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -69,15 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
   return {
     extendMarkdownIt(md: any) {
         return md.use(
-            
-            require('@thomaskoppelaar/markdown-it-wikilinks')({ 
-                generatePageNameFromLabel: PageNameGenerator, 
-                postProcessPageName: postProcessPageName, 
-                postProcessLabel: postProcessLabel,
-                uriSuffix: `.${NoteWorkspace.defaultFileExtension()}`,
-                description_then_file: NoteWorkspace.pipedWikiLinksSyntax() == "desc|file",
-                separator: NoteWorkspace.pipedWikiLinksSeparator(),
-            }));
-    }
+            pluginSettings()
+        )}
     };
 }

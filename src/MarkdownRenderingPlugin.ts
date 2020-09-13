@@ -50,3 +50,14 @@ export function postProcessLabel(label: string) {
     }
     ;
 }
+
+export function pluginSettings(): any {
+    return require('@thomaskoppelaar/markdown-it-wikilinks')({ 
+        generatePageNameFromLabel: PageNameGenerator, 
+        postProcessPageName: postProcessPageName, 
+        postProcessLabel: postProcessLabel,
+        uriSuffix: `.${NoteWorkspace.defaultFileExtension()}`,
+        description_then_file: NoteWorkspace.pipedWikiLinksSyntax() == "desc|file",
+        separator: NoteWorkspace.pipedWikiLinksSeparator(),
+    });
+}
