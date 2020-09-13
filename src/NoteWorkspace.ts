@@ -28,6 +28,12 @@ enum PipedWikiLinksSyntax {
   descFile = 'desc|file',
 }
 
+enum PreviewLabelStyling {
+    brackets = "[[label]]",
+    bracket = "[label]",
+    none = "label"
+}
+
 type Config = {
   createNoteOnGoToDefinitionWhenMissing: boolean;
   defaultFileExtension: string;
@@ -41,6 +47,8 @@ type Config = {
   pipedWikiLinksSyntax: PipedWikiLinksSyntax;
   pipedWikiLinksSeparator: string;
   newNoteDirectory: string;
+  previewLabelStyling: PreviewLabelStyling;
+  showFileExtensionInPreview: boolean;
 };
 // This class contains:
 // 1. an interface to some of the basic user configurable settings or this extension
@@ -76,6 +84,8 @@ export class NoteWorkspace {
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
     pipedWikiLinksSeparator: '\\|',
     newNoteDirectory: NoteWorkspace.NEW_NOTE_SAME_AS_ACTIVE_NOTE,
+    previewLabelStyling: PreviewLabelStyling.brackets,
+    showFileExtensionInPreview: false,
   };
   static DOCUMENT_SELECTOR = [
     // { scheme: 'file', language: 'markdown' },
@@ -106,6 +116,8 @@ export class NoteWorkspace {
       pipedWikiLinksSyntax: c.get('pipedWikiLinksSyntax') as PipedWikiLinksSyntax,
       pipedWikiLinksSeparator: c.get('pipedWikiLinksSeparator') as string,
       newNoteDirectory: c.get('newNoteDirectory') as string,
+      previewLabelStyling: c.get('previewlabelstyling') as PreviewLabelStyling,
+      showFileExtensionInPreview: c.get('showFileExtensionInPreview') as boolean,
     };
   }
 
@@ -139,6 +151,14 @@ export class NoteWorkspace {
 
   static newNoteDirectory(): string {
     return this.cfg().newNoteDirectory;
+  }
+
+  static previewLabelStyling(): string {
+      return this.cfg().previewLabelStyling;
+  }
+
+  static showFileExtensionInPreview(): boolean {
+      return this.cfg().showFileExtensionInPreview;
   }
 
   static rxTagNoAnchors(): RegExp {
