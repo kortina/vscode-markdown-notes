@@ -19,6 +19,7 @@ test('foo', () => {
 
 test('slugifyMethod', () => {
   let orig = NoteWorkspace.slugifyMethod;
+  NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.github;
   expect(NoteWorkspace.noteFileNameFromTitle("Don't Let Go!!")).toEqual('dont-let-go.md');
   NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.classic;
   expect(NoteWorkspace.noteFileNameFromTitle("Don't Let Go!!")).toEqual('don-t-let-go.md');
@@ -196,16 +197,23 @@ describe('WikiLinks', () => {
   });
 
   test('cleanPipedWikiLinks', () => {
-    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
-    expect(
-      NoteWorkspace.cleanPipedWikiLink('description with lots of spaces, and other symbols|file.md')
-    ).toEqual('file.md');
-    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
+    let orig = NoteWorkspace.slugifyMethod;
+    [SlugifyMethod.classic, SlugifyMethod.github].map((slugMethod) => {
+      NoteWorkspace.slugifyMethod = (): string => slugMethod;
+      expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
+      expect(
+        NoteWorkspace.cleanPipedWikiLink(
+          'description with lots of spaces, and other symbols|file.md'
+        )
+      ).toEqual('file.md');
+      expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
 
-    // Odd case, but I suppose it should be treated
-    expect(NoteWorkspace.cleanPipedWikiLink('description|file|but-with-a-pipe-symbol.md')).toEqual(
-      'file|but-with-a-pipe-symbol.md'
-    );
+      // Odd case, but I suppose it should be treated
+      expect(
+        NoteWorkspace.cleanPipedWikiLink('description|file|but-with-a-pipe-symbol.md')
+      ).toEqual('file|but-with-a-pipe-symbol.md');
+    });
+    NoteWorkspace.slugifyMethod = (): string => orig;
   });
   test('NoteWorkspace.noteNamesFuzzyMatch', () => {
     expect(

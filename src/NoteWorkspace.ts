@@ -78,7 +78,7 @@ export class NoteWorkspace {
     defaultFileExtension: NoteWorkspace._defaultFileExtension,
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
-    slugifyMethod: SlugifyMethod.github,
+    slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
     triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
