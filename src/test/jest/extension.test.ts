@@ -197,32 +197,36 @@ describe('WikiLinks', () => {
   });
 
   test('cleanPipedWikiLinks', () => {
-    let orig = NoteWorkspace.slugifyMethod;
-    [SlugifyMethod.classic, SlugifyMethod.github].map((slugMethod) => {
-      NoteWorkspace.slugifyMethod = (): string => slugMethod;
-      expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
-      expect(
-        NoteWorkspace.cleanPipedWikiLink(
-          'description with lots of spaces, and other symbols|file.md'
-        )
-      ).toEqual('file.md');
-      expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
+    expect(
+      NoteWorkspace.cleanPipedWikiLink('description with lots of spaces, and other symbols|file.md')
+    ).toEqual('file.md');
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file')).toEqual('file');
 
-      // Odd case, but I suppose it should be treated
-      expect(
-        NoteWorkspace.cleanPipedWikiLink('description|file|but-with-a-pipe-symbol.md')
-      ).toEqual('file|but-with-a-pipe-symbol.md');
-    });
-    NoteWorkspace.slugifyMethod = (): string => orig;
+    // Odd case, but I suppose it should be treated
+    expect(NoteWorkspace.cleanPipedWikiLink('description|file|but-with-a-pipe-symbol.md')).toEqual(
+      'file|but-with-a-pipe-symbol.md'
+    );
   });
   test('NoteWorkspace.noteNamesFuzzyMatch', () => {
+    let orig = NoteWorkspace.slugifyMethod;
+    // github
+    NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.github;
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
-
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
+    // classic
+    NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.classic;
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
+    ).toBeTruthy();
+    expect(
+      NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
+    ).toBeTruthy();
+    NoteWorkspace.slugifyMethod = orig;
   });
 
   // Tests the different settings for piped wikilinks
