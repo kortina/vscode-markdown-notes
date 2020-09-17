@@ -10,6 +10,8 @@
 type FixMe = any;
 
 let babylon = require('babylon');
+babylon = require('@babel/parser');
+
 let fs = require('fs');
 
 let bddFunctionNames = ['describe', 'context', 'it', 'test'];
@@ -47,9 +49,19 @@ function constructJasmineSpecDescriptionAtLine(
 }
 
 function main(file: FixMe, lineNumber: FixMe) {
+  // Cannot combine flow and typescript plugins.
+  // Default to js:
+  let plugins = ['flow', 'jsx', 'objectRestSpread'];
+  let presets: Array<string> = [];
+  // typescript version:
+  if (file.match(/\.ts$/)) {
+    plugins = ['typescript', 'objectRestSpread'];
+    presets = ['@babel/preset-typescript'];
+  }
   let ast = babylon.parse(fs.readFileSync(file, 'utf8'), {
     sourceType: 'module',
-    plugins: ['jsx', 'flow', 'objectRestSpread'],
+    presets: presets,
+    plugins: plugins,
   });
   let descriptionParts = constructJasmineSpecDescriptionAtLine(ast.program.body, lineNumber, []);
   let description = descriptionParts.join(' ');
