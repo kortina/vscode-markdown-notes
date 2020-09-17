@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { API } from './API';
 import { BacklinksTreeDataProvider } from './BacklinksTreeDataProvider';
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { MarkdownReferenceProvider } from './MarkdownReferenceProvider';
@@ -6,6 +7,7 @@ import { MarkdownFileCompletionItemProvider } from './MarkdownFileCompletionItem
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 import { getRefAt, RefType } from './Ref';
+import { pluginSettings } from './MarkdownRenderingPlugin';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -45,6 +47,11 @@ export function activate(context: vscode.ExtensionContext) {
     NoteWorkspace.newNote
   );
   context.subscriptions.push(newNoteDisposable);
+  let d = vscode.commands.registerCommand(
+    'vscodeMarkdownNotes.notesForWikiLink',
+    API.notesForWikiLink
+  );
+  context.subscriptions.push(d);
 
   // parse the tags from every file in the workspace
   NoteParser.hydrateCache();
@@ -56,4 +63,13 @@ export function activate(context: vscode.ExtensionContext) {
   const treeView = vscode.window.createTreeView('vscodeMarkdownNotesBacklinks', {
     treeDataProvider: backlinksTreeDataProvider,
   });
+
+  // See: https://code.visualstudio.com/api/extension-guides/markdown-extension
+  // For more information on how this works.
+  return {
+    extendMarkdownIt(md: any) {
+        return md.use(
+            pluginSettings()
+        )}
+    };
 }
