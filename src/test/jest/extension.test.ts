@@ -212,19 +212,19 @@ describe('WikiLinks', () => {
 
   test('NoteWorkspace.noteNamesFuzzyMatch', () => {
     let orig = NoteWorkspace.slugifyMethod;
+    //////////
     // github
+    //////////
     NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.github;
-
-    expect(NoteWorkspace.normalizeNoteNameForFuzzyMatch('filename.md').toLowerCase()).toEqual(
-      NoteWorkspace.normalizeNoteNameForFuzzyMatchText('description|filename.md').toLowerCase()
-    );
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
+    //////////
     // classic
+    //////////
     NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.classic;
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
@@ -236,9 +236,9 @@ describe('WikiLinks', () => {
     NoteWorkspace.slugifyMethod = orig;
   });
 
-  // Tests the different settings for piped wikilinks
+  // Tests the different settings for piped wiki-links
   test('Config changes', () => {
-    // 1: Disable piped wikilinks
+    // 1: Disable piped wiki-links
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
       config.allowPipedWikiLinks = false;

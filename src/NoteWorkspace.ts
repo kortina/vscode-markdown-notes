@@ -307,6 +307,7 @@ export class NoteWorkspace {
   }
 
   static slugifyGithub(title: string): string {
+    SLUGGER.reset(); // otherwise it will increment repeats with -1 -2 -3 etc.
     return SLUGGER.slug(title);
   }
 
