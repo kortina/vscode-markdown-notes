@@ -29,9 +29,9 @@ enum PipedWikiLinksSyntax {
 }
 
 enum PreviewLabelStyling {
-    brackets = "[[label]]",
-    bracket = "[label]",
-    none = "label"
+  brackets = '[[label]]',
+  bracket = '[label]',
+  none = 'label',
 }
 
 type Config = {
@@ -154,11 +154,11 @@ export class NoteWorkspace {
   }
 
   static previewLabelStyling(): string {
-      return this.cfg().previewLabelStyling;
+    return this.cfg().previewLabelStyling;
   }
 
   static previewShowFileExtension(): boolean {
-      return this.cfg().previewShowFileExtension;
+    return this.cfg().previewShowFileExtension;
   }
 
   static rxTagNoAnchors(): RegExp {

@@ -87,8 +87,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
       return {
         type: RefType.WikiLink,
         word: ref, // .replace(/^\[+/, ''),
-        // TODO: parameterize extensions. Add $ to end?
-        hasExtension: !!ref.match(/\.(md|markdown)/i),
+        hasExtension: refHasExtension(ref),
         range: r, // range,
       };
     }
@@ -98,7 +97,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
 }
 
 export const refHasExtension = (word: string): boolean => {
-  return !!word.match(/\.(md|markdown)/i);
+  return !!word.match(NoteWorkspace.rxFileExtensions());
 };
 
 export const refFromWikiLinkText = (wikiLinkText: string): Ref => {
