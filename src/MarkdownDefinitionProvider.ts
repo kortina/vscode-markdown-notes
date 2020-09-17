@@ -28,30 +28,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     let files: Array<vscode.Uri> = [];
-    // ref.word might be either:
-    // a basename for a unique file in the workspace
-    // or, a relative path to a file
-    // Since, ref.word is just a string of text from a document,
-    // there is no guarantee useUniqueFilenames will tell us
-    // it is not a relative path.
-    // However, only check for basenames in the entire project if:
-    if (NoteWorkspace.useUniqueFilenames()) {
-      // there should be exactly 1 file with name = ref.word
-      files = (await NoteWorkspace.noteFiles()).filter((f) => {
-        return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, ref.word);
-      });
-    }
-    // If we did not find any files in the workspace,
-    // see if a file exists at the relative path:
-    if (files.length == 0) {
-      const relativePath = ref.word;
-      let fromDir = dirname(document.uri.fsPath.toString());
-      const absPath = resolve(fromDir, relativePath);
-      if (existsSync(absPath)) {
-        const f = vscode.Uri.file(absPath);
-        files.push(f);
-      }
-    }
+    files = await MarkdownDefinitionProvider.filesForWikiLinkRef(ref, document);
 
     // else, create the file
     if (files.length == 0) {
@@ -63,6 +40,58 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
 
     const p = new vscode.Position(0, 0);
     return files.map((f) => new vscode.Location(f, p));
+  }
+
+  static async filesForWikiLinkRef(
+    ref: Ref,
+    relativeToDocument: vscode.TextDocument | undefined | null
+  ): Promise<Array<vscode.Uri>> {
+    let files: Array<vscode.Uri> = await NoteWorkspace.noteFiles();
+    return this._filesForWikiLinkRefAndNoteFiles(ref, relativeToDocument, files);
+  }
+
+  static filesForWikiLinkRefFromCache(
+    ref: Ref,
+    relativeToDocument: vscode.TextDocument | undefined | null
+  ) {
+    let files = NoteWorkspace.noteFilesFromCache(); // TODO: cache results from NoteWorkspace.noteFiles()
+    return this._filesForWikiLinkRefAndNoteFiles(ref, relativeToDocument, files);
+  }
+
+  // Brunt of the logic for either
+  // filesForWikiLinkRef
+  // or, filesForWikiLinkRefFromCache
+  static _filesForWikiLinkRefAndNoteFiles(
+    ref: Ref,
+    relativeToDocument: vscode.TextDocument | undefined | null,
+    noteFiles: Array<vscode.Uri>
+  ): Array<vscode.Uri> {
+    let files: Array<vscode.Uri> = [];
+    // ref.word might be either:
+    // a basename for a unique file in the workspace
+    // or, a relative path to a file
+    // Since, ref.word is just a string of text from a document,
+    // there is no guarantee useUniqueFilenames will tell us
+    // it is not a relative path.
+    // However, only check for basenames in the entire project if:
+    if (NoteWorkspace.useUniqueFilenames()) {
+      // there should be exactly 1 file with name = ref.word
+      files = noteFiles.filter((f) => {
+        return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, ref.word);
+      });
+    }
+    // If we did not find any files in the workspace,
+    // see if a file exists at the relative path:
+    if (files.length == 0 && relativeToDocument && relativeToDocument.uri) {
+      const relativePath = ref.word;
+      let fromDir = dirname(relativeToDocument.uri.fsPath.toString());
+      const absPath = resolve(fromDir, relativePath);
+      if (existsSync(absPath)) {
+        const f = vscode.Uri.file(absPath);
+        files.push(f);
+      }
+    }
+    return files;
   }
 
   static createMissingNote = (ref: Ref): string | undefined => {

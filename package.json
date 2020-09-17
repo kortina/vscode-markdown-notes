@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -24,6 +24,7 @@
     "Programming Languages"
   ],
   "contributes": {
+    "markdown.markdownItPlugins": true,
     "languages": [
       {
         "id": "markdown-notes",
@@ -46,6 +47,10 @@
       {
         "command": "vscodeMarkdownNotes.newNote",
         "title": "Markdown Notes: New Note"
+      },
+      {
+        "command": "vscodeMarkdownNotes.notesForWikiLink",
+        "title": "Given some wiki-link text (from between double-brackets) such as \"my-note\" or \"my-note.md\" return a Note[] (typically of length 1) where the note filename is a match for the wiki-link text."
       }
     ],
     "configuration": {
@@ -107,7 +112,7 @@
         "vscodeMarkdownNotes.newNoteTemplate": {
           "type": "string",
           "default": "# ${noteName}\n\n",
-          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}, ${date}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z. Date is YYYY-MM-DD format."
+          "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
         },
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
@@ -139,6 +144,21 @@
           "type": "boolean",
           "default": true,
           "description": "Trigger suggest on both insertion AND replacement of new character inside a wiki-link. Defaults true. Set false to only trigger suggest on insertion. See PR #69 for details."
+        },
+        "vscodeMarkdownNotes.previewShowFileExtension": {
+          "type": "boolean",
+          "default": false,
+          "description": "Specifies whether or not to show the linked file's extension in the preview."
+        },
+        "vscodeMarkdownNotes.previewLabelStyling": {
+          "type": "string",
+          "default": "[[label]]",
+          "enum": [
+            "[[label]]",
+            "[label]",
+            "label"
+          ],
+          "description": "Changes how the link to a file should be shown, either with or without brackets."
         }
       }
     },
@@ -196,6 +216,7 @@
     "unified": "^9.0.0",
     "unist-util-find": "^1.0.1",
     "unist-util-visit": "^2.0.2",
+    "@thomaskoppelaar/markdown-it-wikilinks": "1.3.0",
     "vsce": "^1.75.0",
     "vscode-test": "^1.3.0"
   }
