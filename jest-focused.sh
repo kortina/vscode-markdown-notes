@@ -7,7 +7,8 @@
 #
 set -e
 # location of script that will parse out the test function given a filepath and line
-test_at_line_js="out/test-at-line.js"
+wd=`pwd`
+test_at_line_js="$wd/out/test-at-line.js"
 
 # arg $1 is the test filename
 # replace "/./"" with "/" (artifact of vscode-run-in-terminal starting relative path with a "./")
@@ -24,8 +25,7 @@ npm run compile
 
 # if given file + line number, parse out the test name to run and pass in as a focused test run
 if echo "$1" | grep -q ":[0-9]\+$" ; then
-    cmd="node $(pwd)/ $testloc"
-    bdd_description=$(node $(pwd)/$test_at_line_js $1)
+    bdd_description=$(node $test_at_line_js $1)
     bdd_size=${#bdd_description}
     if [ $bdd_size -eq 0 ]; then
         echo "Not in a describe block, nothing to run!"
