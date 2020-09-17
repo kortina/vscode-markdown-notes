@@ -30,7 +30,7 @@ export enum SlugifyMethod {
   classic = 'classic',
 }
 
-enum PipedWikiLinksSyntax {
+export enum PipedWikiLinksSyntax {
   fileDesc = 'file|desc',
   descFile = 'desc|file',
 }
@@ -83,7 +83,7 @@ export class NoteWorkspace {
     newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
     triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
     allowPipedWikiLinks: false,
-    pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+    pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
     pipedWikiLinksSeparator: '\\|',
     newNoteDirectory: NoteWorkspace.NEW_NOTE_SAME_AS_ACTIVE_NOTE,
   };
@@ -275,7 +275,9 @@ export class NoteWorkspace {
   }
 
   // Compare 2 wiki-links for a fuzzy match.
-  // All of the following will return true
+  // In general, we expect
+  // `left` to be fsPath
+  // `right` to be the ref word [[wiki-link]]
   static noteNamesFuzzyMatch(left: string, right: string): boolean {
     return (
       this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==

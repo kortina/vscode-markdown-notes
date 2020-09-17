@@ -1,5 +1,5 @@
 import 'jest';
-import { foo, NoteWorkspace, SlugifyMethod } from '../../NoteWorkspace';
+import { foo, NoteWorkspace, PipedWikiLinksSyntax, SlugifyMethod } from '../../NoteWorkspace';
 import { titleCaseFromFilename } from '../../utils';
 import { Note } from '../../NoteParser';
 import { RefType } from '../../Ref';
@@ -192,6 +192,7 @@ describe('WikiLinks', () => {
     NoteWorkspace.cfg = () => {
       let config = NoteWorkspace.DEFAULT_CONFIG;
       config.allowPipedWikiLinks = true;
+      config.pipedWikiLinksSyntax = PipedWikiLinksSyntax.descFile;
       return config;
     };
   });
@@ -208,10 +209,15 @@ describe('WikiLinks', () => {
       'file|but-with-a-pipe-symbol.md'
     );
   });
+
   test('NoteWorkspace.noteNamesFuzzyMatch', () => {
     let orig = NoteWorkspace.slugifyMethod;
     // github
     NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.github;
+
+    expect(NoteWorkspace.normalizeNoteNameForFuzzyMatch('filename.md').toLowerCase()).toEqual(
+      NoteWorkspace.normalizeNoteNameForFuzzyMatchText('description|filename.md').toLowerCase()
+    );
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
@@ -226,6 +232,7 @@ describe('WikiLinks', () => {
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
+
     NoteWorkspace.slugifyMethod = orig;
   });
 

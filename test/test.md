@@ -1,5 +1,7 @@
 # test
 
+[[description|filename.md]]
+
 - [[test]] - no extension
 - [[test.md]] - extension, exists
 - [[test-file.md]] - extension, does not exist
