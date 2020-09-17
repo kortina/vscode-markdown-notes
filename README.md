@@ -32,7 +32,7 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 
 ```json
     {
-        "key": "al+shift+n",
+        "key": "alt+shift+n",
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```

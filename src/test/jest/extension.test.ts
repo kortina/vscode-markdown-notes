@@ -295,4 +295,13 @@ describe('NoteWorkspace.newNoteContent', () => {
     const date1 = Date.parse(matches![1]);
     expect(date1).not.toBe(Number.NaN);
   });
+
+  it('handles date', () => {
+    const template = '# Title\nDate: ${date}\n';
+
+    const content = newNote(template, 'nevermind');
+    const d = (new Date().toISOString().match(/(\d{4}-\d{2}-\d{2})/) || '')[0];
+    const dt = `Date: ${d}`;
+    expect(content.includes(dt)).toBeTruthy();
+  });
 });

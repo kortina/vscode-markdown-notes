@@ -224,7 +224,6 @@ export class NoteWorkspace {
     return !!this.cfg().createNoteOnGoToDefinitionWhenMissing;
   }
 
-
   static compileSuggestionDetails(): boolean {
     return this.cfg().compileSuggestionDetails;
   }
@@ -423,10 +422,13 @@ export class NoteWorkspace {
 
   static newNoteContent(noteName: string) {
     const template = NoteWorkspace.newNoteTemplate();
+    const d = (new Date().toISOString().match(/(\d{4}-\d{2}-\d{2})/) || '')[0]; // "2020-08-25"
+    const t = new Date().toISOString(); // "2020-08-25T03:21:49.735Z"
     const contents = template
       .replace(/\\n/g, '\n')
       .replace(/\$\{noteName\}/g, noteName)
-      .replace(/\$\{timestamp\}/g, new Date().toISOString());
+      .replace(/\$\{timestamp\}/g, t)
+      .replace(/\$\{date\}/g, d);
     return contents;
   }
 
