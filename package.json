@@ -92,7 +92,7 @@
             "github-slugger"
           ],
           "default": "classic",
-          "description": "Method converting 'Title Case Note Names' to 'slug-file-names.' Defaults to 'github-slugger.' See unit tests in vscode-markdown-notes GitHub project for more details."
+          "description": "Method converting 'Title Case Note Names' to 'slug-file-names.' Defaults to 'classic.' See unit tests in vscode-markdown-notes GitHub project for more details."
         },
         "vscodeMarkdownNotes.defaultFileExtension": {
           "type": "string",
