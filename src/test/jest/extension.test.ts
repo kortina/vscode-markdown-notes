@@ -7,7 +7,8 @@ import { RefType } from '../../Ref';
 
 jest.mock('../../NoteWorkspace');
 
-// override the NoteWorkspace cfg object in a test
+// set the NoteWorkspace cfg object in a test
+// NB: anything not set will inherit from DEFAULT_CONFIG
 const setConfig = (cfg: object) => {
   NoteWorkspace.cfg = () => {
     return {
@@ -195,12 +196,10 @@ describe('Note', () => {
 
 describe('NoteWorkspace.pipedWikiLinks', () => {
   beforeEach(() => {
-    NoteWorkspace.cfg = () => {
-      let config = NoteWorkspace.DEFAULT_CONFIG;
-      config.allowPipedWikiLinks = true;
-      config.pipedWikiLinksSyntax = PipedWikiLinksSyntax.descFile;
-      return config;
-    };
+    setConfig({
+      allowPipedWikiLinks: true,
+      pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+    });
   });
 
   test('cleanPipedWikiLinks', () => {
@@ -217,37 +216,38 @@ describe('NoteWorkspace.pipedWikiLinks', () => {
   });
 
   test('noteNamesFuzzyMatch, SlugifyMethod.github', () => {
-    let orig = NoteWorkspace.slugifyMethod;
-    NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.github;
+    // inherit the config set in describe:beforeEach
+    setConfig({
+      ...NoteWorkspace.cfg(),
+      slugifyMethod: SlugifyMethod.github,
+    });
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
-
-    NoteWorkspace.slugifyMethod = orig;
   });
+
   test('noteNamesFuzzyMatch, SlugifyMethod.classic', () => {
-    let orig = NoteWorkspace.slugifyMethod;
-    NoteWorkspace.slugifyMethod = (): string => SlugifyMethod.classic;
+    // inherit the config set in describe:beforeEach
+    setConfig({
+      ...NoteWorkspace.cfg(),
+      slugifyMethod: SlugifyMethod.classic,
+    });
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')
     ).toBeTruthy();
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description |filename.md')
     ).toBeTruthy();
-    NoteWorkspace.slugifyMethod = orig;
   });
 
-  // Tests the different settings for piped wiki-links
   test('allowPipedWikiLinks false', () => {
-    // 1: Disable piped wiki-links
-    NoteWorkspace.cfg = () => {
-      let config = NoteWorkspace.DEFAULT_CONFIG;
-      config.allowPipedWikiLinks = false;
-      return config;
-    };
+    setConfig({
+      allowPipedWikiLinks: false,
+      pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+    });
     // Because of this change, these should not match anymore...
     expect(NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description|filename.md')).toBeFalsy();
 
@@ -256,12 +256,11 @@ describe('NoteWorkspace.pipedWikiLinks', () => {
   });
 
   test('pipedWikiLinksSeparator custom', () => {
-    NoteWorkspace.cfg = () => {
-      let config = NoteWorkspace.DEFAULT_CONFIG;
-      config.allowPipedWikiLinks = true;
-      config.pipedWikiLinksSeparator = '@';
-      return config;
-    };
+    setConfig({
+      allowPipedWikiLinks: true,
+      pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+      pipedWikiLinksSeparator: '@',
+    });
 
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'description@filename.md')
@@ -271,13 +270,11 @@ describe('NoteWorkspace.pipedWikiLinks', () => {
   });
 
   test('PipedWikiLinksSyntax.fileDesc', () => {
-    NoteWorkspace.cfg = () => {
-      let config = NoteWorkspace.DEFAULT_CONFIG;
-      config.allowPipedWikiLinks = true;
-      config.pipedWikiLinksSeparator = '\\|';
-      config.pipedWikiLinksSyntax = PipedWikiLinksSyntax.fileDesc;
-      return config;
-    };
+    setConfig({
+      allowPipedWikiLinks: true,
+      pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
+      pipedWikiLinksSeparator: '\\|',
+    });
 
     expect(
       NoteWorkspace.noteNamesFuzzyMatch('filename.md', 'filename.md|description')
@@ -289,15 +286,12 @@ describe('NoteWorkspace.pipedWikiLinks', () => {
 
 describe('NoteWorkspace.newNoteContent', () => {
   const newNote = (template: string, title: string) => {
-    NoteWorkspace.cfg = () => {
-      return {
-        ...NoteWorkspace.DEFAULT_CONFIG,
-        newNoteTemplate: template,
-      };
-    };
-
+    setConfig({
+      newNoteTemplate: template,
+    });
     return NoteWorkspace.newNoteContent(title);
   };
+
   it('handles noteName tag', () => {
     const template = '# ${noteName}\n\nThis is ${noteName}';
 
