@@ -71,25 +71,19 @@ export class NoteWorkspace {
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
-  static _defaultFileExtension = 'md';
-  static _defaultNoteTemplate = '# ${noteName}\n\n';
-  static _defaultTriggerSuggestOnReplacement = true;
   static SLUGIFY_NONE = 'NONE';
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
   static NEW_NOTE_WORKSPACE_ROOT = 'WORKSPACE_ROOT';
-  static _defaultSlugifyChar = '-';
-  static _defaultSlugifyMethod = SlugifyMethod.github;
-  static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
     compileSuggestionDetails: false,
-    defaultFileExtension: NoteWorkspace._defaultFileExtension,
+    defaultFileExtension: 'md',
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
     slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
-    newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
-    triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
+    newNoteTemplate: '# ${noteName}\n\n',
+    triggerSuggestOnReplacement: true,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
     pipedWikiLinksSeparator: '\\|',
