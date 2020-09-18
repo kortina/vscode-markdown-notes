@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
 import { existsSync, writeFileSync } from 'fs';
+const GithubSlugger = require('github-slugger');
+const SLUGGER = new GithubSlugger();
 
 export const foo = () => {
   return 1;
@@ -23,7 +25,12 @@ enum SlugifyCharacter {
   none = 'NONE',
 }
 
-enum PipedWikiLinksSyntax {
+export enum SlugifyMethod {
+  github = 'github-slugger',
+  classic = 'classic',
+}
+
+export enum PipedWikiLinksSyntax {
   fileDesc = 'file|desc',
   descFile = 'desc|file',
 }
@@ -39,6 +46,7 @@ type Config = {
   defaultFileExtension: string;
   noteCompletionConvention: NoteCompletionConvention;
   slugifyCharacter: SlugifyCharacter;
+  slugifyMethod: SlugifyMethod;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
   compileSuggestionDetails: boolean;
@@ -63,25 +71,21 @@ export class NoteWorkspace {
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
-  static _defaultFileExtension = 'md';
-  static _defaultNoteTemplate = '# ${noteName}\n\n';
-  static _defaultTriggerSuggestOnReplacement = true;
   static SLUGIFY_NONE = 'NONE';
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
   static NEW_NOTE_WORKSPACE_ROOT = 'WORKSPACE_ROOT';
-  static _defaultSlugifyChar = '-';
-  static _slugifyChar = '-';
   static DEFAULT_CONFIG: Config = {
     createNoteOnGoToDefinitionWhenMissing: true,
     compileSuggestionDetails: false,
-    defaultFileExtension: NoteWorkspace._defaultFileExtension,
+    defaultFileExtension: 'md',
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     slugifyCharacter: SlugifyCharacter.dash,
+    slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
-    newNoteTemplate: NoteWorkspace._defaultNoteTemplate,
-    triggerSuggestOnReplacement: NoteWorkspace._defaultTriggerSuggestOnReplacement,
+    newNoteTemplate: '# ${noteName}\n\n',
+    triggerSuggestOnReplacement: true,
     allowPipedWikiLinks: false,
-    pipedWikiLinksSyntax: PipedWikiLinksSyntax.descFile,
+    pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
     pipedWikiLinksSeparator: '\\|',
     newNoteDirectory: NoteWorkspace.NEW_NOTE_SAME_AS_ACTIVE_NOTE,
     previewLabelStyling: PreviewLabelStyling.brackets,
@@ -106,6 +110,7 @@ export class NoteWorkspace {
       defaultFileExtension: c.get('defaultFileExtension') as string,
       noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
       slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
+      slugifyMethod: c.get('slugifyMethod') as SlugifyMethod,
       workspaceFilenameConvention: c.get(
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
@@ -123,6 +128,10 @@ export class NoteWorkspace {
 
   static slugifyChar(): string {
     return this.cfg().slugifyCharacter;
+  }
+
+  static slugifyMethod(): string {
+    return this.cfg().slugifyMethod;
   }
 
   static defaultFileExtension(): string {
@@ -283,7 +292,9 @@ export class NoteWorkspace {
   }
 
   // Compare 2 wiki-links for a fuzzy match.
-  // All of the following will return true
+  // In general, we expect
+  // `left` to be fsPath
+  // `right` to be the ref word [[wiki-link]]
   static noteNamesFuzzyMatch(left: string, right: string): boolean {
     return (
       this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
@@ -303,12 +314,26 @@ export class NoteWorkspace {
       .toLowerCase() // lower
       .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
   }
-  static slugifyTitle(title: string): string {
+
+  static slugifyClassic(title: string): string {
     let t =
       this.slugifyChar() == 'NONE'
         ? title
         : title.replace(/[!"\#$%&'()*+,\-./:;<=>?@\[\\\]^_‘{|}~\s]+/gi, this.slugifyChar()); // punctuation and whitespace to hyphens (or underscores)
     return this.cleanTitle(t);
+  }
+
+  static slugifyGithub(title: string): string {
+    SLUGGER.reset(); // otherwise it will increment repeats with -1 -2 -3 etc.
+    return SLUGGER.slug(title);
+  }
+
+  static slugifyTitle(title: string): string {
+    if (this.slugifyMethod() == SlugifyMethod.classic) {
+      return this.slugifyClassic(title);
+    } else {
+      return this.slugifyGithub(title);
+    }
   }
 
   static noteFileNameFromTitle(title: string): string {
