@@ -1,5 +1,35 @@
 # Changelog
 
+## [v0.0.19](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.19) (2020-09-17)
+
+**Enhancements:**
+
+- merge #85 - add setting `vscodeMarkdownNotes.slugifyMethod` - "classic" supports some options specific to Markdown Notes. "github-slugger" uses https://github.com/Flet/github-slugger and is compatible with foam, addresses: https://github.com/foambubble/foam/issues/240
+- merge #87 - add `API.ts` with a 'beta' public API (subject to change), [one example function](https://github.com/kortina/vscode-markdown-notes/pull/87/files#diff-e24351dfe2836d766dcaa5d2873075ebR26):
+
+```ts
+let notes = await vscode.commands.executeCommand('vscodeMarkdownNotes.notesForWikiLink', 'demo');
+```
+
+- add a sync version of `filesForWikiLinkRef`, `filesForWikiLinkRefFromCache`
+- merge #86 from @thomaskoppelaar (🙏🏿 🙏🏿 🙏🏿), with...
+- `markdownItPlugins` rendering of wiki-links
+- add setting: `vscodeMarkdownNotes.previewShowFileExtension` - Specifies whether or not to show the linked file's extension in the preview
+- add setting: `vscodeMarkdownNotes.previewLabelStyling` - Changes how the link to a file should be shown, either with or without brackets
+
+**Fixes:**
+
+- (#88) fix bug with `jest-focused.sh` test runner and fix `test-at-line.ts` so it can parse typescript files
+
+**Cleanup:**
+
+- cleanup jest tests
+- add `setConfig` helper to jest tests
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/8efafabe9d299a7e2c1d34559764952aa338888c..4326868eca031f52d79b0d779347daadc57bbaea
+
 ## [v0.0.18](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.18) (2020-08-24)
 
 Add `$date` var for use in `vscodeMarkdownNotes.newNoteTemplate`.
