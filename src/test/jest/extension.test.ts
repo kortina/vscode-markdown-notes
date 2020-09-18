@@ -50,7 +50,6 @@ describe('NoteWorkspace.slug', () => {
     setConfig({ slugifyCharacter: '_' });
     expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
 
-    // NoteWorkspace.slugifyChar = (): string => '－';
     setConfig({ slugifyCharacter: '－' });
     expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual(
       'ｓｏｍｅ－ｔｉｔｌｅ.md'
@@ -58,8 +57,6 @@ describe('NoteWorkspace.slug', () => {
     expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual(
       'ｓｏｍｅ－ｔｉｔｌｅ.md'
     );
-
-    NoteWorkspace.slugifyChar = (): string => '-';
   });
 });
 
