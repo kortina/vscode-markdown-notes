@@ -68,8 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
   // For more information on how this works.
   return {
     extendMarkdownIt(md: any) {
-        return md.use(
-            pluginSettings()
-        )}
-    };
+      return md.use(pluginSettings());
+    },
+  };
 }
