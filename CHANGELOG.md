@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.0.20](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.20) (2020-09-22)
+
+**Fixes:**
+
+- improve perf by respecting search.exclude, files.exclude, AND .gitignore
+- addresses #90
+- via https://github.com/microsoft/vscode/issues/48674
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/4326868eca031f52d79b0d779347daadc57bbaea..a4e63d4fe734aca5025a707e7b1939efefd578d3
+
 ## [v0.0.19](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.19) (2020-09-17)
 
 **Enhancements:**
