@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
 import { existsSync, writeFileSync } from 'fs';
+import findNonIgnoredFiles from './findNonIgnoredFiles';
 const GithubSlugger = require('github-slugger');
 const SLUGGER = new GithubSlugger();
 
@@ -468,9 +469,10 @@ export class NoteWorkspace {
 
   static async noteFiles(): Promise<Array<vscode.Uri>> {
     let that = this;
-    let files = (await vscode.workspace.findFiles('**/*')).filter(
-      (f) => f.scheme == 'file' && f.path.match(that.rxFileExtensions())
-    );
+
+    // let files = await vscode.workspace.findFiles('**/*');
+    let files = await findNonIgnoredFiles('**/*');
+    files = files.filter((f) => f.scheme == 'file' && f.path.match(that.rxFileExtensions()));
     this.noteFileCache = files;
     return files;
   }
