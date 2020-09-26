@@ -85,7 +85,7 @@ export class NoteWorkspace {
     slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: '# ${noteName}\n\n',
-    newNoteFromSelectionReplacementTemplate: '${wikiLink}',
+    newNoteFromSelectionReplacementTemplate: '[[${wikiLink}]]',
     triggerSuggestOnReplacement: true,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
@@ -458,7 +458,7 @@ export class NoteWorkspace {
                 edit.replace(
                   originEditor.document.uri, 
                   originSelectionRange, 
-                  NoteWorkspace.selectionReplacementContent(`[[${wikiLink}]]`)
+                  NoteWorkspace.selectionReplacementContent(wikiLink, noteName)
                 );
 
                 vscode.workspace.applyEdit(edit);
@@ -547,10 +547,11 @@ export class NoteWorkspace {
     return contents;
   }
 
-  static selectionReplacementContent(wikiLink: string) {
+  static selectionReplacementContent(wikiLink: string, noteName: string) {
     const template = NoteWorkspace.newNoteFromSelectionReplacementTemplate();
     const contents = template
-      .replace(/\$\{wikiLink\}/g, wikiLink);
+      .replace(/\$\{wikiLink\}/g, wikiLink)
+      .replace(/\$\{noteName\}/g, noteName);
 
     return contents;
   }

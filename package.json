@@ -120,8 +120,8 @@
         },
         "vscodeMarkdownNotes.newNoteFromSelectionReplacementTemplate": {
           "type": "string",
-          "default": "${wikiLink}",
-          "description": "Template for generated links to notes created from selections. Available tokens: ${wikiLink}."
+          "default": "[[${wikiLink}]]",
+          "description": "Template for generated links to notes created from selections. Available tokens: ${wikiLink}, ${noteName}."
         },
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
