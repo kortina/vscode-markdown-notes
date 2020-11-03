@@ -188,6 +188,7 @@
     "watch": "tsc -watch -p ./"
   },
   "dependencies": {
+    "@thomaskoppelaar/markdown-it-wikilinks": "^1.3.0",
     "github-slugger": "^1.3.0"
   },
   "devDependencies": {
@@ -216,7 +217,6 @@
     "unified": "^9.0.0",
     "unist-util-find": "^1.0.1",
     "unist-util-visit": "^2.0.2",
-    "@thomaskoppelaar/markdown-it-wikilinks": "1.3.0",
     "vsce": "^1.75.0",
     "vscode-test": "^1.3.0"
   }
