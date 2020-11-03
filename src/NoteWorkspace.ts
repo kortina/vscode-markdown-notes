@@ -50,6 +50,7 @@ type Config = {
   slugifyMethod: SlugifyMethod;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
+  lowercaseNewNoteFilenames: boolean;
   compileSuggestionDetails: boolean;
   triggerSuggestOnReplacement: boolean;
   allowPipedWikiLinks: boolean;
@@ -84,6 +85,7 @@ export class NoteWorkspace {
     slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: '# ${noteName}\n\n',
+    lowercaseNewNoteFilenames: true,
     triggerSuggestOnReplacement: true,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
@@ -116,6 +118,7 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
+      lowercaseNewNoteFilenames: c.get('lowercaseNewNoteFilenames') as boolean,
       compileSuggestionDetails: c.get('compileSuggestionDetails') as boolean,
       triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
@@ -141,6 +144,10 @@ export class NoteWorkspace {
 
   static newNoteTemplate(): string {
     return this.cfg().newNoteTemplate;
+  }
+
+  static lowercaseNewNoteFilenames(): boolean {
+    return this.cfg().lowercaseNewNoteFilenames;
   }
 
   static triggerSuggestOnReplacement() {
@@ -311,9 +318,12 @@ export class NoteWorkspace {
   }
 
   static cleanTitle(title: string): string {
-    return title
-      .toLowerCase() // lower
-      .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
+    const caseAdjustedTitle = this.lowercaseNewNoteFilenames() ? 
+      title.toLowerCase() : 
+      title;
+
+    // removing trailing slug chars
+    return caseAdjustedTitle.replace(/[-_－＿ ]*$/g, ''); 
   }
 
   static slugifyClassic(title: string): string {
