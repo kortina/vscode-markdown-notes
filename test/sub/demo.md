@@ -52,6 +52,14 @@ View and navigate backlinks with an Explorer Panel.
 
 ---
 
+Piped **Wiki-Link** (with Title)
+
+- add `"vscodeMarkdownNotes.allowPipedWikiLinks": true,` to your `settings.json`
+- see also the setting: `vscodeMarkdownNotes.pipedWikiLinksSyntax`
+- [[demo.md|Demo Text]]
+
+---
+
 Legend:
 `default-keybinding` (`ak-keybinding`) / Command Name / `keybinding.action`
 

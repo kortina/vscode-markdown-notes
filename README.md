@@ -87,6 +87,10 @@ NB: there is also a command `vscodeMarkdownNotes.newNoteFromSelection` which wil
 
 ![tag-search](demo/tag-search.gif)
 
+### Piped Wiki Link Support
+
+![piped-wiki-link](demo/piped-wiki-link.png)
+
 #### New Note Command
 
 ![new-note-command](demo/new-note-command.gif)
