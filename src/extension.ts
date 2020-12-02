@@ -47,6 +47,11 @@ export function activate(context: vscode.ExtensionContext) {
     NoteWorkspace.newNote
   );
   context.subscriptions.push(newNoteDisposable);
+  let newNoteFromSelectionDisposable = vscode.commands.registerCommand(
+    'vscodeMarkdownNotes.newNoteFromSelection',
+    NoteWorkspace.newNoteFromSelection
+  );
+  context.subscriptions.push(newNoteFromSelectionDisposable);
   let d = vscode.commands.registerCommand(
     'vscodeMarkdownNotes.notesForWikiLink',
     API.notesForWikiLink

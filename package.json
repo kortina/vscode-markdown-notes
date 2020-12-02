@@ -49,6 +49,10 @@
         "title": "Markdown Notes: New Note"
       },
       {
+        "command": "vscodeMarkdownNotes.newNoteFromSelection",
+        "title": "Markdown Notes: New Note From Selection"
+      },
+      {
         "command": "vscodeMarkdownNotes.notesForWikiLink",
         "title": "Given some wiki-link text (from between double-brackets) such as \"my-note\" or \"my-note.md\" return a Note[] (typically of length 1) where the note filename is a match for the wiki-link text."
       }
@@ -113,6 +117,11 @@
           "type": "string",
           "default": "# ${noteName}\n\n",
           "description": "Template for auto-created note files. Available tokens: ${noteName}, ${timestamp}. Timestamp is inserted in ISO format, i.e. 2020-07-09T05:29:00.541Z."
+        },
+        "vscodeMarkdownNotes.newNoteFromSelectionReplacementTemplate": {
+          "type": "string",
+          "default": "[[${wikiLink}]]",
+          "description": "After the selection is 'cut' from the active document, replacement text is 'inserted' into its place. Available tokens: ${wikiLink}, ${noteName}. The default insertion is a wiki-link to the new note containing the selected text."
         },
         "vscodeMarkdownNotes.lowercaseNewNoteFilenames": {
           "type": "boolean",
