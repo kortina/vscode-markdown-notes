@@ -20,11 +20,13 @@ A popular feature in [Roam Research](https://roamresearch.com/) and [Bear](https
 
 By default, the extension assumes each markdown file in a workspace has a unique name, so that `note.md` will resolve to the file with this name, regardless of whether or not this file exists in any subdirectory path. This tends to be a bit cleaner, but if you want support for multiple files with the same name, in `settings.json` set `"vscodeMarkdownNotes.workspaceFilenameConvention": "relativePaths"`, and you'll get completions like `note1/note.md` and `../note2/note.md`.
 
+You can configure piped wiki-link syntax to use either `[[file|description]]`, or `[[description|file]]` format (to show pretty titles instead of filenames in your rendered HTML).
+
 ### #tags
 
 Syntax highlighting for `#tags`.
 
-### New Note command
+### New Note Command
 
 Provides a command for quickly creating a new note.
 
@@ -36,6 +38,8 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
         "command": "vscodeMarkdownNotes.newNote",
     },
 ```
+
+NB: there is also a command `vscodeMarkdownNotes.newNoteFromSelection` which will "cut" the selected text from the current document, prompt for a note name, create a new note with that name, and insert the new text into that note.
 
 ### Screenshots
 
@@ -86,6 +90,10 @@ You can bind this to a keyboard shortcut by adding to your `keybindings.json`:
 #### New Note Command
 
 ![new-note-command](demo/new-note-command.gif)
+
+#### New Note from Selection Command
+
+![new-note-from-selection-command](demo/new-note-from-selection-command.gif)
 
 ## dev
 

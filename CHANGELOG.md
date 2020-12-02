@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.0.21](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.21) (2020-12-01)
+
+**Enhancements:**
+
+- #96 option to disable lower-casing of file names - tx @mgmeyers
+- #95 `vscodeMarkdownNotes.newNoteFromSelection` which will "cut" the selected text from the current document, prompt for a note name, create a new note with that name, and insert the new text into that note. tx @mgmeyers
+
+**Fixes:**
+
+- #104 package missing markdown it dependency in production build - tx @Lemmingh
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/431084c..4d315eb
+
+
 ## [v0.0.20](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.20) (2020-09-22)
 
 **Fixes:**
@@ -10,7 +26,7 @@
 
 **Diff:**
 
-https://github.com/kortina/vscode-markdown-notes/compare/4326868eca031f52d79b0d779347daadc57bbaea..a4e63d4fe734aca5025a707e7b1939efefd578d3
+https://github.com/kortina/vscode-markdown-notes/compare/4326868..a4e63d4fe734aca5025a707e7b1939efefd578d3
 
 ## [v0.0.19](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.19) (2020-09-17)
 
