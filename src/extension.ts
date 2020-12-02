@@ -71,9 +71,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   // See: https://code.visualstudio.com/api/extension-guides/markdown-extension
   // For more information on how this works.
-  return {
-    extendMarkdownIt(md: any) {
-      return md.use(pluginSettings());
-    },
-  };
+  try {
+    return {
+      extendMarkdownIt(md: any) {
+        return md.use(pluginSettings());
+      },
+    };
+  } catch (err) {
+    console.error(`Skipped Markdown extension: markdown-it-wikilinks\nBecause:\n${err}`);
+  }
 }

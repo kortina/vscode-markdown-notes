@@ -38,25 +38,35 @@ describe('NoteWorkspace.slug', () => {
   });
 
   test('noteFileNameFromTitle', () => {
-    setConfig({ slugifyCharacter: NoteWorkspace.SLUGIFY_NONE });
+    setConfig({ slugifyCharacter: NoteWorkspace.SLUGIFY_NONE, lowercaseNewNoteFilenames: true });
     expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('some title.md');
     expect(NoteWorkspace.noteFileNameFromTitle('Some Title ')).toEqual('some title.md');
+    setConfig({ slugifyCharacter: NoteWorkspace.SLUGIFY_NONE, lowercaseNewNoteFilenames: false });
+    expect(NoteWorkspace.noteFileNameFromTitle('Some Title')).toEqual('Some Title.md');
 
-    setConfig({ slugifyCharacter: '-' });
+    setConfig({ slugifyCharacter: '-', lowercaseNewNoteFilenames: true });
     expect(NoteWorkspace.noteFileNameFromTitle('Some " Title ')).toEqual('some-title.md');
     expect(NoteWorkspace.noteFileNameFromTitle('Šömè Țítlê')).toEqual('šömè-țítlê.md');
     expect(NoteWorkspace.noteFileNameFromTitle('題目')).toEqual('題目.md');
     expect(NoteWorkspace.noteFileNameFromTitle('Some \r \n Title')).toEqual('some-title.md');
+    setConfig({ slugifyCharacter: '-', lowercaseNewNoteFilenames: false });
+    expect(NoteWorkspace.noteFileNameFromTitle('Some " Title ')).toEqual('Some-Title.md');
 
-    setConfig({ slugifyCharacter: '_' });
+    setConfig({ slugifyCharacter: '_', lowercaseNewNoteFilenames: true });
     expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('some_title.md');
+    setConfig({ slugifyCharacter: '_', lowercaseNewNoteFilenames: false });
+    expect(NoteWorkspace.noteFileNameFromTitle('Some   Title ')).toEqual('Some_Title.md');
 
-    setConfig({ slugifyCharacter: '－' });
+    setConfig({ slugifyCharacter: '－', lowercaseNewNoteFilenames: true });
     expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ')).toEqual(
       'ｓｏｍｅ－ｔｉｔｌｅ.md'
     );
     expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual(
       'ｓｏｍｅ－ｔｉｔｌｅ.md'
+    );
+    setConfig({ slugifyCharacter: '－', lowercaseNewNoteFilenames: false });
+    expect(NoteWorkspace.noteFileNameFromTitle('Ｓｏｍｅ　Ｔｉｔｌｅ ')).toEqual(
+      'Ｓｏｍｅ－Ｔｉｔｌｅ.md'
     );
   });
 });

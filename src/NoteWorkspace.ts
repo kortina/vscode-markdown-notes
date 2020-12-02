@@ -51,6 +51,7 @@ type Config = {
   workspaceFilenameConvention: WorkspaceFilenameConvention;
   newNoteTemplate: string;
   newNoteFromSelectionReplacementTemplate: string;
+  lowercaseNewNoteFilenames: boolean;
   compileSuggestionDetails: boolean;
   triggerSuggestOnReplacement: boolean;
   allowPipedWikiLinks: boolean;
@@ -86,6 +87,7 @@ export class NoteWorkspace {
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
     newNoteTemplate: '# ${noteName}\n\n',
     newNoteFromSelectionReplacementTemplate: '[[${wikiLink}]]',
+    lowercaseNewNoteFilenames: true,
     triggerSuggestOnReplacement: true,
     allowPipedWikiLinks: false,
     pipedWikiLinksSyntax: PipedWikiLinksSyntax.fileDesc,
@@ -119,6 +121,7 @@ export class NoteWorkspace {
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
       newNoteFromSelectionReplacementTemplate: c.get('newNoteFromSelectionReplacementTemplate') as string,
+      lowercaseNewNoteFilenames: c.get('lowercaseNewNoteFilenames') as boolean,
       compileSuggestionDetails: c.get('compileSuggestionDetails') as boolean,
       triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
       allowPipedWikiLinks: c.get('allowPipedWikiLinks') as boolean,
@@ -148,6 +151,10 @@ export class NoteWorkspace {
 
   static newNoteFromSelectionReplacementTemplate(): string {
     return this.cfg().newNoteFromSelectionReplacementTemplate;
+  }
+  
+  static lowercaseNewNoteFilenames(): boolean {
+    return this.cfg().lowercaseNewNoteFilenames;
   }
 
   static triggerSuggestOnReplacement() {
@@ -318,9 +325,12 @@ export class NoteWorkspace {
   }
 
   static cleanTitle(title: string): string {
-    return title
-      .toLowerCase() // lower
-      .replace(/[-_－＿ ]*$/g, ''); // removing trailing slug chars
+    const caseAdjustedTitle = this.lowercaseNewNoteFilenames() ? 
+      title.toLowerCase() : 
+      title;
+
+    // removing trailing slug chars
+    return caseAdjustedTitle.replace(/[-_－＿ ]*$/g, ''); 
   }
 
   static slugifyClassic(title: string): string {
@@ -441,7 +451,6 @@ export class NoteWorkspace {
                 // Insert the selected content in to the new file
                 destinationEditor.edit(edit => {
                   if (destinationEditor) {
-                    console.log(range);
                     if (range.start.character === range.end.character) {
                       edit.insert(destinationEditor.selection.end, noteContents);
                     } else {

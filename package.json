@@ -2,7 +2,7 @@
   "name": "vscode-markdown-notes",
   "displayName": "Markdown Notes",
   "description": "Navigate notes with [[wiki-links]], backlinks, and #tags (like Bear, Roam, etc). Automatically create notes from new inline [[wiki-links]]. Use Peek Definition to preview linked notes.",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "publisher": "kortina",
   "repository": {
     "url": "https://github.com/kortina/vscode-markdown-notes.git",
@@ -121,7 +121,12 @@
         "vscodeMarkdownNotes.newNoteFromSelectionReplacementTemplate": {
           "type": "string",
           "default": "[[${wikiLink}]]",
-          "description": "Template for generated links to notes created from selections. Available tokens: ${wikiLink}, ${noteName}."
+          "description": "After the selection is 'cut' from the active document, replacement text is 'inserted' into its place. Available tokens: ${wikiLink}, ${noteName}. The default insertion is a wiki-link to the new note containing the selected text."
+        },
+        "vscodeMarkdownNotes.lowercaseNewNoteFilenames": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, new note file names will be converted to lowercase. Otherwise, the case will be preserved. Eg: my-new-note.md vs. My-New-Note.md"
         },
         "vscodeMarkdownNotes.compileSuggestionDetails": {
           "type": "boolean",
@@ -197,6 +202,7 @@
     "watch": "tsc -watch -p ./"
   },
   "dependencies": {
+    "@thomaskoppelaar/markdown-it-wikilinks": "^1.3.0",
     "github-slugger": "^1.3.0"
   },
   "devDependencies": {
@@ -225,7 +231,6 @@
     "unified": "^9.0.0",
     "unist-util-find": "^1.0.1",
     "unist-util-visit": "^2.0.2",
-    "@thomaskoppelaar/markdown-it-wikilinks": "1.3.0",
     "vsce": "^1.75.0",
     "vscode-test": "^1.3.0"
   }
