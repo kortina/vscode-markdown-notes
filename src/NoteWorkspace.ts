@@ -68,7 +68,7 @@ type Config = {
 export class NoteWorkspace {
   // Defining these as strings now, and then compiling them with accessor methods.
   // This will allow us to potentially expose these as settings.
-  static _rxTagNoAnchors = '\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
+  static _rxTagNoAnchors = '(?<= |,|^)\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
   static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
@@ -187,7 +187,7 @@ export class NoteWorkspace {
 
   static rxTagNoAnchors(): RegExp {
     // NB: MUST have g flag to match multiple words per line
-    // return /\#[\w\-\_]+/i; // used to match tags that appear within lines
+    // return /(?<= |,|^)\\#[\\w\\-\\_]+/i; // used to match tags that appear within lines
     return new RegExp(this._rxTagNoAnchors, 'gi');
   }
   static rxTagWithAnchors(): RegExp {
