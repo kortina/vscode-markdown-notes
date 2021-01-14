@@ -68,11 +68,13 @@ type Config = {
 export class NoteWorkspace {
   // Defining these as strings now, and then compiling them with accessor methods.
   // This will allow us to potentially expose these as settings.
-  static _rxTagNoAnchors = '(?<= |,|^)\\#[\\w\\-\\_]+'; // used to match tags that appear within lines
-  static _rxTagWithAnchors = '^\\#[\\w\\-\\_]+$'; // used to match entire words
+  // Note for the future: \p{L} is used instead of \w , in order to match to all possible letters
+  // rather than just those from the latin alphabet.
+  static _rxTagNoAnchors = '(?<= |,|^)#[\\p{L}\\-_]+'; // used to match tags that appear within lines
+  static _rxTagWithAnchors = '^#[\\p{L}\\-_]+$'; // used to match entire words
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
-  static _rxMarkdownWordPattern = '([\\_\\w\\#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
+  static _rxMarkdownWordPattern = '([_\\p{L}#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
   static SLUGIFY_NONE = 'NONE';
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
@@ -188,12 +190,12 @@ export class NoteWorkspace {
   static rxTagNoAnchors(): RegExp {
     // NB: MUST have g flag to match multiple words per line
     // return /(?<= |,|^)\\#[\\w\\-\\_]+/i; // used to match tags that appear within lines
-    return new RegExp(this._rxTagNoAnchors, 'gi');
+    return new RegExp(this._rxTagNoAnchors, 'gui');
   }
   static rxTagWithAnchors(): RegExp {
     // NB: MUST have g flag to match multiple words per line
     // return /^\#[\w\-\_]+$/i; // used to match entire words
-    return new RegExp(this._rxTagWithAnchors, 'gi');
+    return new RegExp(this._rxTagWithAnchors, 'gui');
   }
   static rxWikiLink(): RegExp {
     // NB: MUST have g flag to match multiple words per line
@@ -206,7 +208,7 @@ export class NoteWorkspace {
   }
   static rxMarkdownWordPattern(): RegExp {
     // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
-    return new RegExp(this._rxMarkdownWordPattern);
+    return new RegExp(this._rxMarkdownWordPattern, 'u');
   }
   static rxFileExtensions(): RegExp {
     // return noteName.replace(/\.(md|markdown|mdx|fountain)$/i, '');
