@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.22](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.22) (2021-01-24)
+
+**Fixes:**
+
+- #117 add collapse all button to backlinks view - tx @MCluck90
+- #119 Improved tag recognition, Chinese character support using `\p{L}` instead of `\w` - tx @thomaskoppelaar, @frankreporting. Closes #114, #115.
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/311dda9..1dc2e2a
+
 ## [v0.0.21](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.21) (2020-12-01)
 
 **Enhancements:**
