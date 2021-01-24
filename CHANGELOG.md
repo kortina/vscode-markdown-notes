@@ -4,13 +4,15 @@
 
 **Fixes:**
 
-- #117 add collapse all button to backlinks view - tx @MCluck90
-- #119 Improved tag recognition, Chinese character support using `\p{L}` instead of `\w` - tx @thomaskoppelaar, @frankreporting. Closes #114, #115.
+- #117 - add collapse all button to backlinks view - tx @MCluck90
+- #119 - improve tag recognition, Chinese character support using `\p{L}` instead of `\w` - tx @thomaskoppelaar, @frankreporting. Closes #114, #115.
 - upgrade `jest` deps to resolve depandabot alerts
+- #122 - return all suggestions on 'empty' `#` and `[[`. Closes #99.
+- #123 - allow linking to `txt` files - tx @thomaskoppelaar. Closes #107.
 
 **Diff:**
 
-https://github.com/kortina/vscode-markdown-notes/compare/311dda9..e1846a3
+https://github.com/kortina/vscode-markdown-notes/compare/311dda9..b7660f6
 
 ## [v0.0.21](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.21) (2020-12-01)
 
