@@ -1,5 +1,0 @@
-# Text File
-
-text
-
-[[test.md]] - unhandled because filetype if 'plaintext'
