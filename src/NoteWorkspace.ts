@@ -75,7 +75,7 @@ export class NoteWorkspace {
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([_\\p{L}#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
-  static _rxFileExtensions = '\\.(md|markdown|mdx|fountain)$';
+  static _rxFileExtensions = '\\.(md|markdown|mdx|fountain|txt)$';
   static SLUGIFY_NONE = 'NONE';
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
   static NEW_NOTE_WORKSPACE_ROOT = 'WORKSPACE_ROOT';
