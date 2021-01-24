@@ -177,7 +177,7 @@ Many bugfixes from [foam](https://github.com/foambubble/foam) community.
 **Fixes:**
 
 - fix bug where extension functionality would not work when editing files with language `mdx`. #51 closes #45
-- fix bug where `[[Link/Topic]]` would not correctly find note namec `link-topic.md`. tx to @eBerdnA for #52 closes #50
+- fix bug where `[[Link/Topic]]` would not correctly find note name `link-topic.md`. tx to @eBerdnA for #52 closes #50
 - fix bug where all non-ASCII word characters would be replaced with `-` characters. tx to @digiguru for #53 closes #47
 
 **Diff:**
@@ -290,7 +290,7 @@ Tx all for being part of discussion leading up to this release.
 
 **Fixes:**
 
-- typo `markdwon` was causing extension not to work for `.markdown` files (it would only work for `.md` files).
+- typo misspelling markdown was causing extension not to work for `.markdown` files (it would only work for `.md` files).
 
 ## [v0.0.2](https://github.com/kortina/vscode-markdown-notes/releases/tag/v0.0.2) (2020-02-22)
 

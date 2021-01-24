@@ -7,6 +7,11 @@ import { NoteWorkspace } from './NoteWorkspace';
 
 const RETURN_TYPE_VSCODE = 'vscode';
 
+type NoteTitle = {
+  text: string;
+  line: number;
+  contextLine: number; // line number after all empty lines
+};
 type RawPosition = {
   line: number;
   character: number;
@@ -57,13 +62,7 @@ export class Note {
   fsPath: string;
   data: string | undefined;
   refCandidates: Array<RefCandidate> = [];
-  title:
-    | {
-        text: string;
-        line: number;
-        contextLine: number; // line number after all empty lines
-      }
-    | undefined;
+  title: NoteTitle | undefined;
   private _parsed: boolean = false;
   constructor(fsPath: string) {
     this.fsPath = fsPath;

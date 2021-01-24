@@ -177,7 +177,8 @@ line1 word1 word2
 ^ tags at line2 chars 15-19 and 21-32
 [[test.md]] <- link at line4, chars 0-11
 [[demo.md]] <- link at line5, chars 0-11
-#tag word`; // line 5, chars 0-3
+#tag word <- line 5, chars 0-3
+# [[]] [[`; // line 6, empty refs
 
 describe('Note', () => {
   test('Note._rawRangesForWord', () => {

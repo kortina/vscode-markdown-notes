@@ -112,17 +112,28 @@ Returns a Ref with the correct type and 0 length range.
 export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
   // we still need to handle the case where we have the cursor
   // directly after [[ chars with NO letters after the [[
-  let s = new vscode.Position(position.line, position.character - 2); // 2 chars left
-  let r = new vscode.Range(s, position);
-  let precedingChars = document.getText(r);
+  let c = Math.max(0, position.character - 2); // 2 chars left, unless we are at the 0 or 1 char
+  let s = new vscode.Position(position.line, c);
+  let searchRange = new vscode.Range(s, position);
+  let precedingChars = document.getText(searchRange);
+
   if (precedingChars == '[[') {
-    // we do not want the replacement position to include the brackets:
-    r = new vscode.Range(position, position);
     return {
       type: RefType.WikiLink,
-      word: '', // empty string
+      word: '', // just use empty string
       hasExtension: false,
-      range: r, // range,
+      // we DO NOT want the replacement position to include the brackets:
+      range: new vscode.Range(position, position),
+    };
+  }
+  let regex = NoteWorkspace.rxBeginTag();
+  if (precedingChars.match(regex)) {
+    return {
+      type: RefType.Tag,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO want the replacement position to include the #:
+      range: new vscode.Range(position.translate(0, -1), position),
     };
   }
 
