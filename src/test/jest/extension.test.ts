@@ -148,8 +148,7 @@ describe('NoteWorkspace.rx', () => {
     expect(('http://something/ something end #draft'.match(rx) || [])[0]).toEqual('#draft');
     expect(('#draft start'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ #draft.'.match(rx) || [])[0]).toEqual('#draft');
-    // TODO: should this match or not?
-    // expect('[site](http://something/#com).').not.toMatch(rx);
+    expect('[site](http://something/#com).').not.toMatch(rx);
   });
 });
 
