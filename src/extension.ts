@@ -67,6 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.window.onDidChangeActiveTextEditor(() => backlinksTreeDataProvider.reload());
   const treeView = vscode.window.createTreeView('vscodeMarkdownNotesBacklinks', {
     treeDataProvider: backlinksTreeDataProvider,
+    showCollapseAll: true
   });
 
   // See: https://code.visualstudio.com/api/extension-guides/markdown-extension
