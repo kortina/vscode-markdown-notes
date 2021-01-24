@@ -57,11 +57,13 @@ export class Note {
   fsPath: string;
   data: string | undefined;
   refCandidates: Array<RefCandidate> = [];
-  title: {
-    text: string;
-    line: number;
-    contextLine: number; // line number after all empty lines
-  } | undefined;
+  title:
+    | {
+        text: string;
+        line: number;
+        contextLine: number; // line number after all empty lines
+      }
+    | undefined;
   private _parsed: boolean = false;
   constructor(fsPath: string) {
     this.fsPath = fsPath;
@@ -130,7 +132,8 @@ export class Note {
     let isSkip = false;
     let lines = this.data.split(/\r?\n/);
     lines.map((line, lineNum) => {
-      if (isSkip) { // ! skip all empty lines after title `# title`
+      if (isSkip) {
+        // ! skip all empty lines after title `# title`
         if (line.trim() == '') {
           that.title!.contextLine = lineNum;
         } else {
@@ -142,14 +145,13 @@ export class Note {
           that.title = {
             text: '# ' + match[0].trim(),
             line: lineNum,
-            contextLine: lineNum
+            contextLine: lineNum,
           };
           searchTitle = false; // * only search for the first # h1
           isSkip = true;
         });
       }
-      Array.from(line.matchAll(NoteWorkspace.rxTagNoAnchors())).map((match) => {
-
+      Array.from(line.matchAll(NoteWorkspace.rxTag())).map((match) => {
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
       });
       Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
@@ -207,18 +209,22 @@ export class Note {
   // completionItem.documentation ()
   documentation(): string | vscode.MarkdownString | undefined {
     if (this.data === undefined) {
-      return "";
+      return '';
     } else {
       let data = this.data;
-      if (this.title) { // get the portion of the note after the title
-        data = this.data.split(/\r?\n/).slice(this.title.contextLine + 1).join('\n');
+      if (this.title) {
+        // get the portion of the note after the title
+        data = this.data
+          .split(/\r?\n/)
+          .slice(this.title.contextLine + 1)
+          .join('\n');
       }
       if (NoteWorkspace.compileSuggestionDetails()) {
         try {
           let result = new vscode.MarkdownString(data);
           return result;
         } catch (error) {
-          return "";
+          return '';
         }
       } else {
         return data;

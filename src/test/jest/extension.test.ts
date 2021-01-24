@@ -142,17 +142,32 @@ describe('NoteWorkspace.rx', () => {
     expect('Some [[wiki-link.md].').not.toMatch(rx);
   });
 
-  test('rxTagNoAnchors', () => {
-    let rx = NoteWorkspace.rxTagNoAnchors();
+  test('rxTag', () => {
+    let rx = NoteWorkspace.rxTag();
     // preceded by space:
     expect(('http://something/ something #draft middle.'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ something end #draft'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ #draft.'.match(rx) || [])[0]).toEqual('#draft');
+    // preceded by comma:
+    expect((',#draft,'.match(rx) || [])[0]).toEqual('#draft');
     // start of line:
     expect(('#draft start'.match(rx) || [])[0]).toEqual('#draft');
     // the character before the match needs to be a space or start of line:
     expect('[site](http://something/#com).').not.toMatch(rx);
     expect('[site](https://something.com/?q=v#com).').not.toMatch(rx);
+  });
+
+  test('rxBeginTag', () => {
+    let rx = NoteWorkspace.rxBeginTag();
+    // preceded by space:
+    expect((' #...'.match(rx) || [])[0]).toEqual('#');
+    expect((' #draft...'.match(rx) || [])[0]).toEqual('#');
+    // preceded by comma:
+    expect((',#...'.match(rx) || [])[0]).toEqual('#');
+    // start of line:
+    expect(('#...'.match(rx) || [])[0]).toEqual('#');
+    // the character before the match needs to be a space or start of line:
+    expect('https://something.com/?q=v#com').not.toMatch(rx);
   });
 });
 

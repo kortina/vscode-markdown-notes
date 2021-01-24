@@ -70,8 +70,8 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   // Note for the future: \p{L} is used instead of \w , in order to match to all possible letters
   // rather than just those from the latin alphabet.
-  static _rxTagNoAnchors = '(?<= |,|^)#[\\p{L}\\-_]+'; // used to match tags that appear within lines
-  static _rxTagWithAnchors = '^#[\\p{L}\\-_]+$'; // used to match entire words
+  static _rxTag = '(?<= |,|^)#[\\p{L}\\-_]+'; // match # followed by a letter character
+  static _rxBeginTag = '(?<= |,|^)#'; // match # preceded by a space, comma, or newline, regardless of whether it is followed by a letter character
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([_\\p{L}#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
@@ -122,7 +122,9 @@ export class NoteWorkspace {
         'workspaceFilenameConvention'
       ) as WorkspaceFilenameConvention,
       newNoteTemplate: c.get('newNoteTemplate') as string,
-      newNoteFromSelectionReplacementTemplate: c.get('newNoteFromSelectionReplacementTemplate') as string,
+      newNoteFromSelectionReplacementTemplate: c.get(
+        'newNoteFromSelectionReplacementTemplate'
+      ) as string,
       lowercaseNewNoteFilenames: c.get('lowercaseNewNoteFilenames') as boolean,
       compileSuggestionDetails: c.get('compileSuggestionDetails') as boolean,
       triggerSuggestOnReplacement: c.get('triggerSuggestOnReplacement') as boolean,
@@ -154,7 +156,7 @@ export class NoteWorkspace {
   static newNoteFromSelectionReplacementTemplate(): string {
     return this.cfg().newNoteFromSelectionReplacementTemplate;
   }
-  
+
   static lowercaseNewNoteFilenames(): boolean {
     return this.cfg().lowercaseNewNoteFilenames;
   }
@@ -187,19 +189,16 @@ export class NoteWorkspace {
     return this.cfg().previewShowFileExtension;
   }
 
-  static rxTagNoAnchors(): RegExp {
+  static rxTag(): RegExp {
     // NB: MUST have g flag to match multiple words per line
-    // return /(?<= |,|^)\\#[\\w\\-\\_]+/i; // used to match tags that appear within lines
-    return new RegExp(this._rxTagNoAnchors, 'gui');
+    return new RegExp(this._rxTag, 'gui');
   }
-  static rxTagWithAnchors(): RegExp {
-    // NB: MUST have g flag to match multiple words per line
-    // return /^\#[\w\-\_]+$/i; // used to match entire words
-    return new RegExp(this._rxTagWithAnchors, 'gui');
+  static rxBeginTag(): RegExp {
+    return new RegExp(this._rxBeginTag, 'gui');
   }
+
   static rxWikiLink(): RegExp {
     // NB: MUST have g flag to match multiple words per line
-    // return /\[\[[\w\.\-\_\/\\]+/i; // [[wiki-link-regex
     this._rxWikiLink = this._rxWikiLink.replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator());
     return new RegExp(this._rxWikiLink, 'gi');
   }
@@ -207,7 +206,6 @@ export class NoteWorkspace {
     return new RegExp(this._rxTitle, 'gi');
   }
   static rxMarkdownWordPattern(): RegExp {
-    // return /([\#\.\/\\\w_]+)/; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
     return new RegExp(this._rxMarkdownWordPattern, 'u');
   }
   static rxFileExtensions(): RegExp {
@@ -327,12 +325,10 @@ export class NoteWorkspace {
   }
 
   static cleanTitle(title: string): string {
-    const caseAdjustedTitle = this.lowercaseNewNoteFilenames() ? 
-      title.toLowerCase() : 
-      title;
+    const caseAdjustedTitle = this.lowercaseNewNoteFilenames() ? title.toLowerCase() : title;
 
     // removing trailing slug chars
-    return caseAdjustedTitle.replace(/[-_－＿ ]*$/g, ''); 
+    return caseAdjustedTitle.replace(/[-_－＿ ]*$/g, '');
   }
 
   static slugifyClassic(title: string): string {
@@ -421,7 +417,7 @@ export class NoteWorkspace {
       vscode.window.showErrorMessage('Error creating note from selection: selection is empty.');
       return;
     }
-    
+
     // console.debug('newNote');
     const inputBoxPromise = NoteWorkspace.showNewNoteInputBox();
 
@@ -451,7 +447,7 @@ export class NoteWorkspace {
                 destinationEditor.revealRange(range);
 
                 // Insert the selected content in to the new file
-                destinationEditor.edit(edit => {
+                destinationEditor.edit((edit) => {
                   if (destinationEditor) {
                     if (range.start.character === range.end.character) {
                       edit.insert(destinationEditor.selection.end, noteContents);
@@ -464,11 +460,14 @@ export class NoteWorkspace {
 
                 // Replace the selected content in the origin file with a wiki-link to the new file
                 const edit = new vscode.WorkspaceEdit();
-                const wikiLink = NoteWorkspace.wikiLinkCompletionForConvention(destinationUri, originEditor.document);
+                const wikiLink = NoteWorkspace.wikiLinkCompletionForConvention(
+                  destinationUri,
+                  originEditor.document
+                );
 
                 edit.replace(
-                  originEditor.document.uri, 
-                  originSelectionRange, 
+                  originEditor.document.uri,
+                  originSelectionRange,
                   NoteWorkspace.selectionReplacementContent(wikiLink, noteName)
                 );
 
