@@ -40,6 +40,12 @@ export const NULL_REF = {
   range: undefined,
 };
 
+/*
+NB: only returns for non-empty refs, eg,
+  [[l]] or #t
+but not
+  [[ [[]] or #
+*/
 export function getRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
   let ref: string;
   let regex: RegExp;
@@ -50,7 +56,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   // let currentNode = rp.getNodeAtPosition(position);
 
   // #tag regexp
-  regex = NoteWorkspace.rxTagNoAnchors();
+  regex = NoteWorkspace.rxTag();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
     // here we do nothing to modify the range because the replacements
@@ -94,6 +100,52 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   }
 
   return NULL_REF;
+}
+
+/* 
+Similar to getRefAt, but handles the 'empty' Ref cases,
+  [[ and #
+    ^     ^
+when they are not followed by any letter chars.
+Returns a Ref with the correct type and 0 length range.
+*/
+export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
+  // we still need to handle the case where we have the cursor
+  // directly after [[ chars with NO letters after the [[
+  let c = Math.max(0, position.character - 2); // 2 chars left, unless we are at the 0 or 1 char
+  let s = new vscode.Position(position.line, c);
+  let searchRange = new vscode.Range(s, position);
+  let precedingChars = document.getText(searchRange);
+
+  if (precedingChars == '[[') {
+    return {
+      type: RefType.WikiLink,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO NOT want the replacement position to include the brackets:
+      range: new vscode.Range(position, position),
+    };
+  }
+  let regex = NoteWorkspace.rxBeginTag();
+  if (precedingChars.match(regex)) {
+    return {
+      type: RefType.Tag,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO want the replacement position to include the #:
+      range: new vscode.Range(position.translate(0, -1), position),
+    };
+  }
+
+  return NULL_REF;
+}
+
+export function getRefOrEmptyRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
+  let ref = getRefAt(document, position);
+  if (ref.type == RefType.Null) {
+    ref = getEmptyRefAt(document, position);
+  }
+  return ref;
 }
 
 export const refHasExtension = (word: string): boolean => {

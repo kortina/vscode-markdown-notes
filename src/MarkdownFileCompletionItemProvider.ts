@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RefType, getRefAt } from './Ref';
+import { RefType, getRefOrEmptyRefAt } from './Ref';
 import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 
@@ -24,7 +24,7 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
     _token: vscode.CancellationToken,
     context: vscode.CompletionContext
   ) {
-    const ref = getRefAt(document, position);
+    const ref = getRefOrEmptyRefAt(document, position);
     switch (ref.type) {
       case RefType.Null:
         return [];
