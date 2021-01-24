@@ -1,0 +1,5 @@
+# Text File
+
+text
+
+[[test.md]] - unhandled because filetype is 'plaintext'
