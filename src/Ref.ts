@@ -93,6 +93,22 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
     }
   }
 
+  // we still need to handle the case where we have the cursor
+  // directly after [[ chars with NO letters after the [[
+  let s = new vscode.Position(position.line, position.character - 2); // 2 chars left
+  let r = new vscode.Range(s, position);
+  let maybeBrackets = document.getText(r);
+  if (maybeBrackets == '[[') {
+    // we do not want the replacement position to include the brackets:
+    r = new vscode.Range(position, position);
+    return {
+      type: RefType.WikiLink,
+      word: '', // empty string
+      hasExtension: false,
+      range: r, // range,
+    };
+  }
+
   return NULL_REF;
 }
 
