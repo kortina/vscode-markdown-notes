@@ -23,7 +23,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     token: vscode.CancellationToken
   ) {
     const ref = getRefAt(document, position);
-    if (ref.type != RefType.WikiLink) {
+    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
       return [];
     }
 
@@ -96,7 +96,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
 
   static createMissingNote = (ref: Ref): string | undefined => {
     // don't create new files if ref is a Tag
-    if (ref.type != RefType.WikiLink) {
+    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
       return;
     }
     if (!NoteWorkspace.createNoteOnGoToDefinitionWhenMissing()) {

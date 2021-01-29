@@ -8,5 +8,6 @@
 - [[sub.md]] - exists in sub directory
 - [[extension test mirror]]
 - [[extension-test-mirror.md]]
+- [](test) - hyperlink (should show up in the backlinks panel)
 
 #tag #another_tag

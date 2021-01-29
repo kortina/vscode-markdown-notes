@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { NoteParser } from './NoteParser';
+import { RefType } from './Ref';
 
 type FileWithLocations = {
   file: string;
@@ -95,7 +96,12 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
     // Parse the workspace into list of FilesWithLocations
     // Return 1 collapsible element per file
     if (!element) {
-      return NoteParser.searchBacklinksFor(activeFilename).then((locations) => {
+      return Promise.all(
+      [ NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink), 
+        NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink)])
+      .then((arr) => {
+
+        let locations: vscode.Location[]  = arr[0].concat(arr[1]);
         let filesWithLocations = BacklinksTreeDataProvider.locationListToTree(locations);
         return filesWithLocations.map((fwl) => BacklinkItem.fromFileWithLocations(fwl));
       });

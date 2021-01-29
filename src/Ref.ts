@@ -14,6 +14,7 @@ export enum RefType {
   Null, // 0
   WikiLink, // 1
   Tag, // 2
+  Hyperlink, // 3
 }
 
 export interface Ref {
@@ -97,6 +98,23 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
         range: r, // range,
       };
     }
+  }
+
+
+  regex = NoteWorkspace.rxMarkdownHyperlink();
+  range = document.getWordRangeAtPosition(position, regex);
+  if (range) {
+      ref = document.getText(range);
+      ref = ref.replace(/\[[^\[\]]*\]/, '');
+      ref = ref.replace(/\(|\)/g,'');
+      console.log(ref);
+
+      return {
+          type: RefType.Hyperlink,
+          word: ref,
+          hasExtension: refHasExtension(ref),
+          range: range,
+      };
   }
 
   return NULL_REF;
