@@ -39,6 +39,15 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           return item;
         });
       case RefType.Hyperlink:
+        return (await NoteWorkspace.noteFiles()).map((f) => {
+            let kind = vscode.CompletionItemKind.File;
+            let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
+            let item = new MarkdownFileCompletionItem(label, kind, f.fsPath);
+            if (ref && ref.range) {
+              item.range = ref.range;
+            }
+            return item;
+          });
       case RefType.WikiLink:
         return (await NoteWorkspace.noteFiles()).map((f) => {
           let kind = vscode.CompletionItemKind.File;
