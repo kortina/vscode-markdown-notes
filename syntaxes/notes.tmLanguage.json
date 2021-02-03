@@ -29,6 +29,18 @@
           "name": "support.function.text.markdown.notes.tag.title"
         }
       }
+    },
+    {
+      "match": "(?<= |,|^)(\\@)([\\p{L}\\d\\-_]+)",
+      "name": "text.markdown.notes.bibtex",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.bibtex"
+        },
+        "2": {
+          "name": "support.function.text.markdown.notes.bibtex.key"
+        }
+      }
     }
   ],
   "scopeName": "text.markdown.notes"

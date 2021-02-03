@@ -4,6 +4,7 @@ import { NoteWorkspace } from './NoteWorkspace';
 import { basename, dirname, join, resolve } from 'path';
 import { existsSync, writeFileSync } from 'fs';
 import { titleCaseFromFilename } from './utils';
+import { BibTeXCitations } from './BibTeXCitations';
 
 // Given a document and position, check whether the current word matches one of
 // this context: [[wiki-link]]
@@ -23,6 +24,9 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     token: vscode.CancellationToken
   ) {
     const ref = getRefAt(document, position);
+    if (ref.type == RefType.BibTeX) {
+      return await BibTeXCitations.location(ref.word);
+    }
     if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
       return [];
     }

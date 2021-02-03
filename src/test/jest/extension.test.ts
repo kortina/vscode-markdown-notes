@@ -3,6 +3,7 @@ import { foo, NoteWorkspace, PipedWikiLinksSyntax, SlugifyMethod } from '../../N
 import { titleCaseFromFilename } from '../../utils';
 import { Note } from '../../NoteParser';
 import { RefType } from '../../Ref';
+import { BibTeXCitations } from '../../BibTeXCitations';
 // import { config } from 'process';
 
 jest.mock('../../NoteWorkspace');
@@ -23,6 +24,11 @@ beforeEach(() => {
   NoteWorkspace.cfg = () => {
     return NoteWorkspace.DEFAULT_CONFIG;
   };
+  BibTeXCitations.cfg = () => {
+    return {
+      bibTeXFilePath: "test/library.bib"
+    }
+  }
 });
 
 test('foo', () => {
@@ -183,6 +189,51 @@ describe('NoteWorkspace.rx', () => {
     // link to a website:
     expect('Some link to [google](https://google.com).').not.toMatch(rx);
   });
+});
+
+describe('BibTeXCitations', () => {
+  test("rxBibTeX", () => {
+    let rx = BibTeXCitations.rxBibTeX();
+
+    // start of line
+    expect(("@reference".match(rx) || [])[0]).toEqual("@reference");
+    expect(("@author_title_2010".match(rx) || [])[0]).toEqual(
+      "@author_title_2010"
+    );
+
+    // preceded by space:
+    expect(
+      ("http://something/ something @ref middle.".match(rx) || [])[0]
+    ).toEqual("@ref");
+    expect(("http://something/ something end @ref".match(rx) || [])[0]).toEqual(
+      "@ref"
+    );
+
+    // preceded by comma:
+    expect((",@ref,".match(rx) || [])[0]).toEqual("@ref");
+
+    // at the end of sentence
+    expect(("some @reference. another".match(rx) || [])[0]).toEqual("@reference")
+
+    // at the end of string
+    expect(("some @reference.".match(rx) || [])[0]).toEqual("@reference")
+
+    // inside brackets with name supression
+    expect(("some [-@reference]".match(rx) || [])[0]).toEqual("@reference")
+
+    // do not match email address
+    expect("name@domain.com").not.toMatch(rx);
+  });
+
+  test("references", async () => {
+    const refs = await BibTeXCitations.citations()
+    expect(refs).toEqual([
+      "clear_zettelkasten_2020",
+      "kleppmann_designing_2016",
+      "nagel_what_1974",
+      "turing_computing_1950"
+    ])
+  })
 });
 
 let document = `line0 word1

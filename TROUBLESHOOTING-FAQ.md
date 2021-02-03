@@ -5,6 +5,7 @@
     - [What other settings do you recommend when using this extension?](#what-other-settings-do-you-recommend-when-using-this-extension)
     - [Troubleshooting Checklist](#troubleshooting-checklist)
     - [New note is not working - why?](#new-note-is-not-working---why)
+    - [How can I disable syntax highlighting for `@words` / pandoc-style citations?](#how-can-i-disable-syntax-highlighting-for-words--pandoc-style-citations)
     - [Known Issues](#known-issues)
 
 ### Autocomplete / Intellisense is not working - why?
@@ -45,6 +46,23 @@ _Before filing a new issue, please try to verify if this is a workspace / config
 ### New note is not working - why?
 
 New Note works only when you are in a workspace. Look [here](https://stackoverflow.com/questions/44629890/what-is-a-workspace-in-visual-studio-code) for more information on workspaces in VS Code.
+
+### How can I disable syntax highlighting for `@words` / pandoc-style citations?
+
+If you wish to turn off the syntax highlighting for [pandoc-style citations](https://pandoc.org/MANUAL.html#extension-citations) which use the same syntax as `@username` handles (e.g. GitHub or Twitter), you can do so by overriding the color in your settings:
+
+```json
+"editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "scope": "support.function.text.markdown.notes.bibtex.key",
+      "settings": {
+        "foreground": "#ffffff"
+      }
+    },
+  ],
+}
+```
 
 ### Known Issues
 

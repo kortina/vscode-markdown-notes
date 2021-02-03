@@ -74,7 +74,7 @@ export class NoteWorkspace {
   static _rxBeginTag = '(?<= |,|^)#'; // match # preceded by a space, comma, or newline, regardless of whether it is followed by a letter character
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
-  static _rxMarkdownWordPattern = '([_\\p{L}#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
+  static _rxMarkdownWordPattern = '([_\\p{L}\\d#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
   static _rxMarkdownHyperlink = '\\[[^\\[\\]]*\\]\\((?!https?)[^\\(\\)\\[\\] ]+\\)'; // [description](hyperlink-to-file.md), ensuring the link doesn't start with http(s)
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain|txt)$';
   static SLUGIFY_NONE = 'NONE';
