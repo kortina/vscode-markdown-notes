@@ -96,7 +96,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
 
   static createMissingNote = (ref: Ref): string | undefined => {
     // don't create new files if ref is a Tag
-    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
+    if (ref.type != RefType.WikiLink) {
       return;
     }
     if (!NoteWorkspace.createNoteOnGoToDefinitionWhenMissing()) {
