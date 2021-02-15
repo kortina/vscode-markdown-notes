@@ -135,7 +135,7 @@ export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Po
   let searchRange = new vscode.Range(s, position);
   let precedingChars = document.getText(searchRange);
 
-  if (precedingChars == '[[' || precedingChars == '](') {
+  if (precedingChars == '[[') {
     return {
       type: RefType.WikiLink,
       word: '', // just use empty string

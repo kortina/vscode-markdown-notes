@@ -169,6 +169,20 @@ describe('NoteWorkspace.rx', () => {
     // the character before the match needs to be a space or start of line:
     expect('https://something.com/?q=v#com').not.toMatch(rx);
   });
+
+  test('rxMarkdownHyperlink', () => {
+    let rx = NoteWorkspace.rxMarkdownHyperlink();
+    // "regular" use of link:
+    expect(('Some link to [test](test.md).'.match(rx)|| [])[0]).toEqual('[test](test.md)');
+    // no description:
+    expect(('Some link to [](test.md).'.match(rx) || [])[0]).toEqual('[](test.md)');
+
+    // empty link:
+    expect('Some link to nowhere []().').not.toMatch(rx);
+
+    // link to a website:
+    expect('Some link to [google](https://google.com).').not.toMatch(rx);
+  });
 });
 
 let document = `line0 word1
@@ -177,8 +191,10 @@ line1 word1 word2
 ^ tags at line2 chars 15-19 and 21-32
 [[test.md]] <- link at line4, chars 0-11
 [[demo.md]] <- link at line5, chars 0-11
-#tag word <- line 5, chars 0-3
-# [[]] [[`; // line 6, empty refs
+#tag word <- line 6, chars 0-3
+# [[]] [[ <- line 7, empty refs
+[](test-hyperlink.md) <- link at line8, chars 0-11
+[]() [](`; // line 9, empty refs
 
 describe('Note', () => {
   test('Note._rawRangesForWord', () => {
@@ -214,6 +230,16 @@ describe('Note', () => {
     ranges = Note.fromData(document)._rawRangesForWord(w);
     expect(ranges).toMatchObject([
       { start: { line: 2, character: 20 }, end: { line: 2, character: 32 } },
+    ]);
+    w = {
+        word: 'test-hyperlink.md',
+        hasExtension: true,
+        type: RefType.Hyperlink,
+        range: undefined,
+    };
+    ranges = Note.fromData(document)._rawRangesForWord(w);
+    expect(ranges).toMatchObject([
+        { start: {line: 8, character: 0}, end: {line: 8, character: 21} },
     ]);
   });
 
