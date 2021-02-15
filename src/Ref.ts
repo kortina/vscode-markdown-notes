@@ -105,9 +105,13 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
       ref = document.getText(range);
+      // remove the [description] from the hyperlink
       ref = ref.replace(/\[[^\[\]]*\]/, '');
+
+      // remove the () surrounding the link
       ref = ref.replace(/\(|\)/g,'');
-      console.log(ref);
+
+      // e.g. [desc](link.md) gets turned into link.md
 
       return {
           type: RefType.Hyperlink,
