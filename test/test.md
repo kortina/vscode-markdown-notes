@@ -8,5 +8,6 @@
 - [[sub.md]] - exists in sub directory
 - [[extension test mirror]]
 - [[extension-test-mirror.md]]
+- [](test) - hyperlink (should show up in the backlinks panel) - Note: autocompletion or file creation is not handled by this extension.
 
 #tag #another_tag

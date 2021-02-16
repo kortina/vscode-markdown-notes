@@ -48,6 +48,8 @@ class RefCandidate {
       return this.rawText == `#${ref.word}`;
     } else if (ref.type == RefType.WikiLink) {
       return NoteWorkspace.noteNamesFuzzyMatchText(this.rawText, ref.word);
+    } else if (ref.type == RefType.Hyperlink) {
+      return NoteWorkspace.noteNamesFuzzyMatchHyperlinks(this.rawText, ref.word);
     }
     return false;
   }
@@ -158,6 +160,9 @@ export class Note {
 
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
+      Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
+      });
     });
     // console.debug(`parsed ${this.fsPath}. refCandidates:`, this.refCandidates);
     this._parsed = true;
@@ -179,7 +184,7 @@ export class Note {
     if (!ref) {
       return [];
     }
-    if (![RefType.Tag, RefType.WikiLink].includes(ref.type)) {
+    if (![RefType.Tag, RefType.WikiLink, RefType.Hyperlink].includes(ref.type)) {
       return [];
     }
     return this.refCandidates.filter((c) => c.matchesContextWord(ref)).map((c) => c.range);
@@ -251,9 +256,9 @@ export class NoteParser {
     return Array.from(new Set(_tags));
   }
 
-  static async searchBacklinksFor(fileBasename: string): Promise<vscode.Location[]> {
+  static async searchBacklinksFor(fileBasename: string, refType: RefType): Promise<vscode.Location[]> {
     let ref: Ref = {
-      type: RefType.WikiLink,
+      type: refType,
       hasExtension: true,
       word: fileBasename,
       range: undefined,
@@ -310,6 +315,8 @@ export class NoteParser {
       query = `#${ref.word}`;
     } else if (ref.type == RefType.WikiLink) {
       query = `[[${basename(ref.word)}]]`;
+    } else if (ref.type == RefType.Hyperlink) {
+      query = `](${basename(ref.word)})`;
     } else {
       return [];
     }

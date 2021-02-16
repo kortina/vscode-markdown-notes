@@ -23,7 +23,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     token: vscode.CancellationToken
   ) {
     const ref = getRefAt(document, position);
-    if (ref.type != RefType.WikiLink) {
+    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
       return [];
     }
 

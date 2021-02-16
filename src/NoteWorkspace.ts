@@ -75,6 +75,7 @@ export class NoteWorkspace {
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([_\\p{L}#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
+  static _rxMarkdownHyperlink = '\\[[^\\[\\]]*\\]\\((?!https?)[^\\(\\)\\[\\] ]+\\)'; // [description](hyperlink-to-file.md), ensuring the link doesn't start with http(s)
   static _rxFileExtensions = '\\.(md|markdown|mdx|fountain|txt)$';
   static SLUGIFY_NONE = 'NONE';
   static NEW_NOTE_SAME_AS_ACTIVE_NOTE = 'SAME_AS_ACTIVE_NOTE';
@@ -213,6 +214,10 @@ export class NoteWorkspace {
     return new RegExp(this._rxFileExtensions, 'i');
   }
 
+  static rxMarkdownHyperlink(): RegExp {
+      return new RegExp(this._rxMarkdownHyperlink, 'gi');
+  }
+
   static wikiLinkCompletionForConvention(
     uri: vscode.Uri,
     fromDocument: vscode.TextDocument
@@ -297,6 +302,7 @@ export class NoteWorkspace {
   static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
+    
     // remove the potential description:
     n = this.cleanPipedWikiLink(n);
     // remove the extension:
@@ -306,6 +312,23 @@ export class NoteWorkspace {
     return n;
   }
 
+
+  // compare a hyperlink to a filename for a fuzzy match.
+  // `left` is the ref word, `right` is the file name
+  static noteNamesFuzzyMatchHyperlinks(left: string, right: string): boolean {
+
+      // strip markdown link syntax; remove the [description]
+      left = left.replace(/\[[^\[\]]*\]/g,'');
+      // and the () surrounding the link
+      left = left.replace(/\(|\)/g, '');
+
+     
+      return (
+        this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
+        this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+      );
+
+  }
   // Compare 2 wiki-links for a fuzzy match.
   // In general, we expect
   // `left` to be fsPath
