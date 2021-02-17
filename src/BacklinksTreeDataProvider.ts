@@ -96,12 +96,11 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
     // Parse the workspace into list of FilesWithLocations
     // Return 1 collapsible element per file
     if (!element) {
-      return Promise.all(
-      [ NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink), 
-        NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink)])
-      .then((arr) => {
-
-        let locations: vscode.Location[]  = arr[0].concat(arr[1]);
+      return Promise.all([
+        NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink),
+        NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink),
+      ]).then((arr) => {
+        let locations: vscode.Location[] = arr[0].concat(arr[1]);
         let filesWithLocations = BacklinksTreeDataProvider.locationListToTree(locations);
         return filesWithLocations.map((fwl) => BacklinkItem.fromFileWithLocations(fwl));
       });
@@ -160,6 +159,13 @@ class BacklinkItem extends vscode.TreeItem {
 
   get tooltip(): string {
     return this.description;
+  }
+
+  // TODO: something different when this is file vs a reference node under that file....
+  get accessibilityInformation(): string {
+    let d = this.description;
+    let extra = !['', null, undefined].includes(d) ? `: ${d}` : '';
+    return `${this.label}${extra}`;
   }
 
   get description(): string {
