@@ -184,7 +184,8 @@ class BacklinkItem extends vscode.TreeItem {
       }
       return line.substr(s);
     } else if (this.locations) {
-      d = `${this.locations?.length} References`;
+      let r = this.locations?.length == 1 ? 'Reference' : 'References';
+      d = `${this.locations?.length} ${r}`;
     }
     return d;
   }
