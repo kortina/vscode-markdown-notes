@@ -110,7 +110,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
         );
         return;
       }
-      const title = titleCaseFromFilename(ref.word);
+      const title = NoteWorkspace.stripExtension(ref.word);
       const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(title);
       return filepath;
     }
