@@ -96,19 +96,20 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
     // Parse the workspace into list of FilesWithLocations
     // Return 1 collapsible element per file
     if (!element) {
-      return Promise.all(
-      [ NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink), 
-        NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink)])
-      .then((arr) => {
-
-        let locations: vscode.Location[]  = arr[0].concat(arr[1]);
+      return Promise.all([
+        NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink),
+        NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink),
+      ]).then((arr) => {
+        let locations: vscode.Location[] = arr[0].concat(arr[1]);
         let filesWithLocations = BacklinksTreeDataProvider.locationListToTree(locations);
         return filesWithLocations.map((fwl) => BacklinkItem.fromFileWithLocations(fwl));
       });
       // Given the collapsible elements,
       // return the children, 1 for each location within the file
     } else if (element && element.locations) {
-      return Promise.resolve(element.locations.map((l) => BacklinkItem.fromLocation(l)));
+      return Promise.resolve(
+        element.locations.map((l) => BacklinkItem.fromLocation(l, element.filename))
+      );
     } else {
       return Promise.resolve([]);
     }
@@ -120,9 +121,11 @@ class BacklinkItem extends vscode.TreeItem {
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public locations?: vscode.Location[],
-    private location?: vscode.Location
+    private location?: vscode.Location,
+    public filename?: string
   ) {
     super(label, collapsibleState);
+    this.filename = filename || '';
   }
 
   // return the 1 collapsible Item for each file
@@ -130,16 +133,16 @@ class BacklinkItem extends vscode.TreeItem {
   static fromFileWithLocations(fwl: FileWithLocations): BacklinkItem {
     let label = fwl.file;
     let cs = vscode.TreeItemCollapsibleState.Expanded;
-    return new BacklinkItem(label, cs, fwl.locations, undefined);
+    return new BacklinkItem(label, cs, fwl.locations, undefined, fwl.file);
   }
 
   // items for the locations within files
-  static fromLocation(location: vscode.Location): BacklinkItem {
+  static fromLocation(location: vscode.Location, filename?: string): BacklinkItem {
     // location / range is 0-indexed, but editor lines are 1-indexed
     let lineNum = location.range.start.line + 1;
     let label = `${lineNum}:`; // path.basename(location.uri.fsPath);
     let cs = vscode.TreeItemCollapsibleState.None;
-    return new BacklinkItem(label, cs, undefined, location);
+    return new BacklinkItem(label, cs, undefined, location, filename);
   }
 
   get command(): vscode.Command | undefined {
@@ -159,7 +162,13 @@ class BacklinkItem extends vscode.TreeItem {
   }
 
   get tooltip(): string {
-    return this.description;
+    return [this.filename, this.lineText, this.description].filter(Boolean).join(': ');
+  }
+
+  get lineText(): string | undefined {
+    if (this.location) {
+      return `line ${this.location?.range.start.line}`;
+    }
   }
 
   get description(): string {
@@ -175,7 +184,8 @@ class BacklinkItem extends vscode.TreeItem {
       }
       return line.substr(s);
     } else if (this.locations) {
-      d = `${this.locations?.length} References`;
+      let r = this.locations?.length == 1 ? 'Reference' : 'References';
+      d = `${this.locations?.length} ${r}`;
     }
     return d;
   }
