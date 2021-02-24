@@ -3,11 +3,13 @@ A `Ref` is a match for:
 
 - a [[wiki-link]]
 - a #tag
+- a @bibtex-citations
 
 in the content of a Note document in your workspace.
 
 */
 import * as vscode from 'vscode';
+import { BibTeXCitations } from './BibTeXCitations';
 import { NoteWorkspace } from './NoteWorkspace';
 
 export enum RefType {
@@ -15,6 +17,7 @@ export enum RefType {
   WikiLink, // 1
   Tag, // 2
   Hyperlink, // 3
+  BibTeX, // 4
 }
 
 export interface Ref {
@@ -43,9 +46,9 @@ export const NULL_REF = {
 
 /*
 NB: only returns for non-empty refs, eg,
-  [[l]] or #t
+  [[l]] #t or @b
 but not
-  [[ [[]] or #
+  [[ [[]] # b@ or @
 */
 export function getRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
   let ref: string;
@@ -100,7 +103,6 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
     }
   }
 
-
   regex = NoteWorkspace.rxMarkdownHyperlink();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
@@ -119,6 +121,22 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
           hasExtension: refHasExtension(ref),
           range: range,
       };
+  }
+
+  if (BibTeXCitations.isBibtexFileConfigured()) {
+    regex = BibTeXCitations.rxBibTeX();
+    range = document.getWordRangeAtPosition(position, regex);
+    if (range) {
+      ref = document.getText(range);
+      if (ref) {
+        return {
+          type: RefType.BibTeX,
+          word: ref.replace(/^\@+/, ""),
+          hasExtension: null,
+          range: range,
+        };
+      }
+    }
   }
 
   return NULL_REF;

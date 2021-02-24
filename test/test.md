@@ -11,3 +11,5 @@
 - [](test) - hyperlink (should show up in the backlinks panel) - Note: autocompletion or file creation is not handled by this extension.
 
 #tag #another_tag
+
+An article by @turing_computing_1950

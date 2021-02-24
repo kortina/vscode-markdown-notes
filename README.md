@@ -1,6 +1,6 @@
 # Markdown Notes for VS Code
 
-Use `[[wiki-links]]`, `backlinks`, and `#tags` for fast-navigation of markdown notes.
+Use `[[wiki-links]]`, `backlinks`, `#tags` and `@bibtex-citations` for fast-navigation of markdown notes.
 
 Automatically create notes from new inline `[[wiki-links]]`.
 
@@ -25,6 +25,10 @@ You can configure piped wiki-link syntax to use either `[[file|description]]`, o
 ### #tags
 
 Syntax highlighting for `#tags`.
+
+### @bibtex-citations
+
+Use [pandoc-style](https://pandoc.org/MANUAL.html#extension-citations) citations in your notes (eg `@author_title_year`) to get syntax highlighting, autocompletion and go to definition, if you setup a global [BibTeX file](http://www.bibtex.org/Format/) with your references.
 
 ### New Note Command
 
@@ -55,6 +59,10 @@ NB: there is also a command `vscodeMarkdownNotes.newNoteFromSelection` which wil
 
 ![completion-relative-paths](demo/completion-relative-paths.gif)
 
+#### Intellisense Completion for BibTeX Citations
+
+![citations-completion](demo/citations-completion.png)
+
 ### Backlinks Explorer Panel
 
 ![backlinks](demo/backlinks.gif)
@@ -74,6 +82,10 @@ NB: there is also a command `vscodeMarkdownNotes.newNoteFromSelection` which wil
 #### Peek References to Tag
 
 ![peek-references-tag](demo/peek-references-tag.png)
+
+#### Peek Definition for BibTeX Citations
+
+![citations-definition](demo/citations-peek-definition.png)
 
 #### Find All References to Wiki Links
 
