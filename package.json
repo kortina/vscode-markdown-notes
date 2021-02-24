@@ -177,7 +177,7 @@
         "vscodeMarkdownNotes.bibtexFilePath": {
           "type": "string",
           "default": "",
-          "description": "Path to a global BibTex file that will provide autocompletion for @bibtex-citations"
+          "description": "Absolute or current workspace relative path to a BibTeX file that will provide autocompletion for @bibtex-citations."
         }
       }
     },

@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { readFile, existsSync } from "fs";
 
 type Config = {
@@ -17,7 +17,7 @@ export class BibTeXCitations {
   }
 
   static isBibtexFileConfigured(): Boolean {
-    return existsSync(this.cfg().bibTeXFilePath)
+    return existsSync(this.bibTexFilePath());
   }
 
   static rxBibTeX(): RegExp {
@@ -34,15 +34,31 @@ export class BibTeXCitations {
       if (pos == null) {
         return Promise.reject("Cannot get location");
       } else {
-        const uri = vscode.Uri.file(this.cfg().bibTeXFilePath);
+        const uri = vscode.Uri.file(this.bibTexFilePath());
         return new vscode.Location(uri, pos);
       }
     });
   }
 
-  private static bibTeXFile(): Promise<string> {
+  private static bibTexFilePath(): string {
     const path = this.cfg().bibTeXFilePath;
-    if (path == null) {
+
+    // Absolute path (Unix and Windows)
+    if (path.startsWith("/") || path.indexOf(":\\") == 1) {
+      return path;
+    }
+
+    // Workspace relative path
+    const folders = vscode.workspace?.workspaceFolders;
+    if (folders && folders.length > 0) {
+      return folders[0].uri.fsPath.toString() + "/" + path;
+    }
+    return path;
+  }
+
+  private static bibTeXFile(): Promise<string> {
+    const path = this.bibTexFilePath();
+    if (path == null || path == "") {
       return Promise.reject("BibTeX file location not set");
     }
 
@@ -62,7 +78,10 @@ export class BibTeXCitations {
     return Array.from(matches).map((x) => x[1]);
   }
 
-  private static position(data: string, citation: string): vscode.Position | null {
+  private static position(
+    data: string,
+    citation: string
+  ): vscode.Position | null {
     let pos = data.match(citation)?.index;
     if (pos == null) {
       return null;
