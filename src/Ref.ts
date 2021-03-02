@@ -106,21 +106,21 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   regex = NoteWorkspace.rxMarkdownHyperlink();
   range = document.getWordRangeAtPosition(position, regex);
   if (range) {
-      ref = document.getText(range);
-      // remove the [description] from the hyperlink
-      ref = ref.replace(/\[[^\[\]]*\]/, '');
+    ref = document.getText(range);
+    // remove the [description] from the hyperlink
+    ref = ref.replace(/\[[^\[\]]*\]/, '');
 
-      // remove the () surrounding the link
-      ref = ref.replace(/\(|\)/g,'');
+    // remove the () surrounding the link
+    ref = ref.replace(/\(|\)/g, '');
 
-      // e.g. [desc](link.md) gets turned into link.md
+    // e.g. [desc](link.md) gets turned into link.md
 
-      return {
-          type: RefType.Hyperlink,
-          word: ref,
-          hasExtension: refHasExtension(ref),
-          range: range,
-      };
+    return {
+      type: RefType.Hyperlink,
+      word: ref,
+      hasExtension: refHasExtension(ref),
+      range: range,
+    };
   }
 
   if (BibTeXCitations.isBibtexFileConfigured()) {
@@ -131,7 +131,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
       if (ref) {
         return {
           type: RefType.BibTeX,
-          word: ref.replace(/^\@+/, ""),
+          word: ref.replace(/^\@+/, ''),
           hasExtension: null,
           range: range,
         };
@@ -144,8 +144,8 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
 
 /* 
 Similar to getRefAt, but handles the 'empty' Ref cases,
-  [[ and #
-    ^     ^
+  [[ and # and @
+    ^     ^     ^
 when they are not followed by any letter chars.
 Returns a Ref with the correct type and 0 length range.
 */
@@ -163,6 +163,15 @@ export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Po
       word: '', // just use empty string
       hasExtension: false,
       // we DO NOT want the replacement position to include the brackets:
+      range: new vscode.Range(position, position),
+    };
+  }
+  if (precedingChars == '@') {
+    return {
+      type: RefType.BibTeX,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO NOT want the replacement position to include the @:
       range: new vscode.Range(position, position),
     };
   }
