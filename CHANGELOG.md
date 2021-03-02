@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.0.23](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.23) (2021-03-02)
+
+**Enhancements:**
+
+- #126 - show Backlinks in the Panel when files link to the current document using a standard markdown hyperlink - tx @thomaskoppelaar. Closes #46.
+- #124 - support Pandoc-style BibTeX citations with syntax highlighting, autocompletion based on a global `.bib` file, and Peek / Go To Definition - tx @Anderas.
+
+**Fixes:**
+
+- #128 - improve tooltip accessibility. Closes #67.
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/cc4f56ec..3fa7d914
+
 ## [v0.0.22](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.22) (2021-01-24)
 
 **Fixes:**
