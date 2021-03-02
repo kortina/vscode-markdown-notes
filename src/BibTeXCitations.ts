@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { readFile, existsSync } from 'fs';
+import { join } from 'path';
 
 type Config = {
   bibTeXFilePath: string;
@@ -51,7 +52,7 @@ export class BibTeXCitations {
     // Workspace relative path
     const folders = vscode.workspace?.workspaceFolders;
     if (folders && folders.length > 0) {
-      return folders[0].uri.fsPath.toString() + '/' + path;
+      return join(folders[0].uri.fsPath.toString(), path);
     }
     return path;
   }
