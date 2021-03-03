@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on: [push, pull_request, workflow_dispatch]
 #   # Triggers the workflow on push or pull request events but only for the master branch
 #   push:
@@ -25,6 +25,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: ls (test)
+        run: ls
+      - name: pwd (test)
+        run: pwd
+      - name: Install
+        run: npm install --dev
       - name: Compile
         run: npm run compile
       - name: Run tests
