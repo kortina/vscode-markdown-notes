@@ -15,7 +15,7 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
-      steps:
+    steps:
       - run: ls
       - run: pwd
       - name: Run tests
