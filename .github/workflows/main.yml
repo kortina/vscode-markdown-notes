@@ -12,9 +12,11 @@ jobs:
         run: npm install --dev
       - name: Compile
         run: npm run compile
-      # test:
-      #   needs: build
-      #   runs-on: ubuntu-latest
-      #   steps:
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+      steps:
+      - run: ls
+      - run: pwd
       - name: Run tests
         run: npm run jest
