@@ -1,6 +1,20 @@
 # Changelog
 
+## [v0.0.24](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.24) (2021-03-22)
+
+**Enhancements:**
+
+-  Distinguish unpiped from piped wikilinks,  `text.markdown.notes.wiki-link.unpiped` from `text.markdown.notes.wiki-link.piped`. For piped, allow different color and formatting for `support.function.text.markdown.notes.wiki-link.title.first` vs `.second` - tx @mrgutkun. Re: #102.
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/3c586476..3c4661c5
+
 ## [v0.0.23](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.23) (2021-03-02)
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/cc4f56ec..3fa7d914
 
 **Enhancements:**
 

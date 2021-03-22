@@ -40,6 +40,7 @@
     "lukakemperle",
     "lukesmurray",
     "mgmeyers",
+    "mrgutkun",
     "nevermind",
     "notetaking",
     "nvalt",
@@ -50,10 +51,12 @@
     "regexes",
     "thomaskoppelaar",
     "unist",
+    "unpiped",
     "vpackage",
     "vpublish",
     "vsce",
     "vsix",
-    "wikilink"
+    "wikilink",
+    "wikilinks"
   ]
 }
