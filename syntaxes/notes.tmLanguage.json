@@ -4,8 +4,8 @@
   "injectionSelector": "L:text.html.markdown",
   "patterns": [
     {
-      "match": "(\\[\\[)([^\\]]+)(\\]\\])",
-      "name": "text.markdown.notes.wiki-link",
+      "match": "(\\[\\[)([^\\|\\]]+)(\\]\\])",
+      "name": "text.markdown.notes.wiki-link.unpiped",
       "captures": {
         "1": {
           "name": "punctuation.definition.wiki-link"
@@ -14,6 +14,27 @@
           "name": "support.function.text.markdown.notes.wiki-link.title"
         },
         "3": {
+          "name": "punctuation.definition.wiki-link"
+        }
+      }
+    },
+    {
+      "match": "(\\[\\[)([^\\]\\|]+)(\\|)([^\\]]+)(\\]\\])",
+      "name": "text.markdown.notes.wiki-link.piped",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.wiki-link"
+        },
+        "2": {
+          "name": "support.function.text.markdown.notes.wiki-link.title.first"
+        },
+        "3": {
+          "name": "punctuation.definition.wiki-link.pipe"
+        },
+        "4": {
+          "name": "support.function.text.markdown.notes.wiki-link.title.second"
+        },
+        "5": {
           "name": "punctuation.definition.wiki-link"
         }
       }
