@@ -44,3 +44,7 @@ export const titleCaseFromFilename = (filename: string): string => {
       .replace(/\s+/, ' ')
   );
 };
+
+export const padNumber = (val: number, len: number): string => {
+  return val.toString().padStart(len, '0');
+};

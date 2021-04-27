@@ -8,6 +8,7 @@ import { NoteWorkspace } from './NoteWorkspace';
 import { NoteParser } from './NoteParser';
 import { getRefAt, RefType } from './Ref';
 import { pluginSettings } from './MarkdownRenderingPlugin';
+import ZettelkastenUtilities from './ZettelkastenUtilities';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
@@ -47,6 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
     NoteWorkspace.newNote
   );
   context.subscriptions.push(newNoteDisposable);
+  let newIdDisposable = vscode.commands.registerCommand(
+    'vscodeMarkdownNotes.generateNewId',
+    ZettelkastenUtilities.insertId
+  );
+  context.subscriptions.push(newIdDisposable);
   let newNoteFromSelectionDisposable = vscode.commands.registerCommand(
     'vscodeMarkdownNotes.newNoteFromSelection',
     NoteWorkspace.newNoteFromSelection
