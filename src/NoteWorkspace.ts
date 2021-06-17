@@ -520,7 +520,7 @@ export class NoteWorkspace {
         noteDirectory = activePath;
       } else {
         vscode.window.showWarningMessage(
-          `Error. newNoteDirectory was NEW_NOT_SAME_AS_ACTIVE_NOTE but no active note directory found. Using WORKSPACE_ROOT.`
+          `Error. newNoteDirectory was NEW_NOTE_SAME_AS_ACTIVE_NOTE but no active note directory found. Using WORKSPACE_ROOT.`
         );
         noteDirectory = this.NEW_NOTE_WORKSPACE_ROOT;
       }
