@@ -7,7 +7,7 @@ type Config = {
 };
 
 export class BibTeXCitations {
-  static _rxBibTeXInNote = /(?<= |,|^|\[|\[-)@[\p{L}\d\-_]+(?!\(.\S\))/giu;
+  static _rxBibTeXInNote = /(?<= |,|^|\[|\[-|;|-)@[\p{L}\d\-_]+(?!\(.\S\))/giu;
   static _rxBibTeXInLibrary = /^@\S+{(\S+),/gm;
 
   static cfg(): Config {

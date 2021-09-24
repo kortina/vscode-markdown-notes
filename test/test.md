@@ -13,3 +13,14 @@
 #tag #another_tag
 
 An article by @turing_computing_1950
+
+blabla [@turing_computing_1950;@turing_computing_1950;@turing_computing_1950] blabla
+blabla [@turing_computing_1950; @turing_computing_1950; @turing_computing_1950] blabla
+blabla [ @turing_computing_1950; @turing_computing_1950; @turing_computing_1950] blabla
+blabla [ @turing_computing_1950;-@turing_computing_1950; @turing_computing_1950] blabla
+blabla [ @turing_computing_1950; -@turing_computing_1950; @turing_computing_1950] blabla
+blabla [-@turing_computing_1950;@turing_computing_1950;-@turing_computing_1950] blabla
+blabla [@turing_computing_1950] blabla
+blabla [-@turing_computing_1950] blabla
+blabla [ @turing_computing_1950] blabla
+blabla @turing_computing_1950 blabla
