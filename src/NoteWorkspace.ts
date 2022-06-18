@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync } from 'fs';
+import { TextEncoder } from 'util';
 import findNonIgnoredFiles from './findNonIgnoredFiles';
 const GithubSlugger = require('github-slugger');
 const SLUGGER = new GithubSlugger();
@@ -559,7 +560,12 @@ export class NoteWorkspace {
     } else {
       // create the file if it does not exist
       const contents = NoteWorkspace.newNoteContent(noteTitle);
-      writeFileSync(filepath, contents);
+      const edit = new vscode.WorkspaceEdit();
+      const fileUri = vscode.Uri.file(filepath);
+      edit.createFile(fileUri);
+      vscode.workspace.applyEdit(edit).then(() => 
+        vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(contents))
+      );
     }
 
     return {
