@@ -552,11 +552,7 @@ export class NoteWorkspace {
     const filepath = join(noteDirectory, filename);
 
     const fileAlreadyExists = existsSync(filepath);
-    if (fileAlreadyExists) {
-      vscode.window.showWarningMessage(
-        `Error creating note, file at path already exists: ${filepath}`
-      );
-    } else {
+    if (!fileAlreadyExists) {
       // create the file if it does not exist
       const contents = NoteWorkspace.newNoteContent(noteTitle);
       writeFileSync(filepath, contents);
