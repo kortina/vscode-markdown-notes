@@ -70,7 +70,7 @@ export class NoteWorkspace {
   // This will allow us to potentially expose these as settings.
   // Note for the future: \p{L} is used instead of \w , in order to match to all possible letters
   // rather than just those from the latin alphabet.
-  static _rxTag = '(?<= |,|^)#[\\p{L}\\-_]+'; // match # followed by a letter character
+  static _rxTag = '(?<= |,|^)#[\\p{L}\\-_/]+'; // match # followed by a letter character
   static _rxBeginTag = '(?<= |,|^)#'; // match # preceded by a space, comma, or newline, regardless of whether it is followed by a letter character
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';

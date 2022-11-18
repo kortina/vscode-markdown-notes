@@ -152,6 +152,9 @@ describe('NoteWorkspace.rx', () => {
     let rx = NoteWorkspace.rxTag();
     // preceded by space:
     expect(('http://something/ something #draft middle.'.match(rx) || [])[0]).toEqual('#draft');
+    expect(('http://something/ something #draft/tag middle.'.match(rx) || [])[0]).toEqual('#draft/tag');
+    expect(('http://something/ something #draft/tag/id middle.'.match(rx) || [])[0]).toEqual('#draft/tag/id');
+    expect(('http://something/ something #draft /tag/id middle.'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ something end #draft'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ #draft.'.match(rx) || [])[0]).toEqual('#draft');
     // preceded by comma:
@@ -160,7 +163,9 @@ describe('NoteWorkspace.rx', () => {
     expect(('#draft start'.match(rx) || [])[0]).toEqual('#draft');
     // the character before the match needs to be a space or start of line:
     expect('[site](http://something/#com).').not.toMatch(rx);
+    expect('[site](http://something/#com/id).').not.toMatch(rx);
     expect('[site](https://something.com/?q=v#com).').not.toMatch(rx);
+    expect('[site](https://something.com/?q=v#com/id).').not.toMatch(rx);
   });
 
   test('rxBeginTag', () => {
