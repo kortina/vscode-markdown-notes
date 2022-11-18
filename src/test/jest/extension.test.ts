@@ -156,11 +156,14 @@ describe('NoteWorkspace.rx', () => {
     expect(('http://something/ something #draft/tag/id middle.'.match(rx) || [])[0]).toEqual('#draft/tag/id');
     expect(('http://something/ something #draft /tag/id middle.'.match(rx) || [])[0]).toEqual('#draft');
     expect(('http://something/ something end #draft'.match(rx) || [])[0]).toEqual('#draft');
+    expect(('http://something/ something end #draft/id'.match(rx) || [])[0]).toEqual('#draft/id');
     expect(('http://something/ #draft.'.match(rx) || [])[0]).toEqual('#draft');
     // preceded by comma:
     expect((',#draft,'.match(rx) || [])[0]).toEqual('#draft');
+    expect((',#draft/id,'.match(rx) || [])[0]).toEqual('#draft/id');
     // start of line:
     expect(('#draft start'.match(rx) || [])[0]).toEqual('#draft');
+    expect(('#draft/id start'.match(rx) || [])[0]).toEqual('#draft/id');
     // the character before the match needs to be a space or start of line:
     expect('[site](http://something/#com).').not.toMatch(rx);
     expect('[site](http://something/#com/id).').not.toMatch(rx);
