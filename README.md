@@ -142,6 +142,10 @@ To run all tests,
 
 ```sh
 npx jest
+
+# if this fails, you may need to do:
+./node_modules/typescript/bin/tsc -p ./
+npx jest
 ```
 
 All tests are headless.
