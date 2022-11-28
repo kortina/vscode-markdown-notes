@@ -11,7 +11,7 @@
 
 **Diff:**
 
-https://github.com/kortina/vscode-markdown-notes/compare/3fa7d914..c20bd44
+https://github.com/kortina/vscode-markdown-notes/compare/3fa7d914..1911feb
 
 ## [v0.0.24](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.24) (2021-03-22)
 

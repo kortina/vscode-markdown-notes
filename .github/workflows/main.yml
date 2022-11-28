@@ -12,5 +12,5 @@ jobs:
         run: npm install --dev
       - name: Compile
         run: npm run compile
-      - name: Run tests
-        run: npm run jest
+      - name: Run jest tests
+        run: npm run test
