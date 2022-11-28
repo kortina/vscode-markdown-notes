@@ -40,7 +40,7 @@
       }
     },
     {
-      "match": "(\\#)([\\w\\p{L}\\-\\_]+)",
+      "match": "(\\#)([\\w\\p{L}\\-\\_/]+)",
       "name": "text.markdown.notes.tag",
       "captures": {
         "1": {
