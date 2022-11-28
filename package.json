@@ -196,11 +196,10 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
-    "compile": "tsc -p ./",
-    "jest": "jest",
+    "compile": "./node_modules/.bin/tsc -p ./",
     "lint": "eslint -c .eslintrc.js --ext .ts src",
     "pretest": "npm run compile",
-    "test": "jest",
+    "test": "./node_modules/.bin/jest",
     "vpackage": "./node_modules/.bin/vsce package",
     "vpublish": "./node_modules/.bin/vsce publish",
     "vscode:prepublish": "npm run compile",

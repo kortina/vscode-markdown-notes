@@ -141,11 +141,7 @@ to run only the test at that line. NB, you will also need [these bindings](https
 To run all tests,
 
 ```sh
-npx jest
-
-# if this fails, you may need to do:
-./node_modules/typescript/bin/tsc -p ./
-npx jest
+npm run test
 ```
 
 All tests are headless.

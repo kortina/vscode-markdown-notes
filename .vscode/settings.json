@@ -11,7 +11,7 @@
     },
     // jest: test suite
     {
-      "cmd": "npx jest",
+      "cmd": "npm run jest",
       "match": "\\.ts$",
       "name": "s"
     }
