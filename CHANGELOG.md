@@ -6,7 +6,12 @@
 
 - #158 - nested tag syntax highlighting - tx @me-matt
 - #146 - fix typo in error message - tx @movermeyer
+- #152 - fix BibTex citations - tx @josephgarnier
 - merge dependabot updates
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/3fa7d914..c20bd44
 
 ## [v0.0.24](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.24) (2021-03-22)
 
