@@ -1,10 +1,18 @@
 # Changelog
 
+## [v0.0.25](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.25) (2022-11-28)
+
+**Enhancements:**
+
+- #158 - nested tag syntax highlighting - tx @me-matt
+- #146 - fix typo in error message - tx @movermeyer
+- merge dependabot updates
+
 ## [v0.0.24](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.24) (2021-03-22)
 
 **Enhancements:**
 
--  Distinguish unpiped from piped wikilinks,  `text.markdown.notes.wiki-link.unpiped` from `text.markdown.notes.wiki-link.piped`. For piped, allow different color and formatting for `support.function.text.markdown.notes.wiki-link.title.first` vs `.second` - tx @mrgutkun. Re: #102.
+- Distinguish unpiped from piped wikilinks, `text.markdown.notes.wiki-link.unpiped` from `text.markdown.notes.wiki-link.piped`. For piped, allow different color and formatting for `support.function.text.markdown.notes.wiki-link.title.first` vs `.second` - tx @mrgutkun. Re: #102.
 
 **Diff:**
 
@@ -57,7 +65,6 @@ https://github.com/kortina/vscode-markdown-notes/compare/311dda9..b7660f6
 **Diff:**
 
 https://github.com/kortina/vscode-markdown-notes/compare/431084c..4d315eb
-
 
 ## [v0.0.20](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.20) (2020-09-22)
 
