@@ -394,12 +394,12 @@ export class NoteWorkspace {
     const inputBoxPromise = NoteWorkspace.showNewNoteInputBox();
 
     inputBoxPromise.then(
-      (noteName) => {
+      async (noteName) => {
         if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
           // console.debug('Abort: noteName was empty.');
           return false;
         }
-        const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(noteName);
+        const { filepath, fileAlreadyExists } = await NoteWorkspace.createNewNoteFile(noteName);
 
         // open the file:
         vscode.window
@@ -446,12 +446,12 @@ export class NoteWorkspace {
     const inputBoxPromise = NoteWorkspace.showNewNoteInputBox();
 
     inputBoxPromise.then(
-      (noteName) => {
+      async (noteName) => {
         if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
           // console.debug('Abort: noteName was empty.');
           return false;
         }
-        const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(noteName);
+        const { filepath, fileAlreadyExists } = await NoteWorkspace.createNewNoteFile(noteName);
         const destinationUri = vscode.Uri.file(filepath);
 
         // open the file:
@@ -506,7 +506,7 @@ export class NoteWorkspace {
     );
   }
 
-  static createNewNoteFile(noteTitle: string) {
+  static async createNewNoteFile(noteTitle: string) {
     let workspacePath = '';
     if (vscode.workspace.workspaceFolders) {
       workspacePath = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
@@ -563,9 +563,8 @@ export class NoteWorkspace {
       const edit = new vscode.WorkspaceEdit();
       const fileUri = vscode.Uri.file(filepath);
       edit.createFile(fileUri);
-      vscode.workspace.applyEdit(edit).then(() => 
-        vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(contents))
-      );
+      await vscode.workspace.applyEdit(edit);
+      await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(contents));
     }
 
     return {
