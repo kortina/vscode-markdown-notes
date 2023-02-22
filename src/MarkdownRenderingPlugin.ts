@@ -1,6 +1,8 @@
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { NoteWorkspace } from './NoteWorkspace';
 import { RefType, refFromWikiLinkText } from './Ref';
+import { workspace } from 'vscode';
+
 
 // See also: https://github.com/tomleesm/markdown-it-wikilinks
 // Function that returns a filename based on the given wikilink.
@@ -18,8 +20,9 @@ export function PageNameGenerator(label: string) {
   label = NoteWorkspace.stripExtension(label);
 
   // Either use the first result of the cache, or in the case that it's empty use the label to create a path
-  let path: string =
-    results.length != 0 ? results[0].path : NoteWorkspace.noteFileNameFromTitle(label);
+  let path = results.length != 0 ?
+    workspace.asRelativePath(results[0].path, false) :
+    NoteWorkspace.noteFileNameFromTitle(label);
 
   return path;
 }
