@@ -8,7 +8,7 @@ import { workspace } from 'vscode';
 // Function that returns a filename based on the given wikilink.
 // Initially uses filesForWikiLinkRefFromCache() to try and find a matching file.
 // If this fails, it will attempt to make a (relative) link based on the label given.
-export function PageNameGenerator(label: string) {
+function generatePageNameFromLabel(label: string) {
   const ref = refFromWikiLinkText(label);
   const results = MarkdownDefinitionProvider.filesForWikiLinkRefFromCache(ref, null);
 
@@ -28,12 +28,12 @@ export function PageNameGenerator(label: string) {
 }
 
 // Transformation that only gets applied to the page name (ex: the "test-file.md" part of [[test-file.md | Description goes here]]).
-export function postProcessPageName(pageName: string) {
+function postProcessPageName(pageName: string) {
   return NoteWorkspace.stripExtension(pageName);
 }
 
 // Transformation that only gets applied to the link label (ex: the " Description goes here" part of [[test-file.md | Description goes here]])
-export function postProcessLabel(label: string) {
+function postProcessLabel(label: string) {
   // Trim whitespaces
   label = label.trim();
 
@@ -52,15 +52,51 @@ export function postProcessLabel(label: string) {
     case 'label':
       return label;
   }
+  return label;
 }
 
 export function pluginSettings(): any {
-  return require('@thomaskoppelaar/markdown-it-wikilinks')({
-    generatePageNameFromLabel: PageNameGenerator,
-    postProcessPageName: postProcessPageName,
-    postProcessLabel: postProcessLabel,
-    uriSuffix: `.${NoteWorkspace.defaultFileExtension()}`,
-    description_then_file: NoteWorkspace.pipedWikiLinksSyntax() == 'desc|file',
-    separator: NoteWorkspace.pipedWikiLinksSeparator(),
-  });
+  return require("markdown-it-regexp")(
+    new RegExp("\\[\\[([^sep\\]]+)(sep[^sep\\]]+)?\\]\\]".replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator())),
+    (match: any, utils: any) => {
+      let label = '';
+      let pageName = '';
+      let href = '';
+      let htmlAttrs = [];
+      let htmlAttrsString = '';
+      const isSplit = !!match[2];
+      if (isSplit) {
+        if (NoteWorkspace.pipedWikiLinksSyntax() == 'desc|file') {  
+          label = match[1];
+          pageName = generatePageNameFromLabel(match[2].replace(new RegExp(NoteWorkspace.pipedWikiLinksSeparator()), ''));
+        } else {
+          label = match[2].replace(new RegExp(NoteWorkspace.pipedWikiLinksSeparator()), '');
+          pageName = generatePageNameFromLabel(match[1]);
+        }
+        
+      }
+      else {
+        label = match[1];
+        pageName = generatePageNameFromLabel(label);
+      }
+
+      label = postProcessLabel(label);
+      pageName = postProcessPageName(pageName);
+
+      // make sure none of the values are empty
+      if (!label || !pageName) {
+        return match.input;
+      }
+
+      pageName = pageName.replace(/^\/+/g, '');
+      href = "/" + pageName + `.${NoteWorkspace.defaultFileExtension()}`;
+      href = utils.escape(href);
+
+      htmlAttrs.push(`href="${href}"`);
+      htmlAttrs.push(`data-href="${href}"`);
+      htmlAttrsString = htmlAttrs.join(' ');
+      
+      return `<a ${htmlAttrsString}>${label}</a>`;
+    }
+  );
 }
