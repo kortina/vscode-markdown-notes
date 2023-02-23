@@ -56,6 +56,8 @@ function postProcessLabel(label: string) {
 }
 
 export function pluginSettings(): any {
+  // The code below was adapted from @thomaskoppelaar/markdown-it-wikilinks (375ce4650c),
+  // which was a forked version of @jsepia/markdown-it-wikilinks.
   return require("markdown-it-regexp")(
     new RegExp("\\[\\[([^sep\\]]+)(sep[^sep\\]]+)?\\]\\]".replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator())),
     (match: any, utils: any) => {
@@ -93,7 +95,8 @@ export function pluginSettings(): any {
       href = utils.escape(href);
 
       htmlAttrs.push(`href="${href}"`);
-      htmlAttrs.push(`data-href="${href}"`);
+      // The following line is necessary for the wiki-links to work on VSCode's Markdown preview
+      htmlAttrs.push(`data-href="${href}"`); 
       htmlAttrsString = htmlAttrs.join(' ');
       
       return `<a ${htmlAttrsString}>${label}</a>`;
