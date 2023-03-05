@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.0.26](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.26) (2023-03-05)
+
+**Enhancements:**
+
+- #161 - use `vscode` instead of `fs` to create new files - tx @higab85
+- cleanup the docs / jest testing utils
+- merge dependabot updates
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/1911feb..64be797
+
 ## [v0.0.25](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.25) (2022-11-28)
 
 **Enhancements:**
