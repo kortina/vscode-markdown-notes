@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync } from 'fs';
+import { TextEncoder } from 'util';
 import findNonIgnoredFiles from './findNonIgnoredFiles';
 const GithubSlugger = require('github-slugger');
 const SLUGGER = new GithubSlugger();
@@ -393,12 +394,12 @@ export class NoteWorkspace {
     const inputBoxPromise = NoteWorkspace.showNewNoteInputBox();
 
     inputBoxPromise.then(
-      (noteName) => {
+      async (noteName) => {
         if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
           // console.debug('Abort: noteName was empty.');
           return false;
         }
-        const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(noteName);
+        const { filepath, fileAlreadyExists } = await NoteWorkspace.createNewNoteFile(noteName);
 
         // open the file:
         vscode.window
@@ -445,12 +446,12 @@ export class NoteWorkspace {
     const inputBoxPromise = NoteWorkspace.showNewNoteInputBox();
 
     inputBoxPromise.then(
-      (noteName) => {
+      async (noteName) => {
         if (noteName == null || !noteName || noteName.replace(/\s+/g, '') == '') {
           // console.debug('Abort: noteName was empty.');
           return false;
         }
-        const { filepath, fileAlreadyExists } = NoteWorkspace.createNewNoteFile(noteName);
+        const { filepath, fileAlreadyExists } = await NoteWorkspace.createNewNoteFile(noteName);
         const destinationUri = vscode.Uri.file(filepath);
 
         // open the file:
@@ -505,7 +506,7 @@ export class NoteWorkspace {
     );
   }
 
-  static createNewNoteFile(noteTitle: string) {
+  static async createNewNoteFile(noteTitle: string) {
     let workspacePath = '';
     if (vscode.workspace.workspaceFolders) {
       workspacePath = vscode.workspace.workspaceFolders[0].uri.fsPath.toString();
@@ -555,7 +556,11 @@ export class NoteWorkspace {
     if (!fileAlreadyExists) {
       // create the file if it does not exist
       const contents = NoteWorkspace.newNoteContent(noteTitle);
-      writeFileSync(filepath, contents);
+      const edit = new vscode.WorkspaceEdit();
+      const fileUri = vscode.Uri.file(filepath);
+      edit.createFile(fileUri);
+      await vscode.workspace.applyEdit(edit);
+      await vscode.workspace.fs.writeFile(fileUri, new TextEncoder().encode(contents));
     }
 
     return {
