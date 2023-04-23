@@ -1,12 +1,14 @@
 import { MarkdownDefinitionProvider } from './MarkdownDefinitionProvider';
 import { NoteWorkspace } from './NoteWorkspace';
 import { RefType, refFromWikiLinkText } from './Ref';
+import { workspace } from 'vscode';
+
 
 // See also: https://github.com/tomleesm/markdown-it-wikilinks
 // Function that returns a filename based on the given wikilink.
 // Initially uses filesForWikiLinkRefFromCache() to try and find a matching file.
 // If this fails, it will attempt to make a (relative) link based on the label given.
-export function PageNameGenerator(label: string) {
+function generatePageNameFromLabel(label: string) {
   const ref = refFromWikiLinkText(label);
   const results = MarkdownDefinitionProvider.filesForWikiLinkRefFromCache(ref, null);
 
@@ -18,19 +20,20 @@ export function PageNameGenerator(label: string) {
   label = NoteWorkspace.stripExtension(label);
 
   // Either use the first result of the cache, or in the case that it's empty use the label to create a path
-  let path: string =
-    results.length != 0 ? results[0].path : NoteWorkspace.noteFileNameFromTitle(label);
+  let path = results.length != 0 ?
+    workspace.asRelativePath(results[0].path, false) :
+    NoteWorkspace.noteFileNameFromTitle(label);
 
   return path;
 }
 
 // Transformation that only gets applied to the page name (ex: the "test-file.md" part of [[test-file.md | Description goes here]]).
-export function postProcessPageName(pageName: string) {
+function postProcessPageName(pageName: string) {
   return NoteWorkspace.stripExtension(pageName);
 }
 
 // Transformation that only gets applied to the link label (ex: the " Description goes here" part of [[test-file.md | Description goes here]])
-export function postProcessLabel(label: string) {
+function postProcessLabel(label: string) {
   // Trim whitespaces
   label = label.trim();
 
@@ -49,15 +52,54 @@ export function postProcessLabel(label: string) {
     case 'label':
       return label;
   }
+  return label;
 }
 
 export function pluginSettings(): any {
-  return require('@thomaskoppelaar/markdown-it-wikilinks')({
-    generatePageNameFromLabel: PageNameGenerator,
-    postProcessPageName: postProcessPageName,
-    postProcessLabel: postProcessLabel,
-    uriSuffix: `.${NoteWorkspace.defaultFileExtension()}`,
-    description_then_file: NoteWorkspace.pipedWikiLinksSyntax() == 'desc|file',
-    separator: NoteWorkspace.pipedWikiLinksSeparator(),
-  });
+  // The code below was adapted from @thomaskoppelaar/markdown-it-wikilinks (375ce4650c),
+  // which was a forked version of @jsepia/markdown-it-wikilinks.
+  return require("markdown-it-regexp")(
+    new RegExp("\\[\\[([^sep\\]]+)(sep[^sep\\]]+)?\\]\\]".replace(/sep/g, NoteWorkspace.pipedWikiLinksSeparator())),
+    (match: any, utils: any) => {
+      let label = '';
+      let pageName = '';
+      let href = '';
+      let htmlAttrs = [];
+      let htmlAttrsString = '';
+      const isSplit = !!match[2];
+      if (isSplit) {
+        if (NoteWorkspace.pipedWikiLinksSyntax() == 'desc|file') {  
+          label = match[1];
+          pageName = generatePageNameFromLabel(match[2].replace(new RegExp(NoteWorkspace.pipedWikiLinksSeparator()), ''));
+        } else {
+          label = match[2].replace(new RegExp(NoteWorkspace.pipedWikiLinksSeparator()), '');
+          pageName = generatePageNameFromLabel(match[1]);
+        }
+        
+      }
+      else {
+        label = match[1];
+        pageName = generatePageNameFromLabel(label);
+      }
+
+      label = postProcessLabel(label);
+      pageName = postProcessPageName(pageName);
+
+      // make sure none of the values are empty
+      if (!label || !pageName) {
+        return match.input;
+      }
+
+      pageName = pageName.replace(/^\/+/g, '');
+      href = "/" + pageName + `.${NoteWorkspace.defaultFileExtension()}`;
+      href = utils.escape(href);
+
+      htmlAttrs.push(`href="${href}"`);
+      // The following line is necessary for the wiki-links to work on VSCode's Markdown preview
+      htmlAttrs.push(`data-href="${href}"`); 
+      htmlAttrsString = htmlAttrs.join(' ');
+      
+      return `<a ${htmlAttrsString}>${label}</a>`;
+    }
+  );
 }
