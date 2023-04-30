@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.27](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.26) (2023-04-30)
+
+**Fixes:**
+
+- #108 and #186 - fix ENOENT 'rendererLog' by ensuring active document is (1) not untitled and (2) not rendererLog when performing operations on change that require a path on the fs
+- dependabot updates
+
+**Diff:**
+
+https://github.com/kortina/vscode-markdown-notes/compare/64be797..38bc07c4cc
+
 ## [v0.0.26](https://github.com/kortina/vscode-markdown-notes/releases/edit/v0.0.26) (2023-03-05)
 
 **Enhancements:**
