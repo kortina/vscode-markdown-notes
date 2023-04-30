@@ -11,6 +11,21 @@ import { pluginSettings } from './MarkdownRenderingPlugin';
 // import { debug } from 'util';
 // import { create } from 'domain';
 
+function documentPathOK(document: vscode.TextDocument): boolean {
+  if (
+    document.uri.scheme === 'git' ||
+    document.uri.scheme === 'output' ||
+    document.uri.scheme === 'vscode' ||
+    document.uri.scheme === 'debug'
+  ) {
+    return false;
+  }
+  if (document.isUntitled) {
+    return false;
+  }
+  return true;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   // console.debug('vscode-markdown-notes.activate');
   const ds = NoteWorkspace.DOCUMENT_SELECTOR;
@@ -28,7 +43,9 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
-    NoteParser.updateCacheFor(e.document.uri.fsPath);
+    if (documentPathOK(e.document)) {
+      NoteParser.updateCacheFor(e.document.uri.fsPath);
+    }
 
     if (NoteWorkspace.triggerSuggestOnReplacement()) {
       // See discussion on https://github.com/kortina/vscode-markdown-notes/pull/69/
@@ -67,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.window.onDidChangeActiveTextEditor(() => backlinksTreeDataProvider.reload());
   const treeView = vscode.window.createTreeView('vscodeMarkdownNotesBacklinks', {
     treeDataProvider: backlinksTreeDataProvider,
-    showCollapseAll: true
+    showCollapseAll: true,
   });
 
   // See: https://code.visualstudio.com/api/extension-guides/markdown-extension

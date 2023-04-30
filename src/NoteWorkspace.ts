@@ -101,10 +101,8 @@ export class NoteWorkspace {
     previewShowFileExtension: false,
   };
   static DOCUMENT_SELECTOR = [
-    // { scheme: 'file', language: 'markdown' },
-    // { scheme: 'file', language: 'mdx' },
-    { language: 'markdown' },
-    { language: 'mdx' },
+    { scheme: 'file', language: 'markdown' },
+    { scheme: 'file', language: 'mdx' },
   ];
 
   // Cache object to store results from noteFiles() in order to provide a synchronous method to the preview renderer.
@@ -216,7 +214,7 @@ export class NoteWorkspace {
   }
 
   static rxMarkdownHyperlink(): RegExp {
-      return new RegExp(this._rxMarkdownHyperlink, 'gi');
+    return new RegExp(this._rxMarkdownHyperlink, 'gi');
   }
 
   static wikiLinkCompletionForConvention(
@@ -303,7 +301,7 @@ export class NoteWorkspace {
   static normalizeNoteNameForFuzzyMatchText(noteName: string): string {
     // remove the brackets:
     let n = noteName.replace(/[\[\]]/g, '');
-    
+
     // remove the potential description:
     n = this.cleanPipedWikiLink(n);
     // remove the extension:
@@ -313,22 +311,18 @@ export class NoteWorkspace {
     return n;
   }
 
-
   // compare a hyperlink to a filename for a fuzzy match.
   // `left` is the ref word, `right` is the file name
   static noteNamesFuzzyMatchHyperlinks(left: string, right: string): boolean {
+    // strip markdown link syntax; remove the [description]
+    left = left.replace(/\[[^\[\]]*\]/g, '');
+    // and the () surrounding the link
+    left = left.replace(/\(|\)/g, '');
 
-      // strip markdown link syntax; remove the [description]
-      left = left.replace(/\[[^\[\]]*\]/g,'');
-      // and the () surrounding the link
-      left = left.replace(/\(|\)/g, '');
-
-     
-      return (
-        this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
-        this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
-      );
-
+    return (
+      this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
+      this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+    );
   }
   // Compare 2 wiki-links for a fuzzy match.
   // In general, we expect
