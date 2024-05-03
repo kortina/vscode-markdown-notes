@@ -85,6 +85,11 @@
           "default": "",
           "description": "Set regex pattern of unique id for new notes. Defaults to empty string."
         },
+        "vscodeMarkdownNotes.uniqueIdGenerator": {
+          "type": "string",
+          "default": "",
+          "description": "Set string format like YYMMDDHHmmss for generate unique ID when create note file. Defaults to empty string."
+        },
         "vscodeMarkdownNotes.slugifyCharacter": {
           "type": "string",
           "enum": [

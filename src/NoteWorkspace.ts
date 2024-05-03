@@ -3,6 +3,7 @@ import { basename, dirname, isAbsolute, join, normalize, relative } from 'path';
 import { existsSync } from 'fs';
 import { TextEncoder } from 'util';
 import findNonIgnoredFiles from './findNonIgnoredFiles';
+import { count } from 'console';
 const GithubSlugger = require('github-slugger');
 const SLUGGER = new GithubSlugger();
 
@@ -49,6 +50,7 @@ type Config = {
   defaultFileExtension: string;
   noteCompletionConvention: NoteCompletionConvention;
   uniqueIdTemplate: string;
+  uniqueIdGenerator: string;
   slugifyCharacter: SlugifyCharacter;
   slugifyMethod: SlugifyMethod;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
@@ -89,6 +91,7 @@ export class NoteWorkspace {
     defaultFileExtension: 'md',
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
     uniqueIdTemplate: '',
+    uniqueIdGenerator: '',
     slugifyCharacter: SlugifyCharacter.dash,
     slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
@@ -120,6 +123,7 @@ export class NoteWorkspace {
       defaultFileExtension: c.get('defaultFileExtension') as string,
       noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
       uniqueIdTemplate: c.get('uniqueIdTemplate') as string,
+      uniqueIdGenerator: c.get('uniqueIdGenerator') as string,
       slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
       slugifyMethod: c.get('slugifyMethod') as SlugifyMethod,
       workspaceFilenameConvention: c.get(
@@ -144,6 +148,10 @@ export class NoteWorkspace {
   static uniqueIdTemplate(): string {
     return this.cfg().uniqueIdTemplate;
   }
+
+  static uniqueIdGenerator(): string {
+    return this.cfg().uniqueIdGenerator;
+  };
 
   static slugifyChar(): string {
     return this.cfg().slugifyCharacter;
@@ -397,8 +405,41 @@ export class NoteWorkspace {
     }
   }
 
+  static generateUniqueId(): string {
+    let d = new Date();
+    let id = String(this.uniqueIdGenerator())
+      .replace(/YYYY/g, d.getFullYear().toString())
+      .replace(/YY/g, d.getFullYear().toString().slice(-2))
+      .replace(/MM/g, (d.getMonth() + 1).toString().padStart(2, '0'))
+      .replace(/DD/g, d.getDate().toString().padStart(2, '0'))
+      .replace(/HH/g, d.getHours().toString().padStart(2, '0'))
+      .replace(/mm/g, d.getMinutes().toString().padStart(2, '0'))
+      .replace(/ss/g, d.getSeconds().toString().padStart(2, '0'));
+
+    if (id.includes('CC')) {
+      let id_pattern = new RegExp(id.replace(/CC/g, ''));
+
+      // count files path match the id 
+      const files = this.noteFilesFromCache();
+      let count = 0;
+      for (const file of files) {
+        if (file.path.match(id_pattern)) {
+          count++;
+        }
+      }
+
+      id = id.replace(/CC/g, count.toString().padStart(2, '0'));
+    }
+
+    return id;
+  }
+
   static noteFileNameFromTitle(title: string): string {
     let t = this.slugifyTitle(title);
+    if (this.uniqueIdGenerator()) {
+      t = this.generateUniqueId() + this.slugifyChar() + t;
+    }
+
     return t.match(this.rxFileExtensions()) ? t : `${t}.${this.defaultFileExtension()}`;
   }
 
