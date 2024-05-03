@@ -141,6 +141,10 @@ export class NoteWorkspace {
     };
   }
 
+  static uniqueIdTemplate(): string {
+    return this.cfg().uniqueIdTemplate;
+  }
+
   static slugifyChar(): string {
     return this.cfg().slugifyCharacter;
   }
@@ -267,7 +271,7 @@ export class NoteWorkspace {
   }
 
   static normalizeNoteNameToUniqueId(noteName: string): string {
-    let match_result = noteName.match(this.cfg().uniqueIdTemplate);
+    let match_result = noteName.match(this.uniqueIdTemplate());
     console.log(this.cfg().uniqueIdTemplate);
     if (match_result) {
       return match_result[0];
