@@ -65,7 +65,8 @@
           "enum": [
             "rawFilename",
             "noExtension",
-            "toSpaces"
+            "toSpaces",
+            "uniqueId"
           ],
           "default": "rawFilename",
           "description": "When offering completion options for `wiki-note.md`, get `rawFilename` OR `noExtension` (`wiki-link`) or `toSpaces` (`wiki link`). Default is rawFilename. NB: when using workspaceFilenameConvention, only rawFilename is returned."
@@ -78,6 +79,11 @@
           ],
           "default": "uniqueFilenames",
           "description": "By default, expect 'uniqueFilenames' for every `.md` file in workspace and treat `file.md` as link to file in any subdirectory. If you expect collisions in filenames for notes (eg, `note1/note.md` `note2/note.md`) use 'relativePaths' to render links between files."
+        },
+        "vscodeMarkdownNotes.uniqueIdTemplate": {
+          "type": "string",
+          "default": "",
+          "description": "Set regex pattern of unique id for new notes. Defaults to empty string."
         },
         "vscodeMarkdownNotes.slugifyCharacter": {
           "type": "string",
