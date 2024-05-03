@@ -272,7 +272,6 @@ export class NoteWorkspace {
 
   static normalizeNoteNameToUniqueId(noteName: string): string {
     let match_result = noteName.match(this.uniqueIdTemplate());
-    console.log(this.cfg().uniqueIdTemplate);
     if (match_result) {
       return match_result[0];
     } else {
