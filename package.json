@@ -231,7 +231,7 @@
     "remark-wiki-link": "^0.0.4",
     "source-map-support": "^0.5.12",
     "ts-jest": "^29.1.4",
-    "typescript": "^3.8.3",
+    "typescript": "^5.5.2",
     "unified": "^9.0.0",
     "unist-util-find": "^1.0.2",
     "unist-util-visit": "^2.0.2",
