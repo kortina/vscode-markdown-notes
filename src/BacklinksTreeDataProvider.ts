@@ -126,6 +126,10 @@ class BacklinkItem extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
     this.filename = filename || '';
+    this.command = this._command();
+    this.tooltip = this._tooltip();
+    this.description = this._description();
+    this.iconPath = this._iconPath();
   }
 
   // return the 1 collapsible Item for each file
@@ -145,7 +149,7 @@ class BacklinkItem extends vscode.TreeItem {
     return new BacklinkItem(label, cs, undefined, location, filename);
   }
 
-  get command(): vscode.Command | undefined {
+  private _command(): vscode.Command | undefined {
     if (this.location) {
       return {
         command: 'vscode.open',
@@ -161,7 +165,7 @@ class BacklinkItem extends vscode.TreeItem {
     }
   }
 
-  get tooltip(): string {
+  private _tooltip(): string {
     return [this.filename, this.lineText, this.description].filter(Boolean).join(': ');
   }
 
@@ -171,7 +175,7 @@ class BacklinkItem extends vscode.TreeItem {
     }
   }
 
-  get description(): string {
+  private _description(): string {
     let d = ``;
     if (this.location) {
       let lines = (fs.readFileSync(this.location?.uri.fsPath) || '').toString().split(/\r?\n/);
@@ -190,7 +194,7 @@ class BacklinkItem extends vscode.TreeItem {
     return d;
   }
 
-  get iconPath(): vscode.ThemeIcon | undefined {
+  private _iconPath(): vscode.ThemeIcon | undefined {
     // to leave more room for the ref text,
     // don't use an icon for each line
     return this.location ? undefined : new vscode.ThemeIcon('references');
