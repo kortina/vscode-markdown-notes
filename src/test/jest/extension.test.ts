@@ -92,6 +92,9 @@ describe('NoteWorkspace.noteNamesFuzzyMatch', () => {
     expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link]]', 'wiki-link.md')).toBeTruthy();
     expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki link]]', 'wiki-link.md')).toBeTruthy();
     expect(NoteWorkspace.noteNamesFuzzyMatch('[[链接]]', '链接.md')).toBeTruthy();
+
+    setConfig({uniqueIdTemplate: '\\d{12}'});
+    expect(NoteWorkspace.noteNamesFuzzyMatch('[[202405030000]]', '202405030000-wiki-ling.md')).toBeTruthy();
     // TODO: if we add support for #headings, we will want these tests to pass:
     // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link.md#with-heading]]', 'wiki-link.md')).toBeTruthy();
     // expect(NoteWorkspace.noteNamesFuzzyMatch('[[wiki-link#with-heading]]', 'wiki-link.md')).toBeTruthy();
@@ -125,6 +128,11 @@ describe('NoteWorkspace.noteNamesFuzzyMatch', () => {
     expect(
       NoteWorkspace._wikiLinkCompletionForConvention('rawFilename', 'the-note-name.md')
     ).toEqual('the-note-name.md');
+
+    setConfig({uniqueIdTemplate: '\\d{12}'})
+    expect(
+      NoteWorkspace._wikiLinkCompletionForConvention('uniqueId', '202405022338-the-note-name.md')
+    ).toEqual('202405022338');
     // TODO: how should this behaving with #headings?
   });
 });

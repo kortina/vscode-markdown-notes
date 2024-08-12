@@ -14,6 +14,7 @@ enum NoteCompletionConvention {
   rawFilename = 'rawFilename',
   noExtension = 'noExtension',
   toSpaces = 'toSpaces',
+  uniqueId = 'uniqueId',
 }
 enum WorkspaceFilenameConvention {
   uniqueFilenames = 'uniqueFilenames',
@@ -47,6 +48,7 @@ type Config = {
   createNoteOnGoToDefinitionWhenMissing: boolean;
   defaultFileExtension: string;
   noteCompletionConvention: NoteCompletionConvention;
+  uniqueIdTemplate: string;
   slugifyCharacter: SlugifyCharacter;
   slugifyMethod: SlugifyMethod;
   workspaceFilenameConvention: WorkspaceFilenameConvention;
@@ -86,6 +88,7 @@ export class NoteWorkspace {
     compileSuggestionDetails: false,
     defaultFileExtension: 'md',
     noteCompletionConvention: NoteCompletionConvention.rawFilename,
+    uniqueIdTemplate: '',
     slugifyCharacter: SlugifyCharacter.dash,
     slugifyMethod: SlugifyMethod.classic,
     workspaceFilenameConvention: WorkspaceFilenameConvention.uniqueFilenames,
@@ -116,6 +119,7 @@ export class NoteWorkspace {
       ) as boolean,
       defaultFileExtension: c.get('defaultFileExtension') as string,
       noteCompletionConvention: c.get('noteCompletionConvention') as NoteCompletionConvention,
+      uniqueIdTemplate: c.get('uniqueIdTemplate') as string,
       slugifyCharacter: c.get('slugifyCharacter') as SlugifyCharacter,
       slugifyMethod: c.get('slugifyMethod') as SlugifyMethod,
       workspaceFilenameConvention: c.get(
@@ -135,6 +139,10 @@ export class NoteWorkspace {
       previewLabelStyling: c.get('previewLabelStyling') as PreviewLabelStyling,
       previewShowFileExtension: c.get('previewShowFileExtension') as boolean,
     };
+  }
+
+  static uniqueIdTemplate(): string {
+    return this.cfg().uniqueIdTemplate;
   }
 
   static slugifyChar(): string {
@@ -238,6 +246,8 @@ export class NoteWorkspace {
       return this.stripExtension(filename).replace(/[-_]+/g, ' ');
     } else if (convention == 'noExtension') {
       return this.stripExtension(filename);
+    } else if (convention == 'uniqueId') {
+      return this.normalizeNoteNameToUniqueId(filename);
     } else {
       return filename;
     }
@@ -258,6 +268,15 @@ export class NoteWorkspace {
 
   static stripExtension(noteName: string): string {
     return noteName.replace(NoteWorkspace.rxFileExtensions(), '');
+  }
+
+  static normalizeNoteNameToUniqueId(noteName: string): string {
+    let match_result = noteName.match(this.uniqueIdTemplate());
+    if (match_result) {
+      return match_result[0];
+    } else {
+      return "";
+    }
   }
 
   static normalizeNoteNameForFuzzyMatch(noteName: string): string {
@@ -332,6 +351,10 @@ export class NoteWorkspace {
     return (
       this.normalizeNoteNameForFuzzyMatch(left).toLowerCase() ==
       this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+      ||
+      (this.normalizeNoteNameToUniqueId(left) != '') &&
+      (this.normalizeNoteNameToUniqueId(left) ==
+       this.normalizeNoteNameToUniqueId(right))
     );
   }
 
@@ -339,6 +362,10 @@ export class NoteWorkspace {
     return (
       this.normalizeNoteNameForFuzzyMatchText(left).toLowerCase() ==
       this.normalizeNoteNameForFuzzyMatchText(right).toLowerCase()
+      ||
+      (this.normalizeNoteNameToUniqueId(left) != '') &&
+      (this.normalizeNoteNameToUniqueId(left) ==
+       this.normalizeNoteNameToUniqueId(right))
     );
   }
 
