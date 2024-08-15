@@ -100,8 +100,9 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
       return Promise.all([
         NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink),
         NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink),
-      ]).then((arr) => {
+      ]).then(async (arr) => {
         let locations: vscode.Location[] = arr[0].concat(arr[1]);
+        locations = await NoteParser.integrateAliases(locations, activeFilename);
         let filesWithLocations = BacklinksTreeDataProvider.locationListToTree(locations);
         return filesWithLocations.map((fwl) => BacklinkItem.fromFileWithLocations(fwl));
       });

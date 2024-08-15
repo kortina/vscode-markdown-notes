@@ -13,10 +13,11 @@ class MarkdownFileCompletionItem extends vscode.CompletionItem {
   }
 }
 // Given a document and position, check whether the current word matches one of
-// these 3 contexts:
+// these 4 contexts:
 // 1. [[wiki-links]]
 // 2. #tags
-// 3. @bibtext-reference
+// 3. ^alias or ^"multi-word alias"
+// 4. @bibtext-reference
 //
 // If so, provide appropriate completion items from the current workspace
 export class MarkdownFileCompletionItemProvider implements vscode.CompletionItemProvider {
@@ -45,6 +46,22 @@ export class MarkdownFileCompletionItemProvider implements vscode.CompletionItem
           let kind = vscode.CompletionItemKind.File;
           let label = NoteWorkspace.wikiLinkCompletionForConvention(f, document);
           let item = new MarkdownFileCompletionItem(label, kind, f.fsPath);
+          if (ref && ref.range) {
+            item.range = ref.range;
+          }
+          return item;
+        }).concat((await NoteParser.aliases()).map(([fsPath, alias]) => {
+          let kind = vscode.CompletionItemKind.File;
+          let item = new MarkdownFileCompletionItem(alias, kind, fsPath);
+          if (ref && ref.range) {
+            item.range = ref.range;
+          }
+          return item;
+        }));
+      case RefType.Alias:
+        return (await NoteParser.aliases()).map(([fsPath, alias]) => {
+          let kind = vscode.CompletionItemKind.File;
+          let item = new MarkdownFileCompletionItem(alias, kind, fsPath);
           if (ref && ref.range) {
             item.range = ref.range;
           }

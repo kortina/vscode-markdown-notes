@@ -3,6 +3,7 @@ A `Ref` is a match for:
 
 - a [[wiki-link]]
 - a #tag
+- a ^alias or ^"multi-word alias"
 - a @bibtex-citations
 
 in the content of a Note document in your workspace.
@@ -18,6 +19,7 @@ export enum RefType {
   Tag, // 2
   Hyperlink, // 3
   BibTeX, // 4
+  Alias, // 5
 }
 
 export interface Ref {
@@ -70,6 +72,23 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
       return {
         type: RefType.Tag,
         word: ref.replace(/^\#+/, ''),
+        hasExtension: null,
+        range: range,
+      };
+    }
+  }
+
+  // ^alias regexp
+  regex = NoteWorkspace.rxAlias();
+  range = document.getWordRangeAtPosition(position, regex);
+  if (range) {
+    // Our rxAlias contains either a leading ^ or a ^ followed by " chars around the content.
+    // The replacement words remove all of that.
+    ref = document.getText(range);
+    if (ref) {
+      return {
+        type: RefType.Alias,
+        word: ref.replace(/^\^+"?/, '').replace(/"$/, ''),
         hasExtension: null,
         range: range,
       };
@@ -183,6 +202,16 @@ export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Po
       hasExtension: false,
       // we DO want the replacement position to include the #:
       range: new vscode.Range(position.translate(0, -1), position),
+    };
+  }
+  regex = NoteWorkspace.rxBeginAlias();
+  if (precedingChars.match(regex)) {
+    return {
+      type: RefType.Alias,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO NOT want the replacement position to include the ^ or ^":
+      range: new vscode.Range(position, position),
     };
   }
 

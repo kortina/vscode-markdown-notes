@@ -52,6 +52,27 @@
       }
     },
     {
+      "match": "(\\^)([\\w\\p{L}\\-\\_/]+)|(\\^\")(.*?)(\")",
+      "name": "text.markdown.notes.alias",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.alias"
+        },
+        "2": {
+          "name": "support.function.text.markdown.notes.alias.title"
+        },
+        "3": {
+          "name": "punctuation.definition.alias"
+        },
+        "4": {
+          "name": "support.function.text.markdown.notes.alias.title"
+        },
+        "5": {
+          "name": "punctuation.definition.alias"
+        }
+      }
+    },
+    {
       "match": "[\\[|\\;]?(\\s?\\-?@)(.*?)(?=$|[\\;\\s\\r\\n\\]{},~#%\\\\'\"=\\(\\)])",
       "name": "text.markdown.notes.bibtex",
       "captures": {

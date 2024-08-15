@@ -73,6 +73,8 @@ export class NoteWorkspace {
   // rather than just those from the latin alphabet.
   static _rxTag = '(?<= |,|^)#[\\p{L}\\-_/]+'; // match # followed by a letter character
   static _rxBeginTag = '(?<= |,|^)#'; // match # preceded by a space, comma, or newline, regardless of whether it is followed by a letter character
+  static _rxAlias = '(?<=(?: |,|^)\\^)[\\p{L}\\-_/]+|(?<=(?: |,|^)\\^").+(?=")'; // match letter characters following ^ OR letter characters that are enclosed by " following ^
+  static _rxBeginAlias = '(?<= |,|^)\\^'; // match ^ preceded by a space, comma, or newline, regardless of whether they are followed by a letter character
   static _rxWikiLink = '\\[\\[[^sep\\]]+(sep[^sep\\]]+)?\\]\\]'; // [[wiki-link-regex(|with potential pipe)?]] Note: "sep" will be replaced with pipedWikiLinksSeparator on compile
   static _rxTitle = '(?<=^( {0,3}#[^\\S\\r\\n]+)).+';
   static _rxMarkdownWordPattern = '([_\\p{L}\\d#\\.\\/\\\\]+)'; // had to add [".", "/", "\"] to get relative path completion working and ["#"] to get tag completion working
@@ -195,6 +197,14 @@ export class NoteWorkspace {
   }
   static rxBeginTag(): RegExp {
     return new RegExp(this._rxBeginTag, 'gui');
+  }
+
+  static rxAlias(): RegExp {
+    // NB: MUST have g flag to match multiple words per line
+    return new RegExp(this._rxAlias, 'gui');
+  }
+  static rxBeginAlias(): RegExp {
+    return new RegExp(this._rxBeginAlias, 'gui');
   }
 
   static rxWikiLink(): RegExp {

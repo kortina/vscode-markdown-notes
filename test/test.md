@@ -1,5 +1,7 @@
 # test
 
+^primary ^"main section"
+
 - [[test]] - no extension
 - [[test.md]] - extension, exists
 - [[test-file.md]] - extension, does not exist
@@ -11,6 +13,9 @@
 - [](test) - hyperlink (should show up in the backlinks panel) - Note: autocompletion or file creation is not handled by this extension.
 
 #tag #another_tag
+
+References several [[dogs]] with no extension, just like [[canine]] AKA [[man's best friend]].
+Again [[canine|some dog]] usage.
 
 An article by @turing_computing_1950
 

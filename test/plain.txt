@@ -1,5 +1,7 @@
 # Text File
 
+^plain
+
 text
 
 [[test.md]] - unhandled because filetype is 'plaintext'
