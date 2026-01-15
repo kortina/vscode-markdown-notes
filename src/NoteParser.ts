@@ -161,7 +161,7 @@ export class Note {
         that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
       });
       Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
-          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
+        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
       });
     });
     // console.debug(`parsed ${this.fsPath}. refCandidates:`, this.refCandidates);
