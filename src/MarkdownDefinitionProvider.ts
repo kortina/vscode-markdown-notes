@@ -5,6 +5,7 @@ import { basename, dirname, join, resolve } from 'path';
 import { existsSync, writeFileSync } from 'fs';
 import { titleCaseFromFilename } from './utils';
 import { BibTeXCitations } from './BibTeXCitations';
+import { NoteParser } from './NoteParser';
 
 // Given a document and position, check whether the current word matches one of
 // this context: [[wiki-link]]
@@ -27,7 +28,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     if (ref.type == RefType.BibTeX) {
       return await BibTeXCitations.location(ref.word);
     }
-    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink) {
+    if (ref.type != RefType.WikiLink && ref.type != RefType.Hyperlink && ref.type != RefType.Alias) {
       return [];
     }
 
@@ -51,7 +52,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     relativeToDocument: vscode.TextDocument | undefined | null
   ): Promise<Array<vscode.Uri>> {
     let files: Array<vscode.Uri> = await NoteWorkspace.noteFiles();
-    return this._filesForWikiLinkRefAndNoteFiles(ref, relativeToDocument, files);
+    return await this._filesForWikiLinkRefAndNoteFilesAsync(ref, relativeToDocument, files);
   }
 
   static filesForWikiLinkRefFromCache(
@@ -62,6 +63,7 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     return this._filesForWikiLinkRefAndNoteFiles(ref, relativeToDocument, files);
   }
 
+  // Synchronous version for cached files (doesn't resolve aliases)
   // Brunt of the logic for either
   // filesForWikiLinkRef
   // or, filesForWikiLinkRefFromCache
@@ -98,8 +100,38 @@ export class MarkdownDefinitionProvider implements vscode.DefinitionProvider {
     return files;
   }
 
+  // Asynchronous version for resolving both files and aliases
+  static async _filesForWikiLinkRefAndNoteFilesAsync(
+    ref: Ref,
+    relativeToDocument: vscode.TextDocument | undefined | null,
+    noteFiles: Array<vscode.Uri>
+  ): Promise<Array<vscode.Uri>> {
+    let files: Array<vscode.Uri> = [];
+    if (NoteWorkspace.useUniqueFilenames()) {
+      // there should be exactly 1 file with name = ref.word
+      const aliases = await NoteParser.aliases();
+      files = noteFiles.filter((f) => {
+        return NoteWorkspace.noteNamesFuzzyMatch(f.fsPath, ref.word) || aliases
+          .filter(([fsPath, _]) => fsPath == f.fsPath)
+          .some(([_, alias]) => NoteWorkspace.noteNamesFuzzyMatch(alias, ref.word));
+      });
+    }
+    // If we did not find any files in the workspace,
+    // see if a file exists at the relative path:
+    if (files.length == 0 && relativeToDocument && relativeToDocument.uri) {
+      const relativePath = ref.word;
+      let fromDir = dirname(relativeToDocument.uri.fsPath.toString());
+      const absPath = resolve(fromDir, relativePath);
+      if (existsSync(absPath)) {
+        const f = vscode.Uri.file(absPath);
+        files.push(f);
+      }
+    }
+    return files;
+  }
+
   static  createMissingNote = async (ref: Ref): Promise<string | undefined> => {
-    // don't create new files if ref is a Tag
+    // don't create new files if ref is a Tag or Alias
     if (ref.type != RefType.WikiLink) {
       return;
     }

@@ -41,14 +41,20 @@ class RefCandidate {
   };
 
   matchesContextWord(ref: Ref): boolean {
-    if (ref.type != this.refType) {
-      return false;
-    }
     if (ref.type == RefType.Tag) {
+      if (this.refType != RefType.Tag) {
+        return false;
+      }
       return this.rawText == `#${ref.word}`;
-    } else if (ref.type == RefType.WikiLink) {
+    } else if (ref.type == RefType.WikiLink || ref.type == RefType.Alias) { // WikiLinks and Aliases should cross-match (e.g., [[term]] matches ^term)
+      if (this.refType != RefType.WikiLink && this.refType != RefType.Alias) {
+        return false;
+      }
       return NoteWorkspace.noteNamesFuzzyMatchText(this.rawText, ref.word);
     } else if (ref.type == RefType.Hyperlink) {
+      if (this.refType != RefType.Hyperlink) {
+        return false;
+      }
       return NoteWorkspace.noteNamesFuzzyMatchHyperlinks(this.rawText, ref.word);
     }
     return false;
@@ -131,8 +137,15 @@ export class Note {
 
     let searchTitle = true;
     let isSkip = false;
+    let inCodeBlock = false;
     let lines = this.data.split(/\r?\n/);
+
     lines.map((line, lineNum) => {
+      if (line.trim().startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        return;
+      }
+
       if (isSkip) {
         // ! skip all empty lines after title `# title`
         if (line.trim() == '') {
@@ -141,6 +154,7 @@ export class Note {
           isSkip = false;
         }
       }
+
       if (searchTitle) {
         Array.from(line.matchAll(NoteWorkspace.rxTitle())).map((match) => {
           that.title = {
@@ -152,17 +166,23 @@ export class Note {
           isSkip = true;
         });
       }
-      Array.from(line.matchAll(NoteWorkspace.rxTag())).map((match) => {
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
-      });
-      Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
-        // console.log('match tag', that.fsPath, lineNum, match);
 
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
-      });
-      Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
+      if (!inCodeBlock) {
+        Array.from(line.matchAll(NoteWorkspace.rxTag())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxAlias())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Alias));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
+          // console.log('match tag', that.fsPath, lineNum, match);
+
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
           that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
-      });
+        });
+      }
     });
     // console.debug(`parsed ${this.fsPath}. refCandidates:`, this.refCandidates);
     this._parsed = true;
@@ -184,7 +204,7 @@ export class Note {
     if (!ref) {
       return [];
     }
-    if (![RefType.Tag, RefType.WikiLink, RefType.Hyperlink].includes(ref.type)) {
+    if (![RefType.Tag, RefType.Alias, RefType.WikiLink, RefType.Hyperlink].includes(ref.type)) {
       return [];
     }
     return this.refCandidates.filter((c) => c.matchesContextWord(ref)).map((c) => c.range);
@@ -208,6 +228,17 @@ export class Note {
         _tagSet.add(rc.rawText);
       });
     return _tagSet;
+  }
+
+  aliasSet(): Set<string> {
+    let _aliasSet: Set<string> = new Set();
+
+    this.refCandidates
+      .filter((rc) => rc.refType == RefType.Alias)
+      .map(rc => {
+        _aliasSet.add(rc.rawText);
+      });
+    return _aliasSet;
   }
 
   // completionItem.documentation ()
@@ -256,6 +287,22 @@ export class NoteParser {
     return Array.from(new Set(_tags));
   }
 
+  static async aliases(): Promise<[string, string][]> {
+    if (!NoteWorkspace.useUniqueFilenames()) {
+      return [];
+    }
+    let useCache = true;
+    let _aliases: Array<[string, string]> = [];
+    let pfs = await NoteParser.parsedFilesForWorkspace(useCache);
+
+    for (let note of pfs) {
+      for (let alias of note.aliasSet()) {
+        _aliases.push([note.fsPath, alias]);
+      }
+    }
+    return _aliases;
+  }
+
   static async searchBacklinksFor(fileBasename: string, refType: RefType): Promise<vscode.Location[]> {
     let ref: Ref = {
       type: refType,
@@ -264,6 +311,47 @@ export class NoteParser {
       range: undefined,
     };
     return this.search(ref);
+  }
+
+  static async integrateAliases(locations: vscode.Location[], fileBasename: string): Promise<vscode.Location[]> {
+    if (!NoteWorkspace.useUniqueFilenames()) {
+      return locations;
+    }
+
+    const parsedFiles = await NoteParser.parsedFilesForWorkspace(true);
+    const targetNote = parsedFiles.find(note => NoteWorkspace.noteNamesFuzzyMatch(note.fsPath, fileBasename));
+
+    if (!targetNote) {
+      return locations;
+    }
+
+    const aliasLocations = Array.from(targetNote.aliasSet())
+      .map(alias => alias.replace(/^\^+/, '').replace(/^"+/, '').replace(/"$/, ''))
+      .flatMap(aliasWord =>
+        parsedFiles.flatMap(note => {
+          const aliasRef: Ref = {
+            type: RefType.WikiLink,
+            word: aliasWord,
+            hasExtension: false,
+            range: undefined,
+          };
+          return note.vscodeRangesForWord(aliasRef).map(r =>
+            new vscode.Location(vscode.Uri.file(note.fsPath), r)
+          );
+        })
+      );
+
+    const allLocations = locations.concat(aliasLocations);
+    const uniqueLocations = new Map<string, vscode.Location>();
+
+    allLocations.forEach(loc => {
+      const key = `${loc.uri.fsPath}:${loc.range.start.line}:${loc.range.start.character}`;
+      if (!uniqueLocations.has(key)) {
+        uniqueLocations.set(key, loc);
+      }
+    });
+
+    return Array.from(uniqueLocations.values());
   }
 
   static parsedFileFor(fsPath: string): Note {
@@ -310,16 +398,6 @@ export class NoteParser {
     let useCache = true;
 
     let locations: vscode.Location[] = [];
-    let query: string;
-    if (ref.type == RefType.Tag) {
-      query = `#${ref.word}`;
-    } else if (ref.type == RefType.WikiLink) {
-      query = `[[${basename(ref.word)}]]`;
-    } else if (ref.type == RefType.Hyperlink) {
-      query = `](${basename(ref.word)})`;
-    } else {
-      return [];
-    }
     let parsedFiles = await NoteParser.parsedFilesForWorkspace(useCache);
     parsedFiles.map((note, i) => {
       let ranges = note.vscodeRangesForWord(ref);

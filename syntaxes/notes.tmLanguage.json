@@ -1,8 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "markdown",
-  "injectionSelector": "L:text.html.markdown",
+  "injectionSelector": "L:text.html.markdown -markup.raw.block.markdown",
   "patterns": [
+    {
+      "begin": "^```",
+      "end": "^```",
+      "name": "markup.raw.block.markdown",
+      "patterns": []
+    },
     {
       "match": "(\\[\\[)([^\\|\\]]+)(\\]\\])",
       "name": "text.markdown.notes.wiki-link.unpiped",
@@ -48,6 +54,27 @@
         },
         "2": {
           "name": "support.function.text.markdown.notes.tag.title"
+        }
+      }
+    },
+    {
+      "match": "(\\^)([\\w\\p{L}\\-\\_/]+)|(\\^\")(.*?)(\")",
+      "name": "text.markdown.notes.alias",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.alias"
+        },
+        "2": {
+          "name": "support.function.text.markdown.notes.alias.title"
+        },
+        "3": {
+          "name": "punctuation.definition.alias"
+        },
+        "4": {
+          "name": "support.function.text.markdown.notes.alias.title"
+        },
+        "5": {
+          "name": "punctuation.definition.alias"
         }
       }
     },

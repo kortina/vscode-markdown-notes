@@ -1,8 +1,9 @@
-/* 
+/*
 A `Ref` is a match for:
 
 - a [[wiki-link]]
 - a #tag
+- a ^alias or ^"multi-word alias"
 - a @bibtex-citations
 
 in the content of a Note document in your workspace.
@@ -18,6 +19,7 @@ export enum RefType {
   Tag, // 2
   Hyperlink, // 3
   BibTeX, // 4
+  Alias, // 5
 }
 
 export interface Ref {
@@ -51,6 +53,10 @@ but not
   [[ [[]] # b@ or @
 */
 export function getRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
+  if (isPositionInCodeBlock(document, position)) {
+    return NULL_REF;
+  }
+
   let ref: string;
   let regex: RegExp;
   let range: vscode.Range | undefined;
@@ -70,6 +76,23 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
       return {
         type: RefType.Tag,
         word: ref.replace(/^\#+/, ''),
+        hasExtension: null,
+        range: range,
+      };
+    }
+  }
+
+  // ^alias regexp
+  regex = NoteWorkspace.rxAlias();
+  range = document.getWordRangeAtPosition(position, regex);
+  if (range) {
+    // Our rxAlias contains either a leading ^ or a ^ followed by " chars around the content.
+    // The replacement words remove all of that.
+    ref = document.getText(range);
+    if (ref) {
+      return {
+        type: RefType.Alias,
+        word: ref.replace(/^\^+"?/, '').replace(/"$/, ''),
         hasExtension: null,
         range: range,
       };
@@ -142,7 +165,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   return NULL_REF;
 }
 
-/* 
+/*
 Similar to getRefAt, but handles the 'empty' Ref cases,
   [[ and # and @
     ^     ^     ^
@@ -185,6 +208,16 @@ export function getEmptyRefAt(document: vscode.TextDocument, position: vscode.Po
       range: new vscode.Range(position.translate(0, -1), position),
     };
   }
+  regex = NoteWorkspace.rxBeginAlias();
+  if (precedingChars.match(regex)) {
+    return {
+      type: RefType.Alias,
+      word: '', // just use empty string
+      hasExtension: false,
+      // we DO NOT want the replacement position to include the ^ or ^":
+      range: new vscode.Range(position, position),
+    };
+  }
 
   return NULL_REF;
 }
@@ -209,3 +242,23 @@ export const refFromWikiLinkText = (wikiLinkText: string): Ref => {
     range: undefined,
   };
 };
+
+function isPositionInCodeBlock(document: vscode.TextDocument, position: vscode.Position): boolean {
+  let fenceLength = 0;
+
+  for (let i = 0; i < position.line; i++) {
+    const line = document.lineAt(i).text;
+    const match = line.match(/^(`{3,})/);
+    if (!match) continue;
+
+    const length = match[1].length;
+
+    if (fenceLength === 0) {
+      fenceLength = length;
+    } else if (length >= fenceLength) {
+      fenceLength = 0;
+    }
+  }
+
+  return fenceLength > 0;
+}

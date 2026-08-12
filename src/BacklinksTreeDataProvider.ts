@@ -10,10 +10,11 @@ type FileWithLocations = {
 };
 export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<BacklinkItem> {
   constructor(private workspaceRoot: string | null) {}
-  _onDidChangeTreeData: vscode.EventEmitter<BacklinkItem> = new vscode.EventEmitter<BacklinkItem>();
-  onDidChangeTreeData: vscode.Event<BacklinkItem> = this._onDidChangeTreeData.event;
+  _onDidChangeTreeData: vscode.EventEmitter<BacklinkItem | undefined> =
+  new vscode.EventEmitter<BacklinkItem | undefined>();
+  onDidChangeTreeData: vscode.Event<BacklinkItem | undefined> = this._onDidChangeTreeData.event;
   reload(): void {
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   getTreeItem(element: BacklinkItem): vscode.TreeItem {
@@ -99,8 +100,9 @@ export class BacklinksTreeDataProvider implements vscode.TreeDataProvider<Backli
       return Promise.all([
         NoteParser.searchBacklinksFor(activeFilename, RefType.WikiLink),
         NoteParser.searchBacklinksFor(activeFilename, RefType.Hyperlink),
-      ]).then((arr) => {
+      ]).then(async (arr) => {
         let locations: vscode.Location[] = arr[0].concat(arr[1]);
+        locations = await NoteParser.integrateAliases(locations, activeFilename);
         let filesWithLocations = BacklinksTreeDataProvider.locationListToTree(locations);
         return filesWithLocations.map((fwl) => BacklinkItem.fromFileWithLocations(fwl));
       });
