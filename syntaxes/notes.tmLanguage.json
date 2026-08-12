@@ -1,8 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "markdown",
-  "injectionSelector": "L:text.html.markdown",
+  "injectionSelector": "L:text.html.markdown -markup.raw.block.markdown",
   "patterns": [
+    {
+      "begin": "^```",
+      "end": "^```",
+      "name": "markup.raw.block.markdown",
+      "patterns": []
+    },
     {
       "match": "(\\[\\[)([^\\|\\]]+)(\\]\\])",
       "name": "text.markdown.notes.wiki-link.unpiped",

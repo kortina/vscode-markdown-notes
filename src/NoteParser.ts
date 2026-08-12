@@ -137,8 +137,15 @@ export class Note {
 
     let searchTitle = true;
     let isSkip = false;
+    let inCodeBlock = false;
     let lines = this.data.split(/\r?\n/);
+
     lines.map((line, lineNum) => {
+      if (line.trim().startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        return;
+      }
+
       if (isSkip) {
         // ! skip all empty lines after title `# title`
         if (line.trim() == '') {
@@ -147,6 +154,7 @@ export class Note {
           isSkip = false;
         }
       }
+
       if (searchTitle) {
         Array.from(line.matchAll(NoteWorkspace.rxTitle())).map((match) => {
           that.title = {
@@ -158,20 +166,23 @@ export class Note {
           isSkip = true;
         });
       }
-      Array.from(line.matchAll(NoteWorkspace.rxTag())).map((match) => {
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
-      });
-      Array.from(line.matchAll(NoteWorkspace.rxAlias())).map((match) => {
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Alias));
-      });
-      Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
-        // console.log('match tag', that.fsPath, lineNum, match);
 
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
-      });
-      Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
-        that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
-      });
+      if (!inCodeBlock) {
+        Array.from(line.matchAll(NoteWorkspace.rxTag())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Tag));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxAlias())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Alias));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxWikiLink()) || []).map((match) => {
+          // console.log('match tag', that.fsPath, lineNum, match);
+
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.WikiLink));
+        });
+        Array.from(line.matchAll(NoteWorkspace.rxMarkdownHyperlink())).map((match) => {
+          that.refCandidates.push(RefCandidate.fromMatch(lineNum, match, RefType.Hyperlink));
+        });
+      }
     });
     // console.debug(`parsed ${this.fsPath}. refCandidates:`, this.refCandidates);
     this._parsed = true;

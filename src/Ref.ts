@@ -1,4 +1,4 @@
-/* 
+/*
 A `Ref` is a match for:
 
 - a [[wiki-link]]
@@ -53,6 +53,10 @@ but not
   [[ [[]] # b@ or @
 */
 export function getRefAt(document: vscode.TextDocument, position: vscode.Position): Ref {
+  if (isPositionInCodeBlock(document, position)) {
+    return NULL_REF;
+  }
+
   let ref: string;
   let regex: RegExp;
   let range: vscode.Range | undefined;
@@ -161,7 +165,7 @@ export function getRefAt(document: vscode.TextDocument, position: vscode.Positio
   return NULL_REF;
 }
 
-/* 
+/*
 Similar to getRefAt, but handles the 'empty' Ref cases,
   [[ and # and @
     ^     ^     ^
@@ -238,3 +242,23 @@ export const refFromWikiLinkText = (wikiLinkText: string): Ref => {
     range: undefined,
   };
 };
+
+function isPositionInCodeBlock(document: vscode.TextDocument, position: vscode.Position): boolean {
+  let fenceLength = 0;
+
+  for (let i = 0; i < position.line; i++) {
+    const line = document.lineAt(i).text;
+    const match = line.match(/^(`{3,})/);
+    if (!match) continue;
+
+    const length = match[1].length;
+
+    if (fenceLength === 0) {
+      fenceLength = length;
+    } else if (length >= fenceLength) {
+      fenceLength = 0;
+    }
+  }
+
+  return fenceLength > 0;
+}
